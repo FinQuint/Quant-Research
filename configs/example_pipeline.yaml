@@ -1,0 +1,10 @@
+pipeline:
+  name: fixed_income_example
+instrument:
+  type: bond
+  face_value: 100.0
+  coupon_rate: 0.05
+  maturity_years: 5
+  frequency: 2
+pricing:
+  annual_yield: 0.04

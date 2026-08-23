@@ -1,1 +1,4 @@
-__version__ = "0.1.0"
+"""FinQuint quantitative research framework."""
+
+__version__ = "0.3.0"
+

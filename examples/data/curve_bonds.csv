@@ -1,0 +1,7 @@
+identifier,face_value,coupon_rate,maturity_years,frequency,market_price
+SYNTH-6M,100,0,0.5,2,98
+SYNTH-1Y,100,0.04,1,2,99
+SYNTH-2Y,100,0.05,2,2,101
+SYNTH-3Y,100,0.055,3,2,102
+SYNTH-5Y,100,0.06,5,2,104
+

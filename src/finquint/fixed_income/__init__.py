@@ -5,6 +5,14 @@ from .cashflows import cash_flows, generate_cashflows
 from .pricing import price_bond
 from .risk import convexity, dv01, macaulay_duration, modified_duration
 from .yield_metrics import yield_to_maturity
+from .conventions import DayCount, year_fraction
+from .dated_bond import DatedBond, coupon_schedule, dated_cash_flows
+from .settlement import (
+    accrued_interest, clean_to_dirty, dirty_to_clean, dirty_price_from_yield,
+    clean_price_from_yield, settlement_yield_to_maturity,
+    settlement_macaulay_duration, settlement_modified_duration,
+    settlement_dv01, settlement_convexity,
+)
 
 __all__ = [
     "YieldCurve", "DiscountCurve", "BondQuote", "bootstrap_bond_curve", "price_bond_with_curve",
@@ -17,4 +25,9 @@ __all__ = [
     "modified_duration",
     "dv01",
     "convexity",
+    "DayCount", "year_fraction", "DatedBond", "coupon_schedule", "dated_cash_flows",
+    "accrued_interest", "clean_to_dirty", "dirty_to_clean", "dirty_price_from_yield",
+    "clean_price_from_yield", "settlement_yield_to_maturity",
+    "settlement_macaulay_duration", "settlement_modified_duration",
+    "settlement_dv01", "settlement_convexity",
 ]

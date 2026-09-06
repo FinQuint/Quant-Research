@@ -1,25 +1,26 @@
-# Phase 4 validation — 2026-08-30
+# Phase 5 validation — 2026-09-06
 
-Baseline: FinQuint/Quant-Research main at
-50c65e0ce444d08784b15f46f1b917737ddb0a43, fetched using the GitHub connector.
+Baseline: `FinQuint/Quant-Research` `main` at
+`fe9bf02cd47ca171397a3af16e2d8578d60726ff`, fetched through GitHub.
 
-Environment: Windows, Python 3.12.13, pandas 3.0.5, NumPy 2.5.2,
-PyArrow 25.0.1, pytest 9.1.1. Editable package 0.4.0 was installed into an
-isolated workspace virtual environment with declared development dependencies.
+Local environment: Windows, Python 3.12.14, pytest 9.1.1. Source was selected
+explicitly from this Phase 5 tree; existing Phase 4 dependencies were reused.
 
-- `python -m pytest -o addopts=''`: **53 passed** (14 existing, 39 new).
-- All three example scripts executed successfully.
-- Synthetic 4-year target bond curve price: **98.29796463** per 100 face.
-- Maximum sample calibration price error: **9.641e-09** currency units.
+- Full suite: **70 passed** in 1.32 seconds.
+- Existing Phase 1–4 tests: **53 retained and passing**.
+- New Phase 5 tests: **17 passing**.
 
-Tests cover exact knots, interpolation, continuous rate identities, flat-yield
-legacy equivalence, sparse coupons, negative/zero rates, invalid inputs,
-solver failure, immutability, extrapolation rejection, and CSV pipeline integration.
+Coverage includes multi-year ACT/ACT splitting, both 30/360 variants, signed
+fractions, leap-year month-end schedules, explicit non-EOM schedules, stub
+rejection, accrued interest, coupon-date legacy equivalence, clean/dirty round
+trips, negative/zero/positive YTM round trips, duration/DV01/convexity repricing,
+settlement bounds, solver validation, pipeline outputs, and compatibility.
 
-An optional coverage-instrumented run hit a NumPy import error in this runtime.
-Standard pytest (the CI command) passes without special settings; no coverage
-percentage is claimed. Python 3.10/3.11 and Linux were not executed locally.
-The GitHub Actions matrix will test those after upload.
+The test run initially encountered a local temporary-directory permission error
+in two inherited `tmp_path` tests; rerunning with a workspace-local pytest temp
+directory produced the clean 70/70 result above. This was infrastructure-related,
+not a test or model failure.
 
-Research-model tests do not validate real-world settlement, accrued interest,
-credit/liquidity assumptions, or production trading suitability.
+Python 3.10/3.11 and Linux were not executed locally. GitHub Actions will run
+those after upload. These tests do not validate unsupported business calendars,
+stub conventions, actual security documents, or production trading suitability.

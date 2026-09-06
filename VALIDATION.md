@@ -1,18 +1,13 @@
-# Phase 6 validation — 2026-09-06
+# Phase 7 validation — 2026-09-06
 
-Baseline: `FinQuint/Quant-Research` `main` at
-`fae763ffb81261c3248d029f3524388232550283`.
+The full local suite passes on Windows with Python 3.12: **97 passed**. This
+retains all 89 Phase 1–6 tests and adds eight Phase 7 tests.
 
-Local environment: Windows, Python 3.12.14. The full suite reports **89 passed**:
-all 70 inherited Phase 1–5 tests and 19 new Phase 6 tests.
+Coverage includes deposit discount factors, negative deposit rates, semiannual
+par-swap repricing, duplicate and invalid quote rejection, separate discount and
+projection behavior, projected simple forwards, CSV quote selection, reusable
+pipeline stages, multi-curve assembly, and invalid input paths. The end-to-end
+CSV example also runs successfully.
 
-Phase 6 coverage includes settlement-aware curve pricing, clean/dirty conversion,
-parallel shock equivalence, key-rate hat partitioning, named scenario
-interpolation, signed positions, position-to-portfolio reconciliation, parallel
-and key-rate DV01, effective duration and convexity, scenario P&L, CSV portfolio
-loading, pipeline stage outputs, zero-market-value handling, and validation
-errors. The runnable portfolio example was also executed successfully.
-
-Python 3.10/3.11 and Linux are delegated to the included GitHub Actions matrix.
-Unsupported conventions and production suitability are described in
-`docs/PORTFOLIO_RISK.md`.
+Python 3.10/3.11 and Linux are covered by the included GitHub Actions matrix once
+uploaded. Scope limitations are recorded in `docs/MARKET_CURVES.md`.

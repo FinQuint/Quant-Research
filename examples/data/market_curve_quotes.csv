@@ -1,0 +1,9 @@
+curve_name,instrument_type,maturity,rate,accrual,frequency
+discount,deposit,0.5,0.030,0.5,
+discount,swap,1.0,0.034,,2
+discount,swap,2.0,0.037,,2
+discount,swap,3.0,0.039,,2
+projection,deposit,0.5,0.038,0.5,
+projection,swap,1.0,0.042,,2
+projection,swap,2.0,0.045,,2
+projection,swap,3.0,0.047,,2

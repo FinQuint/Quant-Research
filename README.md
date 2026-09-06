@@ -14,6 +14,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Macaulay duration, modified duration, DV01, and convexity
 - Reusable bond pricing and risk pipeline stages
 - Curve shocks, key-rate DV01, scenario P&L, and portfolio risk aggregation
+- Deposit and par-swap calibration with separate discount/projection curves
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -102,8 +103,19 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–6 are implemented. Next: deposit/swap calibration and multi-curve
-construction, followed by term-structure models, historical risk, and backtesting.
+Phases 1–7 are implemented. Next: short-rate term-structure models, historical
+risk and stress testing, then strategy backtesting.
+
+## Phase 7: Market calibration and multi-curves
+
+Phase 7 calibrates log-linear curves from simple deposits and fixed-for-floating
+par swaps. `MultiCurveSet` explicitly separates discounting from forward
+projection, while `BootstrapMarketCurveStage` and `BuildMultiCurveStage` make the
+workflow reusable in the existing pipeline.
+
+Run `python examples/multi_curve_pipeline.py` for the complete CSV-to-multi-curve
+example. Exact equations and current product boundaries are documented in
+[market curve conventions](docs/MARKET_CURVES.md).
 
 ## Phase 6: Curve scenarios and portfolio risk
 

@@ -1,5 +1,7 @@
 from .bond import Bond
-from .curves import YieldCurve, DiscountCurve, BondQuote, bootstrap_bond_curve
+from .curves import (YieldCurve, DiscountCurve, BondQuote, bootstrap_bond_curve,
+                     DepositQuote, SwapQuote, bootstrap_market_curve,
+                     par_swap_rate, MultiCurveSet)
 from .curve_pricing import price_bond_with_curve
 from .cashflows import cash_flows, generate_cashflows
 from .pricing import price_bond
@@ -32,4 +34,5 @@ __all__ = [
     "settlement_macaulay_duration", "settlement_modified_duration",
     "settlement_dv01", "settlement_convexity",
     "dirty_price_with_curve", "clean_price_with_curve",
+    "DepositQuote", "SwapQuote", "bootstrap_market_curve", "par_swap_rate", "MultiCurveSet",
 ]

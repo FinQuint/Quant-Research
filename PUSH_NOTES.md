@@ -1,29 +1,19 @@
-# Phase 6 push notes
+# Phase 7 push notes
 
 - Repository: `FinQuint/Quant-Research`
-- Branch: `feature/curve-portfolio-risk`
+- Branch: `feature/market-multi-curves`
 - PR base: `main`
-- Baseline: merged Phase 5 commit `fae763ffb81261c3248d029f3524388232550283`
+- Baseline: completed Phase 6 repository supplied with this project
 
-This ZIP is the complete repository, not a delta. Create the branch from current
-`main`, extract the ZIP, and upload the **contents** of its inner
-`Quant-Research` directory at the repository root. Include `.github` and
-`.gitignore`; do not upload the ZIP itself or create a nested repository folder.
-Preserve unrelated work added after the baseline and never replace `.git` or
-secrets.
+This is a complete repository archive. Create the branch from current `main`,
+extract the ZIP, and upload the **contents** of the inner `Quant-Research`
+directory at the repository root. Include hidden `.github` and `.gitignore`
+files. Do not upload the ZIP, create a nested folder, overwrite `.git`, or replace
+secrets. Preserve unrelated changes if `main` advanced.
 
-Suggested commit:
+Suggested commit: `feat: add deposit swap calibration and multi-curves`
 
-```text
-feat: add curve scenarios and portfolio risk analytics
-```
-
-Suggested PR title:
-
-```text
-Phase 6: Add curve scenarios and portfolio risk analytics
-```
+Suggested PR title: `Phase 7: Add market curve calibration and multi-curve construction`
 
 Before merging, run `python -m pytest` and
-`python examples/portfolio_risk_pipeline.py`, inspect the diff, and wait for the
-Python 3.10–3.12 GitHub Actions matrix to pass.
+`python examples/multi_curve_pipeline.py`, then wait for Python 3.10–3.12 checks.

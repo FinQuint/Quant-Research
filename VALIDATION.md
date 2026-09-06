@@ -1,26 +1,18 @@
-# Phase 5 validation — 2026-09-06
+# Phase 6 validation — 2026-09-06
 
 Baseline: `FinQuint/Quant-Research` `main` at
-`fe9bf02cd47ca171397a3af16e2d8578d60726ff`, fetched through GitHub.
+`fae763ffb81261c3248d029f3524388232550283`.
 
-Local environment: Windows, Python 3.12.14, pytest 9.1.1. Source was selected
-explicitly from this Phase 5 tree; existing Phase 4 dependencies were reused.
+Local environment: Windows, Python 3.12.14. The full suite reports **89 passed**:
+all 70 inherited Phase 1–5 tests and 19 new Phase 6 tests.
 
-- Full suite: **70 passed** in 1.32 seconds.
-- Existing Phase 1–4 tests: **53 retained and passing**.
-- New Phase 5 tests: **17 passing**.
+Phase 6 coverage includes settlement-aware curve pricing, clean/dirty conversion,
+parallel shock equivalence, key-rate hat partitioning, named scenario
+interpolation, signed positions, position-to-portfolio reconciliation, parallel
+and key-rate DV01, effective duration and convexity, scenario P&L, CSV portfolio
+loading, pipeline stage outputs, zero-market-value handling, and validation
+errors. The runnable portfolio example was also executed successfully.
 
-Coverage includes multi-year ACT/ACT splitting, both 30/360 variants, signed
-fractions, leap-year month-end schedules, explicit non-EOM schedules, stub
-rejection, accrued interest, coupon-date legacy equivalence, clean/dirty round
-trips, negative/zero/positive YTM round trips, duration/DV01/convexity repricing,
-settlement bounds, solver validation, pipeline outputs, and compatibility.
-
-The test run initially encountered a local temporary-directory permission error
-in two inherited `tmp_path` tests; rerunning with a workspace-local pytest temp
-directory produced the clean 70/70 result above. This was infrastructure-related,
-not a test or model failure.
-
-Python 3.10/3.11 and Linux were not executed locally. GitHub Actions will run
-those after upload. These tests do not validate unsupported business calendars,
-stub conventions, actual security documents, or production trading suitability.
+Python 3.10/3.11 and Linux are delegated to the included GitHub Actions matrix.
+Unsupported conventions and production suitability are described in
+`docs/PORTFOLIO_RISK.md`.

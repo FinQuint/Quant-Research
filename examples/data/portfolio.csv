@@ -1,0 +1,5 @@
+identifier,quantity,face_value,coupon_rate,issue_date,maturity_date,frequency,day_count
+NOTE-2Y,10,100,0.035,2024-01-01,2026-01-01,1,ACT/ACT ISDA
+NOTE-5Y,6,100,0.042,2024-01-01,2029-01-01,1,30E/360
+NOTE-10Y,3,100,0.048,2024-01-01,2034-01-01,1,30/360 US
+HEDGE-5Y,-2,100,0.030,2024-01-01,2029-01-01,1,ACT/ACT ISDA

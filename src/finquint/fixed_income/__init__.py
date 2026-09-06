@@ -13,6 +13,7 @@ from .settlement import (
     settlement_macaulay_duration, settlement_modified_duration,
     settlement_dv01, settlement_convexity,
 )
+from .curve_settlement import dirty_price_with_curve, clean_price_with_curve
 
 __all__ = [
     "YieldCurve", "DiscountCurve", "BondQuote", "bootstrap_bond_curve", "price_bond_with_curve",
@@ -30,4 +31,5 @@ __all__ = [
     "clean_price_from_yield", "settlement_yield_to_maturity",
     "settlement_macaulay_duration", "settlement_modified_duration",
     "settlement_dv01", "settlement_convexity",
+    "dirty_price_with_curve", "clean_price_with_curve",
 ]

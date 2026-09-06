@@ -13,6 +13,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Yield to maturity (dependency-free bracketed numerical solver)
 - Macaulay duration, modified duration, DV01, and convexity
 - Reusable bond pricing and risk pipeline stages
+- Curve shocks, key-rate DV01, scenario P&L, and portfolio risk aggregation
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -101,9 +102,20 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phase 4 is implemented: see the section below. Next: dated instruments and
-settlement conventions, deposit/swap calibration, curve risk, then term-structure
-models and backtesting.
+Phases 1–6 are implemented. Next: deposit/swap calibration and multi-curve
+construction, followed by term-structure models, historical risk, and backtesting.
+
+## Phase 6: Curve scenarios and portfolio risk
+
+Phase 6 adds settlement-aware curve pricing for dated bonds, parallel and
+key-rate shocks, steepener/flattener/twist scenarios, signed portfolios, and
+full-repricing risk aggregation. Reports include position and portfolio market
+values, parallel DV01, key-rate DV01, effective duration, effective convexity,
+and scenario P&L.
+
+Run `python examples/portfolio_risk_pipeline.py` for the complete CSV-to-risk
+pipeline. See [portfolio risk conventions](docs/PORTFOLIO_RISK.md) for exact
+shock definitions, sign conventions, formulas, and scope boundaries.
 
 ## Phase 4: Yield curves and bootstrapping
 

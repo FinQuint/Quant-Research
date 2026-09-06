@@ -75,6 +75,30 @@ examples/
 .github/workflows/
 ```
 
+## Phase 5: Dated bonds and settlement analytics
+
+Phase 5 adds regular dated bonds, backward coupon schedule generation, explicit
+`ACT/ACT ISDA`, `30/360 US`, and `30E/360` conventions, accrued interest,
+clean/dirty conversion, settlement-aware YTM, duration, DV01, convexity, and a
+reusable `DatedBondAnalyticsStage`. Existing Phase 1–4 APIs remain available.
+
+```python
+from datetime import date
+from finquint.fixed_income import DatedBond, DayCount
+from finquint.fixed_income.stages import DatedBondAnalyticsStage
+
+bond = DatedBond(100, 0.05, date(2024, 1, 31), date(2029, 1, 31),
+                 frequency=2, day_count=DayCount.THIRTY_360_US)
+result = QuantPipeline().add(
+    DatedBondAnalyticsStage(bond, date(2026, 4, 30), clean_price=101.25)
+).run()
+```
+
+Run `python examples/dated_bond_analytics.py`. See
+[market conventions](docs/MARKET_CONVENTIONS.md) for exact formulas and limits.
+This first dated implementation supports only regular, unadjusted fixed-rate
+bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
+
 ## Roadmap
 
 Phase 4 is implemented: see the section below. Next: dated instruments and

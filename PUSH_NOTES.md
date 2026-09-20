@@ -1,19 +1,19 @@
-# Phase 7 push notes
+# Phase 8 push notes
 
 - Repository: `FinQuint/Quant-Research`
-- Branch: `feature/market-multi-curves`
+- Branch: `feature/short-rate-models`
 - PR base: `main`
-- Baseline: completed Phase 6 repository supplied with this project
+- Baseline: completed Phase 7 repository supplied with this project
 
-This is a complete repository archive. Create the branch from current `main`,
-extract the ZIP, and upload the **contents** of the inner `Quant-Research`
-directory at the repository root. Include hidden `.github` and `.gitignore`
-files. Do not upload the ZIP, create a nested folder, overwrite `.git`, or replace
-secrets. Preserve unrelated changes if `main` advanced.
+This ZIP contains the complete repository. Create the branch from current
+`main`, extract the archive, and upload the contents of the inner
+`Quant-Research` folder at the repository root. Include `.github` and
+`.gitignore`; do not upload the ZIP, create a nested folder, replace `.git`, or
+overwrite secrets. Preserve unrelated newer changes.
 
-Suggested commit: `feat: add deposit swap calibration and multi-curves`
+Suggested commit: `feat: add short-rate models and rate simulation`
 
-Suggested PR title: `Phase 7: Add market curve calibration and multi-curve construction`
+Suggested PR title: `Phase 8: Add short-rate models and interest-rate simulation`
 
 Before merging, run `python -m pytest` and
-`python examples/multi_curve_pipeline.py`, then wait for Python 3.10–3.12 checks.
+`python examples/short_rate_models.py`, then wait for Python 3.10–3.12 checks.

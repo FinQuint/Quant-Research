@@ -1,19 +1,19 @@
-# Phase 8 push notes
+# Phase 9 push notes
 
 - Repository: `FinQuint/Quant-Research`
-- Branch: `feature/short-rate-models`
+- Branch: `feature/historical-risk-stress-testing`
 - PR base: `main`
-- Baseline: completed Phase 7 repository supplied with this project
+- Baseline: merged Phase 8 commit `69f09e04d9b4bb260ea774ea1f76a0cfc351a2aa`
 
-This ZIP contains the complete repository. Create the branch from current
-`main`, extract the archive, and upload the contents of the inner
-`Quant-Research` folder at the repository root. Include `.github` and
-`.gitignore`; do not upload the ZIP, create a nested folder, replace `.git`, or
-overwrite secrets. Preserve unrelated newer changes.
+Suggested commit: `feat: add historical risk and stress testing`
 
-Suggested commit: `feat: add short-rate models and rate simulation`
+Suggested PR title: `Phase 9: Add VaR, Expected Shortfall, and stress testing`
 
-Suggested PR title: `Phase 8: Add short-rate models and interest-rate simulation`
+The complete repository ZIP is retained as a portable backup. When using it,
+extract the archive and upload the contents of the inner `Quant-Research` folder
+at the repository root. Include `.github` and `.gitignore`; never replace `.git`
+or secrets.
 
 Before merging, run `python -m pytest` and
-`python examples/short_rate_models.py`, then wait for Python 3.10–3.12 checks.
+`python examples/historical_risk_pipeline.py`, then wait for the Python
+3.10–3.12 GitHub Actions matrix.

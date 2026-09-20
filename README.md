@@ -15,6 +15,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Reusable bond pricing and risk pipeline stages
 - Curve shocks, key-rate DV01, scenario P&L, and portfolio risk aggregation
 - Deposit and par-swap calibration with separate discount/projection curves
+- Vasicek and CIR pricing, calibration, and reproducible rate simulation
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -103,8 +104,19 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–7 are implemented. Next: short-rate term-structure models, historical
-risk and stress testing, then strategy backtesting.
+Phases 1–8 are implemented. Next: historical risk, VaR, expected shortfall and
+stress testing, followed by strategy backtesting.
+
+## Phase 8: Short-rate models
+
+Phase 8 adds Vasicek and CIR models, analytical zero-coupon pricing, seeded path
+simulation, transparent parameter estimators, and reusable calibration and
+simulation stages. Vasicek uses exact Gaussian transitions; CIR simulation uses
+full-truncation Euler to preserve nonnegative paths.
+
+Run `python examples/short_rate_models.py`. See
+[short-rate conventions](docs/SHORT_RATE_MODELS.md) for equations, estimators,
+simulation choices, and scope boundaries.
 
 ## Phase 7: Market calibration and multi-curves
 

@@ -16,6 +16,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Curve shocks, key-rate DV01, scenario P&L, and portfolio risk aggregation
 - Deposit and par-swap calibration with separate discount/projection curves
 - Vasicek and CIR pricing, calibration, and reproducible rate simulation
+- Historical and parametric VaR, Expected Shortfall, stress tests, and backtesting
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -104,8 +105,19 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–8 are implemented. Next: historical risk, VaR, expected shortfall and
-stress testing, followed by strategy backtesting.
+Phases 1–9 are implemented. Next: strategy backtesting and performance
+attribution, followed by credit-risk and spread analytics.
+
+## Phase 9: Historical risk and stress testing
+
+Phase 9 adds historical and normal-parametric VaR, Expected Shortfall, historical
+changes, rolling volatility, covariance, linear factor-shock replay, named stress
+tests, and VaR breach reporting. Reusable pipeline stages publish a consolidated
+risk report into `PipelineContext`.
+
+Run `python examples/historical_risk_pipeline.py`. See
+[historical risk methodology](docs/HISTORICAL_RISK.md) for sign conventions,
+estimators, backtesting rules, and scope boundaries.
 
 ## Phase 8: Short-rate models
 

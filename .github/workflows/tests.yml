@@ -11,6 +11,7 @@ on:
       - feature/historical-risk-stress-testing
       - feature/research-governance
       - feature/specialist-agent-execution
+      - feature/research-evaluation
   pull_request:
     branches:
       - main
@@ -67,3 +68,6 @@ jobs:
 
       - name: Run Phase 10B example
         run: python examples/specialist_agent_workflow.py
+
+      - name: Run Phase 10C example
+        run: python examples/adversarial_research_evaluation.py

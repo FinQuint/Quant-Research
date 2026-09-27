@@ -19,6 +19,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Historical and parametric VaR, Expected Shortfall, stress tests, and backtesting
 - Governed research tasks, experiment lineage, approvals, and immutable audit events
 - Capability-scoped specialist agents with isolated workspaces and execution budgets
+- Adversarial research checks for leakage, data quality, validation design, and costs
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -107,8 +108,21 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–9 and Phases 10A–10B are implemented. Next: adversarial quantitative
-research evaluation, then strategy backtesting and performance attribution.
+Phases 1–9 and Phases 10A–10C are implemented. Next: strategy backtesting and
+performance attribution.
+
+## Phase 10C: Adversarial research evaluation
+
+Phase 10C adds deterministic, evidence-bearing checks for point-in-time data,
+missing values and duplicate keys, frozen out-of-sample design, benchmarks,
+transaction costs, multiple testing, and subperiod stability. Error-level checks
+can block pipeline promotion; warning-level checks remain visible for human
+review. The same suite can be registered as an approved Phase 10B agent
+validation without giving an agent power to alter policy or approve its own work.
+
+Run `python examples/adversarial_research_evaluation.py`. See
+[research evaluation](docs/RESEARCH_EVALUATION.md) for severity rules,
+integration guidance, and limits.
 
 ## Phase 10B: Controlled specialist agents
 

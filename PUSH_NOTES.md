@@ -1,18 +1,54 @@
-# Phase 10B push notes
+# Phase 10C push notes
+
+## Target
 
 - Repository: `FinQuint/Quant-Research`
-- Branch: `feature/specialist-agent-execution`
-- PR base: `main`
-- Baseline: merged Phase 10A commit `d6b4f0c95615c166349ebc0cd298467cdc1a9fe6`
+- Base branch: `main`
+- Feature branch: `feature/research-evaluation`
+- Verified base commit: `ef59e3afdd24bc57786ebadbb85aea83fb032827`
 
-Suggested commit: `feat: add controlled specialist agent execution`
+Upload or copy the complete repository contents into a clone of
+`FinQuint/Quant-Research` on the feature branch. Merge the new and changed files;
+do not create another top-level `Quant-Research` directory. Preserve the existing
+`.github/workflows/tests.yml` path so GitHub Actions detects the workflow.
 
-Suggested PR title: `Phase 10B: Add capability-scoped specialist-agent execution`
+## Suggested Git metadata
 
-Upload the contents of the inner `Quant-Research` directory at the repository
-root, including `.github` and `.gitignore`. Merge the workflow file specifically
-at `.github/workflows/tests.yml`; do not create a root-level `workflows` folder.
+Commit message:
 
-Before merging, run `python -m pytest` and
-`python examples/specialist_agent_workflow.py`, then wait for the Python
-3.10–3.12 GitHub Actions matrix.
+```text
+feat: add adversarial quant research evaluation
+```
+
+Pull-request title:
+
+```text
+Phase 10C: Add adversarial quantitative research evaluation
+```
+
+Pull-request description:
+
+```text
+Adds a deterministic research-quality gate covering point-in-time integrity,
+data quality, out-of-sample design, benchmark declaration, transaction costs,
+multiple testing, and subperiod stability. The evaluation suite integrates with
+both QuantPipeline and the Phase 10B approved-validation boundary. Includes
+tests, policy configuration, documentation, a runnable example, and CI coverage.
+```
+
+## Recommended local sequence
+
+```text
+git switch main
+git pull origin main
+git switch -c feature/research-evaluation
+python -m pip install -e ".[dev]"
+pytest
+python examples/adversarial_research_evaluation.py
+git add .
+git commit -m "feat: add adversarial quant research evaluation"
+git push -u origin feature/research-evaluation
+```
+
+Open the pull request into `main` only after the Python 3.10, 3.11, and 3.12
+GitHub Actions jobs pass. Human approval remains required for research promotion.

@@ -1,17 +1,17 @@
-# Phase 9 validation — 2026-09-20
+# Phase 10A validation — 2026-09-27
 
 Baseline: `FinQuint/Quant-Research` `main` at
-`69f09e04d9b4bb260ea774ea1f76a0cfc351a2aa`.
+`9dff55d2708e4c65776b5a31e20cc0eae4790846`.
 
-The complete local suite passes on Windows with Python 3.12: **115 passed**.
-All 105 Phase 1–8 tests remain passing and ten Phase 9 tests were added.
+The complete local suite passes on Windows with Python 3.12: **126 passed**.
+All 115 Phase 1–9 tests remain passing and eleven Phase 10A tests were added.
 
-Coverage includes historical VaR interpolation, tail Expected Shortfall,
-parametric VaR, P&L sign conventions, gains-only floors, difference/relative/log
-changes, rolling volatility, covariance, factor exposure P&L, missing-factor
-validation, named stress scenarios, breach dates and rates, dataset-driven risk
-stages, explicit P&L inputs, and missing-column failures. The end-to-end example
-also runs successfully.
+Coverage includes plan validation, cycle and unknown-dependency rejection,
+acceptance criteria, dependency readiness, assigned-agent enforcement,
+independent review, human approval, failure and rejection revision, retained
+audit history, retrospective governance gates, experiment metadata, SHA-256
+artifact hashing, and experiment-artifact referential integrity. The end-to-end
+governed workflow example also runs successfully.
 
-Python 3.10/3.11 and Linux are covered by GitHub Actions. Methodology and scope
-limitations are documented in `docs/HISTORICAL_RISK.md`.
+Python 3.10/3.11 and Linux are covered by GitHub Actions after upload. Phase 10A
+does not execute arbitrary agent-generated commands or grant production access.

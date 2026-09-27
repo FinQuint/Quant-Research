@@ -17,6 +17,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Deposit and par-swap calibration with separate discount/projection curves
 - Vasicek and CIR pricing, calibration, and reproducible rate simulation
 - Historical and parametric VaR, Expected Shortfall, stress tests, and backtesting
+- Governed research tasks, experiment lineage, approvals, and immutable audit events
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -105,8 +106,21 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–9 are implemented. Next: strategy backtesting and performance
-attribution, followed by credit-risk and spread analytics.
+Phases 1–9 and Phase 10A are implemented. Next: sandboxed specialist-agent
+execution and quantitative research evaluation, then strategy backtesting and
+performance attribution.
+
+## Phase 10A: Reproducible research governance
+
+Phase 10A adds dependency-aware research plans, controlled task transitions,
+independent review, human approval gates, revision without history loss, SQLite
+experiment metadata, SHA-256 artifact lineage, retrospective proposals, and an
+append-only audit trail. It intentionally does not allow agents to merge code,
+change governance, or operate on production systems.
+
+Run `python examples/governed_research_workflow.py`. See
+[research governance](docs/RESEARCH_GOVERNANCE.md) for workflow guarantees,
+trust boundaries, and the path to controlled multi-agent execution.
 
 ## Phase 9: Historical risk and stress testing
 

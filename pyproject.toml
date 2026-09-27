@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "finquint-quant-research"
-version = "0.10.0"
+version = "0.10.1"
 description = "Composable quantitative research pipelines and fixed-income analytics."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -20,4 +20,4 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --basetemp=.pytest-temp"

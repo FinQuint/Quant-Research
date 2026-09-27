@@ -1,0 +1,25 @@
+version: 1
+policy: adversarial_quant_research
+
+blocking_checks:
+  point_in_time_integrity:
+    required_columns: [event_time, availability_time, decision_time]
+  data_quality:
+    key_columns: [observation_id]
+    max_missing_fraction: 0.0
+  out_of_sample_design:
+    split_column: sample
+    minimum_test_observations: 20
+  benchmark_declared: {}
+  transaction_costs: {}
+  multiple_testing:
+    approved_corrections: [bonferroni, holm, fdr]
+
+warning_checks:
+  subperiod_stability:
+    minimum_subperiods: 3
+    maximum_relative_dispersion: 0.5
+
+promotion:
+  require_all_blocking_checks: true
+  require_human_approval: true

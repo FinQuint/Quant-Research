@@ -1,0 +1,14 @@
+version: 1
+default_human_approval: true
+require_independent_review: true
+require_dataset_hashes: true
+require_code_commit: true
+preserve_failed_experiments: true
+prohibit_agent_governance_changes: true
+approval_gates:
+  - public_api_change
+  - financial_convention_change
+  - dependency_change
+  - feature_branch_push
+  - pull_request_merge
+  - release_publish

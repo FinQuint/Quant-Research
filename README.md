@@ -18,6 +18,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Vasicek and CIR pricing, calibration, and reproducible rate simulation
 - Historical and parametric VaR, Expected Shortfall, stress tests, and backtesting
 - Governed research tasks, experiment lineage, approvals, and immutable audit events
+- Capability-scoped specialist agents with isolated workspaces and execution budgets
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -106,9 +107,20 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–9 and Phase 10A are implemented. Next: sandboxed specialist-agent
-execution and quantitative research evaluation, then strategy backtesting and
-performance attribution.
+Phases 1–9 and Phases 10A–10B are implemented. Next: adversarial quantitative
+research evaluation, then strategy backtesting and performance attribution.
+
+## Phase 10B: Controlled specialist agents
+
+Phase 10B adds capability-scoped agents, isolated task workspaces, action and
+file budgets, approved validation registries, structured execution traces, and
+safe failure capture. Independent ready tasks continue while unrelated work
+waits for human approval. Agents do not receive arbitrary shell, network, GitHub,
+or governance-modification access.
+
+Run `python examples/specialist_agent_workflow.py`. See
+[controlled agent execution](docs/AGENT_EXECUTION.md) for capability boundaries,
+failure behavior, and extension requirements.
 
 ## Phase 10A: Reproducible research governance
 

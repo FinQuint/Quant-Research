@@ -1,0 +1,15 @@
+version: 1
+default_capabilities:
+  - read_workspace
+default_budget:
+  max_steps: 50
+  max_changed_files: 20
+  max_artifacts: 10
+forbidden_capabilities:
+  - arbitrary_shell
+  - unrestricted_network
+  - production_credentials
+  - merge_pull_request
+  - modify_governance
+require_independent_review: true
+require_human_approval_for_release: true

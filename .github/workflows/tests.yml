@@ -5,6 +5,11 @@ on:
     branches:
       - main
       - feature/fixed-income-analytics
+      - feature/curve-portfolio-risk
+      - feature/market-multi-curves
+      - feature/short-rate-models
+      - feature/historical-risk-stress-testing
+      - feature/research-governance
   pull_request:
     branches:
       - main
@@ -43,3 +48,18 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+      - name: Run Phase 6 example
+        run: python examples/portfolio_risk_pipeline.py
+
+      - name: Run Phase 7 example
+        run: python examples/multi_curve_pipeline.py
+
+      - name: Run Phase 8 example
+        run: python examples/short_rate_models.py
+
+      - name: Run Phase 9 example
+        run: python examples/historical_risk_pipeline.py
+
+      - name: Run Phase 10A example
+        run: python examples/governed_research_workflow.py

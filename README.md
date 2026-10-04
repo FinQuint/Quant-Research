@@ -20,6 +20,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Governed research tasks, experiment lineage, approvals, and immutable audit events
 - Capability-scoped specialist agents with isolated workspaces and execution budgets
 - Adversarial research checks for leakage, data quality, validation design, and costs
+- Daily-bar event-driven backtesting with next-open execution and auditable accounting
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -108,8 +109,20 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–9 and Phases 10A–10C are implemented. Next: strategy backtesting and
-performance attribution.
+Phases 1–11 are implemented. Next: performance measurement and attribution.
+
+## Phase 11: Event-driven backtesting
+
+Phase 11 converts research signals into auditable orders, fills, positions, cash,
+costs, and daily equity. Strategies decide after a bar closes; market orders
+execute only at the next available open. The engine enforces short-sale and cash
+policies, records rejected orders, applies fixed and proportional costs, and
+publishes complete and summarized results through `PipelineContext`.
+
+Run `python examples/moving_average_backtest.py` and
+`python examples/scheduled_rebalance_backtest.py`. See
+[backtesting conventions](docs/BACKTESTING.md) for event timing, accounting
+identities, assumptions, and current limitations.
 
 ## Phase 10C: Adversarial research evaluation
 

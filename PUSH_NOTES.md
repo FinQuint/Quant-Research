@@ -1,54 +1,52 @@
-# Phase 10C push notes
+# Phase 11 push notes
 
 ## Target
 
 - Repository: `FinQuint/Quant-Research`
-- Base branch: `main`
-- Feature branch: `feature/research-evaluation`
-- Verified base commit: `ef59e3afdd24bc57786ebadbb85aea83fb032827`
+- Base branch: `main` after Phase 10C has been merged
+- Feature branch: `feature/event-driven-backtesting`
 
-Upload or copy the complete repository contents into a clone of
-`FinQuint/Quant-Research` on the feature branch. Merge the new and changed files;
-do not create another top-level `Quant-Research` directory. Preserve the existing
-`.github/workflows/tests.yml` path so GitHub Actions detects the workflow.
+Copy the contents of the ZIP's `Quant-Research` folder into the repository root.
+Merge the files rather than creating a nested `Quant-Research/Quant-Research`
+directory. Keep the workflow at `.github/workflows/tests.yml`.
 
-## Suggested Git metadata
+## Git metadata
 
 Commit message:
 
 ```text
-feat: add adversarial quant research evaluation
+feat: add event-driven strategy backtesting
 ```
 
 Pull-request title:
 
 ```text
-Phase 10C: Add adversarial quantitative research evaluation
+Phase 11: Add event-driven strategy backtesting
 ```
 
 Pull-request description:
 
 ```text
-Adds a deterministic research-quality gate covering point-in-time integrity,
-data quality, out-of-sample design, benchmark declaration, transaction costs,
-multiple testing, and subperiod stability. The evaluation suite integrates with
-both QuantPipeline and the Phase 10B approved-validation boundary. Includes
-tests, policy configuration, documentation, a runnable example, and CI coverage.
+Adds a deterministic daily-bar backtesting engine with next-open market-order
+execution, signed position and cash accounting, fixed and proportional costs,
+short-sale and cash controls, visible order rejections, turnover reporting, and
+reusable pipeline integration. Includes single-asset and multi-asset examples,
+accounting and look-ahead regression tests, documentation, and CI coverage.
 ```
 
-## Recommended local sequence
+## VS Code terminal sequence
+
+If the Phase 11 files are already copied into your working folder, create the
+feature branch before attempting to switch back to `main`:
 
 ```text
-git switch main
-git pull origin main
-git switch -c feature/research-evaluation
-python -m pip install -e ".[dev]"
-pytest
-python examples/adversarial_research_evaluation.py
+git switch -c feature/event-driven-backtesting
+git status
 git add .
-git commit -m "feat: add adversarial quant research evaluation"
-git push -u origin feature/research-evaluation
+git commit -m "feat: add event-driven strategy backtesting"
+git push -u origin feature/event-driven-backtesting
 ```
 
-Open the pull request into `main` only after the Python 3.10, 3.11, and 3.12
-GitHub Actions jobs pass. Human approval remains required for research promotion.
+If that branch already exists, use `git switch feature/event-driven-backtesting`
+and then commit and push. Open a pull request into `main` only after all Python
+3.10, 3.11, and 3.12 checks pass.

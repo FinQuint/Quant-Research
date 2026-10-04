@@ -1,34 +1,26 @@
-# Validation report
+# Phase 11 validation report
 
-Validated on 2026-09-27 from the Phase 10B main-branch baseline
-`ef59e3afdd24bc57786ebadbb85aea83fb032827`.
+Validated on 2026-10-04 using the complete Phase 10C repository as the baseline.
 
 ## Results
 
-- Full test suite: **147 passed**
-- Phase 10C example: **passed**
-- Python bytecode compilation for `src` and `examples`: **passed**
-- Supported CI matrix: Python 3.10, 3.11, and 3.12
+- Full test suite: **156 passed**
+- Moving-average backtest example: **passed**
+- Scheduled multi-asset rebalance example: **passed**
+- Python compilation for `src` and `examples`: **passed**
+- CI workflow covers Python 3.10, 3.11, and 3.12
 
-Commands used:
+## Phase 11 regression coverage
 
-```text
-pytest -q
-python examples/adversarial_research_evaluation.py
-python -m compileall -q src examples
-```
+- close-time decisions execute only at the next available open
+- cash plus marked positions reconciles to portfolio equity
+- fixed and proportional costs reduce cash and equity
+- insufficient cash is rejected
+- short sales are rejected when disabled
+- final-bar orders are not silently discarded
+- market bars must be complete and unique by timestamp and symbol
+- duplicate order identifiers are rejected
+- pipeline integration preserves input data and publishes full results
 
-## Phase 10C coverage
-
-- clean research design passes all seven checks
-- future information at decision time is rejected
-- missing values and duplicate research keys are rejected
-- insufficient out-of-sample data is rejected
-- missing or implausibly zero transaction costs are rejected
-- multiple variants require an approved correction
-- subperiod instability is retained as a non-blocking warning
-- pipeline reports are published and can block downstream execution
-- evaluation suites run through the Phase 10B approved-validation boundary
-
-The synthetic example demonstrates software behavior only. It is not validation
-of a trading strategy, market dataset, or investment result.
+The examples use synthetic daily bars. Passing software tests does not establish
+the profitability, capacity, or deployability of any investment strategy.

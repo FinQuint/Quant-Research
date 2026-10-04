@@ -12,6 +12,7 @@ on:
       - feature/research-governance
       - feature/specialist-agent-execution
       - feature/research-evaluation
+      - feature/event-driven-backtesting
   pull_request:
     branches:
       - main
@@ -71,3 +72,8 @@ jobs:
 
       - name: Run Phase 10C example
         run: python examples/adversarial_research_evaluation.py
+
+      - name: Run Phase 11 examples
+        run: |
+          python examples/moving_average_backtest.py
+          python examples/scheduled_rebalance_backtest.py

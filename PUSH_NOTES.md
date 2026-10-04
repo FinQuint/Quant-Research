@@ -1,52 +1,49 @@
-# Phase 11 push notes
+# Phase 12 push notes
 
 ## Target
 
 - Repository: `FinQuint/Quant-Research`
-- Base branch: `main` after Phase 10C has been merged
-- Feature branch: `feature/event-driven-backtesting`
+- Base branch: `main` after Phase 11 has been merged
+- Feature branch: `feature/performance-attribution`
 
 Copy the contents of the ZIP's `Quant-Research` folder into the repository root.
-Merge the files rather than creating a nested `Quant-Research/Quant-Research`
-directory. Keep the workflow at `.github/workflows/tests.yml`.
+Merge files without creating a nested repository directory. Preserve
+`.github/workflows/tests.yml` so GitHub detects the test matrix.
 
 ## Git metadata
 
 Commit message:
 
 ```text
-feat: add event-driven strategy backtesting
+feat: add performance measurement and attribution
 ```
 
 Pull-request title:
 
 ```text
-Phase 11: Add event-driven strategy backtesting
+Phase 12: Add performance measurement and attribution
 ```
 
 Pull-request description:
 
 ```text
-Adds a deterministic daily-bar backtesting engine with next-open market-order
-execution, signed position and cash accounting, fixed and proportional costs,
-short-sale and cash controls, visible order rejections, turnover reporting, and
-reusable pipeline integration. Includes single-asset and multi-asset examples,
-accounting and look-ahead regression tests, documentation, and CI coverage.
+Adds absolute, risk-adjusted, drawdown, benchmark-relative, rolling, and
+subperiod performance analytics. Includes confidence intervals, arithmetic group
+attribution with explicit residual reconciliation, gross-to-net cost bridges,
+Phase 11 BacktestResult integration, documentation, examples, tests, and CI.
 ```
 
 ## VS Code terminal sequence
 
-If the Phase 11 files are already copied into your working folder, create the
-feature branch before attempting to switch back to `main`:
+After copying the Phase 12 files into the working folder:
 
 ```text
-git switch -c feature/event-driven-backtesting
+git switch -c feature/performance-attribution
 git status
 git add .
-git commit -m "feat: add event-driven strategy backtesting"
-git push -u origin feature/event-driven-backtesting
+git commit -m "feat: add performance measurement and attribution"
+git push -u origin feature/performance-attribution
 ```
 
-If that branch already exists, use `git switch feature/event-driven-backtesting`
-and then commit and push. Open a pull request into `main` only after all Python
-3.10, 3.11, and 3.12 checks pass.
+If the branch already exists, use `git switch feature/performance-attribution`.
+Open the pull request into `main` after all Python 3.10–3.12 checks pass.

@@ -1,0 +1,31 @@
+version: 1
+policy: research_performance_reporting
+
+annualization:
+  periods_per_year: 252
+  risk_free_rate_source: required
+
+benchmark:
+  required: true
+  document_selection_rationale: true
+
+confidence_interval:
+  confidence: 0.95
+  method: normal_approximation_to_arithmetic_mean
+
+attribution:
+  method: arithmetic_contribution
+  reconciliation_tolerance: 1.0e-10
+  expose_residual: true
+
+required_outputs:
+  - total_return
+  - annualized_return
+  - annualized_volatility
+  - sharpe_ratio
+  - sortino_ratio
+  - maximum_drawdown
+  - tracking_error
+  - information_ratio
+  - gross_to_net_bridge
+  - subperiod_results

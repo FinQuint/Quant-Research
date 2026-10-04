@@ -1,26 +1,27 @@
-# Phase 11 validation report
+# Phase 12 validation report
 
-Validated on 2026-10-04 using the complete Phase 10C repository as the baseline.
+Validated on 2026-10-04 using the complete Phase 11 repository as the baseline.
 
 ## Results
 
-- Full test suite: **156 passed**
-- Moving-average backtest example: **passed**
-- Scheduled multi-asset rebalance example: **passed**
+- Full test suite: **173 passed**
+- Performance and attribution example: **passed**
 - Python compilation for `src` and `examples`: **passed**
 - CI workflow covers Python 3.10, 3.11, and 3.12
 
-## Phase 11 regression coverage
+## Phase 12 regression coverage
 
-- close-time decisions execute only at the next available open
-- cash plus marked positions reconciles to portfolio equity
-- fixed and proportional costs reduce cash and equity
-- insufficient cash is rejected
-- short sales are rejected when disabled
-- final-bar orders are not silently discarded
-- market bars must be complete and unique by timestamp and symbol
-- duplicate order identifiers are rejected
-- pipeline integration preserves input data and publishes full results
+- equity levels convert to periodic returns correctly
+- annualized return and volatility match documented formulas
+- drawdowns use compounded running peaks
+- Sharpe, Sortino, Calmar, and confidence intervals are reported
+- tracking error, information ratio, beta, and alpha require aligned benchmarks
+- rolling and labeled subperiod reports preserve their boundaries
+- group contributions reconcile or expose a nonzero residual
+- gross-to-net returns reconcile transaction, financing, and borrow costs
+- costs cannot be negative or silently use mismatched observations
+- pipeline execution publishes summaries and rolling results without mutating data
 
-The examples use synthetic daily bars. Passing software tests does not establish
-the profitability, capacity, or deployability of any investment strategy.
+The example is synthetic and produces unusually high annualized ratios because
+it contains few observations. It validates software behavior, not investment
+performance or statistical significance.

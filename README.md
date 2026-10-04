@@ -21,6 +21,7 @@ A modular quantitative research framework for standardized data ingestion, valid
 - Capability-scoped specialist agents with isolated workspaces and execution budgets
 - Adversarial research checks for leakage, data quality, validation design, and costs
 - Daily-bar event-driven backtesting with next-open execution and auditable accounting
+- Benchmark-relative performance, drawdown, cost, subperiod, and group attribution
 - Unit, integration, and end-to-end example coverage
 - GitHub Actions test matrix for Python 3.10–3.12
 
@@ -109,7 +110,20 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 ## Roadmap
 
-Phases 1–11 are implemented. Next: performance measurement and attribution.
+Phases 1–12 are implemented. Next: constrained portfolio construction.
+
+## Phase 12: Performance measurement and attribution
+
+Phase 12 adds total and annualized return, volatility, Sharpe, Sortino, maximum
+drawdown, Calmar, confidence intervals, beta, alpha, tracking error, information
+ratio, rolling metrics, and subperiod reports. Arithmetic group attribution
+exposes reconciliation residuals, while the gross-to-net bridge separates
+transaction, financing, and borrow costs. `PerformanceAnalysisStage` works with
+equity tables or Phase 11 backtests.
+
+Run `python examples/performance_attribution.py`. See
+[performance and attribution methodology](docs/PERFORMANCE_ATTRIBUTION.md) for
+formulas, conventions, reconciliation rules, and limitations.
 
 ## Phase 11: Event-driven backtesting
 

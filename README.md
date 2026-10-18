@@ -112,6 +112,18 @@ bullet schedules; it explicitly rejects stubs and settlement at/after maturity.
 
 Phases 1–12 are implemented. Next: constrained portfolio construction.
 
+## Autonomous research workflows
+
+`finquint.autonomous` adds a planner, parallel read-only research and deterministic
+execution, host-owned method registries, mandatory supervisor gates, provenance,
+extractive analysis reports, bounded retries, risk approval and SQLite resume.
+Optional code proposals remain inert text for human review. Existing analytics
+and governed task APIs remain available without changes.
+
+Run `python examples/autonomous_research.py`. See the
+[design, usage and trust boundaries](docs/AUTONOMOUS_WORKFLOW.md) for method and
+pipeline adapters, human interrupts, persistence and deployment constraints.
+
 ## Phase 12: Performance measurement and attribution
 
 Phase 12 adds total and annualized return, volatility, Sharpe, Sortino, maximum

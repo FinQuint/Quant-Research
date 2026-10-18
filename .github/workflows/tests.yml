@@ -14,6 +14,7 @@ on:
       - feature/research-evaluation
       - feature/event-driven-backtesting
       - feature/performance-attribution
+      - feature/autonomous-research-workflow
   pull_request:
     branches:
       - main
@@ -81,3 +82,6 @@ jobs:
 
       - name: Run Phase 12 example
         run: python examples/performance_attribution.py
+
+      - name: Run autonomous research example
+        run: python examples/autonomous_research.py

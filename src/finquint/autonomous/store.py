@@ -39,7 +39,7 @@ class RunStore:
             state = self.load(run_id)
             if state["status"] == "running":
                 raise RuntimeError("run already active; interrupted runs require human recovery")
-            if state["status"] in {"completed", "failed", "needs_revision", "rejected"}:
+            if state["status"] in {"completed", "failed", "needs_revision", "rejected", "escalated"}:
                 return state, False
             state["status"] = "running"
             self.db.execute("UPDATE autonomous_runs SET payload=? WHERE run_id=?", (canonical(state), run_id))

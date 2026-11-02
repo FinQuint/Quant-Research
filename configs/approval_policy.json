@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "reviewers": {
+    "walleva1715": ["owner"]
+  },
+  "requirements": {
+    "merge_to_main": {"role": "owner", "approvals": 1},
+    "deploy": {"role": "owner", "approvals": 1},
+    "delete_production_data": {"role": "owner", "approvals": 1}
+  },
+  "request_ttl_seconds": 86400,
+  "approval_ttl_seconds": 3600,
+  "on_expiry": {
+    "merge_to_main": "escalate",
+    "deploy": "escalate",
+    "delete_production_data": "escalate"
+  }
+}

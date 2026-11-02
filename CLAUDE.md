@@ -16,8 +16,8 @@ executes.* No live trading; never change the numerical algorithms.
 | Phase | Scope | Status |
 |---|---|---|
 | 1 Safe side effects | Tool registry, idempotency ledger, outbox, capability tokens, `decide()` + tests | **Done** — merged to `main` as PR #14 (383f069) |
-| 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Exit tests pass; branch protection on `main`; PR into `main` awaiting review** — branch `feature/protected-evaluator` |
-| 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | Not started |
+| 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Done** — merged to `main` as PR #15 (f44815f) |
+| 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Exit tests pass; PR #16 into `main` awaiting review** — branch `feature/approval-path` |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | Not started |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | Not started |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | Not started |
@@ -71,6 +71,29 @@ Each phase is done only when its **exit test** in the spec passes. Update this t
     (a new convention for agent-authored PRs). Humans rely on CODEOWNERS review.
   - Adapters (`orchestration/adapters.py`) translate autonomous state into gate inputs and share
     the audit log. `AutonomousWorkflow` itself is unchanged until Phase 3.
+- **2026-11-01 — Phase 3 implementation choices.**
+  - `gate/approvals.py` `ApprovalService`: requests and HMAC-signed records in SQLite, using an
+    approval key separate from the capability key. Records are immutable (SQLite triggers) and
+    single-use (`approval_uses`). `verify()` re-checks signature, reviewer authority under the
+    *current* policy, fingerprint, expiry and use, then mints the capability token.
+  - Policy is `configs/approval_policy.json` (reviewers → roles, per-action role and approval
+    count, `request_ttl_seconds` 24 h, `approval_ttl_seconds` 1 h, `on_expiry` escalate/block, all
+    (tune)). An action with no rule cannot open a request (fail closed).
+  - `gate/human_gate.py` `HumanGate`: `open()` is idempotent per (run, branch, fingerprint);
+    `resume()` takes only `{"approval_record_id": ...}` and maps outcomes to Route
+    EXECUTE/WAIT/REPLAN/BLOCK/ESCALATE.
+  - `orchestration/scheduler.py` `Scheduler`: persisted branches, one action per branch per
+    `tick()`, single-threaded and deterministic. Only a waiting branch pauses. Before an approved
+    action runs, its checks and preconditions are evaluated again; any change → ESCALATE.
+  - The reviewer CLI is `python -m finquint.orchestration.approve`, with the key in
+    `FINQUINT_APPROVAL_KEY`. It is the only `decide()` entry point; never give the key to an
+    agent process.
+  - `AutonomousWorkflow(approvals=HumanGate)` is opt-in. With it, `decide()` is refused and
+    `resume_with_approval()` / `expire_approvals()` are used instead. Without it, behavior is
+    unchanged. `escalated` is a new terminal run status.
+  - Known limit: `verify()` consumes the approval before the tool is called. A crash in between
+    leaves the branch waiting with a used record. A second resume then BLOCKs (fail closed) and
+    a new request is needed.
 
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
@@ -120,3 +143,8 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   dismissed, conversations resolved, no force-push or deletion. `enforce_admins` is false so
   the sole owner can merge their own PRs; switch it on once a second reviewer exists.
   Phase 2 committed and PR opened. Next: review/merge PR, then Phase 3 (approval path).
+- 2026-11-01: PR #15 (Phase 2) merged. Phase 3 implemented on `feature/approval-path`:
+  `gate/approvals.py`, `gate/human_gate.py`, `scheduler.py`, `approve.py` CLI,
+  `configs/approval_policy.json`, opt-in hook in `autonomous/runtime.py`.
+  `tests/test_orchestration_approvals.py`: 321 passed (293 + 28). Committed (037838f), pushed,
+  PR #16 opened. Next: CI + review/merge PR #16, then Phase 4 (eval & replay harness).

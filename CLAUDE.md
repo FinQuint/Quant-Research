@@ -17,7 +17,7 @@ executes.* No live trading; never change the numerical algorithms.
 |---|---|---|
 | 1 Safe side effects | Tool registry, idempotency ledger, outbox, capability tokens, `decide()` + tests | **Done** — merged to `main` as PR #14 (383f069) |
 | 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Done** — merged to `main` as PR #15 (f44815f) |
-| 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Exit tests pass; not committed** — branch `feature/approval-path` |
+| 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Exit tests pass; PR #16 into `main` awaiting review** — branch `feature/approval-path` |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | Not started |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | Not started |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | Not started |
@@ -146,5 +146,5 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
 - 2026-11-01: PR #15 (Phase 2) merged. Phase 3 implemented on `feature/approval-path`:
   `gate/approvals.py`, `gate/human_gate.py`, `scheduler.py`, `approve.py` CLI,
   `configs/approval_policy.json`, opt-in hook in `autonomous/runtime.py`.
-  `tests/test_orchestration_approvals.py`: 321 passed (293 + 28). Not committed. Next: review,
-  commit, PR; then Phase 4.
+  `tests/test_orchestration_approvals.py`: 321 passed (293 + 28). Committed (037838f), pushed,
+  PR #16 opened. Next: CI + review/merge PR #16, then Phase 4 (eval & replay harness).

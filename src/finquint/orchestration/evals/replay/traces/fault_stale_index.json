@@ -1,0 +1,17 @@
+{
+ "calls": [],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "autonomous_planned",
+   "autonomous_claimed",
+   "autonomous_run_finished"
+  ],
+  "facts": {
+   "error_names_change": true,
+   "methods_run": 0,
+   "status": "needs_revision"
+  }
+ },
+ "task": "fault_stale_index"
+}

@@ -1,0 +1,39 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "4086cf595479fb701098d8d7df00d163c579a3b5f34c085fc142f2ff369751df",
+   "kind": "tool",
+   "name": "open_pr",
+   "output": {
+    "pr": "pr:edit_source"
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "branch_added",
+   "branch_added",
+   "branch_added",
+   "branch_added",
+   "branch_blocked",
+   "branch_blocked",
+   "branch_blocked",
+   "side_effect_enqueued",
+   "branch_advanced",
+   "side_effect_dispatching",
+   "side_effect_done"
+  ],
+  "facts": {
+   "prs_opened": 1,
+   "statuses": {
+    "edit_gate": "blocked",
+    "edit_policy": "blocked",
+    "edit_source": "done",
+    "edit_tests": "blocked"
+   }
+  }
+ },
+ "task": "coding_protected_paths_blocked"
+}

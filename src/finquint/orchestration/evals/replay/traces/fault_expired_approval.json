@@ -1,0 +1,27 @@
+{
+ "calls": [],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "branch_added",
+   "branch_added",
+   "approval_requested",
+   "branch_waiting",
+   "approval_requested",
+   "branch_waiting",
+   "approval_expired",
+   "approval_expired",
+   "branch_escalated",
+   "branch_blocked"
+  ],
+  "facts": {
+   "executed": 0,
+   "late_approval_refused": true,
+   "states": {
+    "deploy": "blocked",
+    "merge": "escalated"
+   }
+  }
+ },
+ "task": "fault_expired_approval"
+}

@@ -21,6 +21,7 @@ from .gate.capabilities import CapabilityError
 from .gate.decide import CheckResult, GateDecision, ProposedAction, decide
 from .gate.human_gate import Route, expiry_route
 from .tools.ledger import EffectStatus
+from .tracing import NULL_TRACER
 from .verify.paths import ProtectedPathError
 
 
@@ -57,15 +58,18 @@ _ADVANCED = frozenset({EffectStatus.DONE, EffectStatus.QUEUED, EffectStatus.DISP
 class Scheduler:
     """status_for(branch_id, action, retry_count) -> ActionStatus: the action's checks now.
     preconditions(action) -> iterable of failure messages (e.g. code_sha or target moved).
-    evidence_for(action) -> JSON dict shown to the reviewer (diff, test results)."""
+    evidence_for(action) -> JSON dict shown to the reviewer (diff, test results).
+    tracer: optional Tracer; each step, resume and expiry pass gets a span tagged with the
+    branch as task_id."""
 
     def __init__(self, connection, *, run_id, policy, tools, authority, gate, status_for,
-                 preconditions=None, evidence_for=None, audit=None):
+                 preconditions=None, evidence_for=None, audit=None, tracer=None):
         if not isinstance(run_id, str) or not run_id.strip():
             raise ValueError("run_id is required")
         self.db, self.run_id, self.policy, self.tools = connection, run_id, policy, tools
         self.authority, self.gate, self.status_for = authority, gate, status_for
         self.preconditions, self.evidence_for, self._audit = preconditions, evidence_for, audit
+        self.tracer = tracer or NULL_TRACER
         self.db.execute("""
         CREATE TABLE IF NOT EXISTS orchestration_branches (
             run_id TEXT NOT NULL, branch_id TEXT NOT NULL, status TEXT NOT NULL, cursor INTEGER NOT NULL,
@@ -148,12 +152,26 @@ class Scheduler:
         return self._update(state, "branch_escalated", status=BranchStatus.ESCALATED, request_id=None,
                             notes=f"side effect is {outcome.status.value}; a human must resolve it")
 
+    def _span(self, name, state):
+        action = state.current
+        return self.tracer.span(name, run_id=self.run_id, task_id=state.branch_id,
+                                code_sha=(action.code_sha or None) if action else None,
+                                action_type=action.action_type if action else None, cursor=state.cursor)
+
     def _step(self, state):
+        with self._span("scheduler.step", state) as span:
+            result = self._step_inner(state)
+            span.set(branch_status=result.status.value)
+            return result
+
+    def _step_inner(self, state):
         action = state.current
         if action is None:
             return self._update(state, "branch_done", status=BranchStatus.DONE)
         status = self.status_for(state.branch_id, action, state.retry_count)
         decision = decide(action, status, self.policy)
+        with self.tracer.span("gate.decide", checks=status.checks.value, retry_count=status.retry_count) as span:
+            span.set(decision=decision.value)
         if decision is GateDecision.AUTO_CONTINUE:
             return self._execute(state, action, self.authority.grant(action, decision))
         if decision is GateDecision.RETRY:
@@ -178,8 +196,10 @@ class Scheduler:
             if request is not None and request.status is RequestStatus.EXPIRED:
                 route = expiry_route(self.gate.approvals.policy.expiry_decision(state.current.action_type))
                 status = BranchStatus.BLOCKED if route is Route.BLOCK else BranchStatus.ESCALATED
-                self._update(state, f"branch_{status.value}", status=status, request_id=None,
-                             notes="approval request expired unanswered")
+                with self._span("scheduler.expire", state) as span:
+                    self._update(state, f"branch_{status.value}", status=status, request_id=None,
+                                 notes="approval request expired unanswered")
+                    span.set(branch_status=status.value)
 
     def tick(self):
         """Expire stale requests, then advance every running branch by one step."""
@@ -201,6 +221,12 @@ class Scheduler:
     def resume(self, branch_id, payload):
         """Resume a waiting branch with {"approval_record_id": ...} only."""
         state = self.branch(branch_id)
+        with self._span("scheduler.resume", state) as span:
+            result = self._resume(state, branch_id, payload)
+            span.set(branch_status=result.status.value)
+            return result
+
+    def _resume(self, state, branch_id, payload):
         if state.status is not BranchStatus.WAITING:
             raise ValueError(f"branch {branch_id} is not waiting for approval")
         if not isinstance(payload, dict) or set(payload) != {"approval_record_id"}:

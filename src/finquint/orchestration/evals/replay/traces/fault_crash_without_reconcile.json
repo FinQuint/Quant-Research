@@ -1,0 +1,34 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "b67457d50813a663bc2654f7bf3143a148137781a674ab3897f1699e36e92844",
+   "kind": "tool",
+   "name": "deploy",
+   "output": {
+    "deployed": "1.2"
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "branch_added",
+   "approval_requested",
+   "branch_waiting",
+   "approval_decided",
+   "approval_verified",
+   "side_effect_enqueued",
+   "branch_advanced",
+   "side_effect_dispatching",
+   "side_effect_in_doubt"
+  ],
+  "facts": {
+   "deploy_calls": 1,
+   "final": [
+    "in_doubt"
+   ]
+  }
+ },
+ "task": "fault_crash_without_reconcile"
+}

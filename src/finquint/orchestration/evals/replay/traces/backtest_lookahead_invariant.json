@@ -1,0 +1,32 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "fe83ed0e474a9e30608b195338f0042b05e8f015c6def31130bfd885808b0fd5",
+   "kind": "tool",
+   "name": "run_backtest",
+   "output": {
+    "orders": 20,
+    "strategy": "momentum"
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "branch_added",
+   "branch_added",
+   "side_effect_started",
+   "side_effect_done",
+   "branch_advanced",
+   "branch_blocked"
+  ],
+  "facts": {
+   "backtests_run": 1,
+   "honest": "done",
+   "leaky": "blocked",
+   "leaky_evidence_names_future_data": true
+  }
+ },
+ "task": "backtest_lookahead_invariant"
+}

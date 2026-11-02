@@ -25,12 +25,14 @@ class AutonomousWorkflow:
     With it, approval tasks open signed approval requests and resume only through
     resume_with_approval() with an approval record ID; decide() is refused."""
 
-    def __init__(self, store, registry, *, max_workers=4, approvals=None):
+    def __init__(self, store, registry, *, max_workers=4, approvals=None, tracer=None):
+        """tracer: optional orchestration Tracer; each task execution gets a span."""
         if type(max_workers) is not int or not 1 <= max_workers <= 16:
             raise ValueError("max_workers must be between 1 and 16")
         self.store, self.registry, self.max_workers = store, registry, max_workers
         self.supervisor = Supervisor()
         self.approvals = approvals
+        self.tracer = tracer
 
     def submit(self, request):
         return self.store.create(Planner().build(request, self.registry))
@@ -157,6 +159,13 @@ class AutonomousWorkflow:
         return state
 
     def _execute(self, call, state):
+        if self.tracer is None:
+            return self._execute_call(call, state)
+        with self.tracer.span("workflow.task", run_id=state["plan"]["run_id"], task_id=call["task_id"],
+                              code_sha=state["plan"]["code_version"], method=call["method"]):
+            return self._execute_call(call, state)
+
+    def _execute_call(self, call, state):
         method = self.registry.get(call["method"])
         context = {"sources": deepcopy(state["plan"]["sources"]),
                    "dependencies": {dep: deepcopy(state["tasks"][dep]["output"]) for dep in call["dependencies"]},

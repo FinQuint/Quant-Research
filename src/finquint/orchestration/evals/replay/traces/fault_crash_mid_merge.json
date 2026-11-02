@@ -1,0 +1,77 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "da27e041bcd088e3556ad22937897347a174f9a2b6412d24bc091378d42c6848",
+   "kind": "tool",
+   "name": "merge_to_main",
+   "output": {
+    "merged": "agent/after_send"
+   }
+  },
+  {
+   "error": null,
+   "key": "d0d57f5f15eec4aec3ca62db1ee5a72df9a265a187f8d6041704611324835e3e",
+   "kind": "reconcile",
+   "name": "merge_to_main",
+   "output": null
+  },
+  {
+   "error": null,
+   "key": "9252595c2f34b95a72318d2bf55adc2806d6e1202025eb7e3f93d35650f772a0",
+   "kind": "reconcile",
+   "name": "merge_to_main",
+   "output": {
+    "merged": "agent/after_send"
+   }
+  },
+  {
+   "error": null,
+   "key": "e7b244ae427ab48f6800e578329815516c56301ffe16939795cdfee07f1e1f0a",
+   "kind": "tool",
+   "name": "merge_to_main",
+   "output": {
+    "merged": "agent/before_send"
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "branch_added",
+   "branch_added",
+   "approval_requested",
+   "branch_waiting",
+   "approval_requested",
+   "branch_waiting",
+   "approval_decided",
+   "approval_verified",
+   "side_effect_enqueued",
+   "branch_advanced",
+   "approval_decided",
+   "approval_verified",
+   "side_effect_enqueued",
+   "branch_advanced",
+   "side_effect_dispatching",
+   "side_effect_dispatching",
+   "side_effect_requeued",
+   "side_effect_done",
+   "side_effect_dispatching",
+   "side_effect_done"
+  ],
+  "facts": {
+   "duplicate_merges": 0,
+   "final": [
+    "done",
+    "done"
+   ],
+   "in_doubt": 0,
+   "merge_calls": 2,
+   "recovered": [
+    "done",
+    "queued"
+   ]
+  }
+ },
+ "task": "fault_crash_mid_merge"
+}

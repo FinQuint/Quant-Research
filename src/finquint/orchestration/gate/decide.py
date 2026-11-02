@@ -11,6 +11,8 @@ from typing import Mapping
 
 from finquint.autonomous.models import canonical
 
+from ..verify.paths import DEFAULT_PROTECTED_PATHS, PatchError, action_paths, is_protected, normalize_path
+
 
 class GateDecision(str, Enum):
     AUTO_CONTINUE = "auto_continue"
@@ -69,13 +71,6 @@ class ActionStatus:
             raise ValueError("retries_exhausted must be boolean")
 
 
-def _normalize(path):
-    parts = [p for p in path.replace("\\", "/").split("/") if p not in ("", ".")]
-    if any(p == ".." for p in parts):
-        return None  # escaping paths are never trusted
-    return "/".join(parts)
-
-
 @dataclass(frozen=True)
 class GatePolicy:
     """Deterministic, versioned policy. Retry counts are (tune) values: pass them in."""
@@ -90,7 +85,7 @@ class GatePolicy:
         allowed, human = frozenset(self.allowed_actions), frozenset(self.human_required)
         if not human <= allowed:
             raise ValueError("human_required actions must also be allowed")
-        protected = tuple(_normalize(p) for p in self.protected_paths)
+        protected = tuple(normalize_path(p) for p in self.protected_paths)
         if any(not p for p in protected):
             raise ValueError("protected paths must be non-empty relative paths")
         retries = dict(self.retry_overrides)
@@ -108,29 +103,27 @@ class GatePolicy:
         return self.retry_overrides.get(action_type, self.default_max_retries)
 
     def touched_paths(self, action):
-        """Paths an action names: a `path:` target plus params["paths"]. None = malformed."""
-        paths = []
-        if action.target.startswith("path:"):
-            paths.append(action.target[len("path:"):])
-        listed = action.params.get("paths", [])
-        if not isinstance(listed, list) or not all(isinstance(p, str) for p in listed):
+        """Paths an action touches: a `path:` target, params["paths"], and every file in
+        params["patch"]. None = malformed (including a patch that does not match diff_sha)."""
+        try:
+            return [normalize_path(p) for p in action_paths(action)]
+        except PatchError:
             return None
-        return [_normalize(p) for p in paths + listed]
 
     def violates_invariant(self, action):
         paths = self.touched_paths(action)
         if paths is None or any(p is None for p in paths):
             return True  # fail closed on anything we cannot read
-        return any(p == root or p.startswith(root + "/") for p in paths for root in self.protected_paths)
+        return any(is_protected(p, self.protected_paths) for p in paths)
 
 
 def default_policy(*, default_max_retries=2, retry_overrides=None):
-    """The spec's initial policy table. Phase 2 extends the protected-path invariants."""
+    """The spec's initial policy table, with the Phase 2 protected paths."""
     return GatePolicy(
         allowed_actions={"run_backtest", "run_analysis", "research", "open_pr",
                          "merge_to_main", "deploy", "delete_production_data"},
         human_required={"merge_to_main", "deploy", "delete_production_data"},
-        protected_paths=("tests", "configs", "src/finquint/evaluation", "src/finquint/backtesting"),
+        protected_paths=DEFAULT_PROTECTED_PATHS,
         default_max_retries=default_max_retries,
         retry_overrides=retry_overrides or {},
     )

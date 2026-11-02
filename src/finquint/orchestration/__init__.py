@@ -6,5 +6,7 @@ from .gate import *  # noqa: F401,F403
 from .gate import __all__ as _gate_all
 from .tools import *  # noqa: F401,F403
 from .tools import __all__ as _tools_all
+from .verify import *  # noqa: F401,F403
+from .verify import __all__ as _verify_all
 
-__all__ = [*_gate_all, *_tools_all]
+__all__ = [*_gate_all, *_tools_all, *_verify_all]

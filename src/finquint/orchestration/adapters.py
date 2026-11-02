@@ -38,3 +38,11 @@ def status_for_task(task, *, max_attempts):
     if task["status"] in {"failed", "needs_revision", "rejected"}:
         return ActionStatus(CheckResult.FAILED, retries)
     raise ValueError(f"task status {task['status']!r} has no check result yet")
+
+
+def status_for_invariants(results, *, retry_count=0):
+    """Backtest invariants as gate check status. Any failed invariant is FAILED, so decide()
+    blocks the action; an empty result set fails closed (nothing was verified)."""
+    results = tuple(results)
+    passed = bool(results) and all(result.passed for result in results)
+    return ActionStatus(CheckResult.PASSED if passed else CheckResult.FAILED, retry_count)

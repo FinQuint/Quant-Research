@@ -6,6 +6,7 @@ from finquint.autonomous.models import canonical
 
 from ..gate.capabilities import CapabilityError
 from ..gate.decide import ProposedAction, fingerprint
+from ..verify.paths import DEFAULT_PROTECTED_PATHS, ProtectedPathError, check_action_paths
 from .ledger import EffectStatus, idempotency_key
 from .registry import SideEffect
 
@@ -27,8 +28,12 @@ def _checked_result(result):
 
 
 class GuardedTools:
-    def __init__(self, registry, ledger, authority):
+    """protected_paths: no side-effecting tool may touch these, token or not (ADR-005).
+    The check reads the action's patch itself, so it does not trust declared paths."""
+
+    def __init__(self, registry, ledger, authority, *, protected_paths=DEFAULT_PROTECTED_PATHS):
         self.registry, self.ledger, self.authority = registry, ledger, authority
+        self.protected_paths = tuple(protected_paths)
 
     def call(self, run_id, action, *, token=None, attempt_scope="0"):
         if not isinstance(action, ProposedAction):
@@ -36,6 +41,13 @@ class GuardedTools:
         tool = self.registry.get(action.action_type)
         action_fp = fingerprint(action)
         key = idempotency_key(run_id, action_fp, attempt_scope)
+        if tool.side_effect is not SideEffect.READ_ONLY:
+            paths = check_action_paths(action, self.protected_paths)
+            if not paths.passed:
+                reason = "; ".join(f"{path}: {why}" for path, why in paths.violations)
+                self.ledger.record("tool_call_refused", run_id,
+                                   {"tool": tool.name, "fingerprint": action_fp, "reason": reason})
+                raise ProtectedPathError(f"{tool.name} refused: {reason}")
         if tool.requires_token:
             try:
                 self.authority.verify(token, tool=tool.name, action_fingerprint=action_fp)

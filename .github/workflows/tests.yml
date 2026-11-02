@@ -39,6 +39,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # the protected-path check diffs against the base branch
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -53,6 +55,16 @@ jobs:
 
       - name: Run tests
         run: pytest
+
+      # Lists protected files the PR changes. Agent branches (agent/*) may not change any.
+      - name: Check protected paths
+        if: github.event_name == 'pull_request' && matrix.python-version == '3.12'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          if [[ "$HEAD_REF" == agent/* ]]; then flag=--fail-on-protected; else flag=; fi
+          python -m finquint.orchestration.verify --base "origin/$BASE_REF" $flag
 
       - name: Run Phase 6 example
         run: python examples/portfolio_risk_pipeline.py

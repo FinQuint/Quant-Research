@@ -15,8 +15,8 @@ executes.* No live trading; never change the numerical algorithms.
 ## Roadmap status
 | Phase | Scope | Status |
 |---|---|---|
-| 1 Safe side effects | Tool registry, idempotency ledger, outbox, capability tokens, `decide()` + tests | **Exit tests pass; pushed, PR into `main` awaiting review** — branch `feature/safe-side-effects` |
-| 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | Not started |
+| 1 Safe side effects | Tool registry, idempotency ledger, outbox, capability tokens, `decide()` + tests | **Done** — merged to `main` as PR #14 (383f069) |
+| 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Exit tests pass; branch protection on `main`; PR into `main` awaiting review** — branch `feature/protected-evaluator` |
 | 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | Not started |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | Not started |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | Not started |
@@ -49,6 +49,26 @@ Each phase is done only when its **exit test** in the spec passes. Update this t
     true, an INFRA_ERROR always escalates, so the policy's retry limit can stop retries sooner
     than the plan's budget, never later. The field is not part of the fingerprint. Fold this
     into an ADR when the spec is reviewed.
+- **2026-11-01 — Phase 2 implementation choices.**
+  - `orchestration/verify/paths.py` is the one source of protected paths
+    (`DEFAULT_PROTECTED_PATHS`). It adds the enforcing code (`orchestration/gate`, `verify`),
+    `.github`, CODEOWNERS and pytest config files. `.github/CODEOWNERS` (owner `@walleva1715`)
+    must match it; a test enforces that.
+  - Touched paths come from the action, not only what the agent declares: `params["patch"]`
+    (unified diff) is parsed with hunk line counts, and both `-p0` and `-p1` readings are
+    checked. Paths are compared case-insensitively; Windows trailing dots and spaces are
+    stripped. Absolute, `..`, NUL or `:` paths, malformed patches, and a `diff_sha` that
+    doesn't match the patch all fail closed (BLOCK).
+  - `GuardedTools` checks protected paths for every non-read-only tool, before the token
+    check, so a valid token cannot get past it. Turn it off only with `protected_paths=()`.
+  - Lookahead invariant = truncation test: `strategy_factory(data)` must build the strategy
+    from the data it is given. Orders up to each cutoff must be identical when later bars are
+    removed. A strategy that isn't deterministic fails (cannot verify). `cutoff_count` is (tune).
+  - The split is frozen by `SplitManifest.digest()`. Tuning must read only
+    `[train_start, train_end]`. `judge_improvement` accepts a change only when its
+    out-of-sample gain is more than `min_oos_improvement` (tune).
+  - CI lists protected files changed on every PR. It fails only for `agent/*` head branches
+    (a new convention for agent-authored PRs). Humans rely on CODEOWNERS review.
   - Adapters (`orchestration/adapters.py`) translate autonomous state into gate inputs and share
     the audit log. `AutonomousWorkflow` itself is unchanged until Phase 3.
 
@@ -82,3 +102,21 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   the gate escalates. Suite: 242 passed.
 - 2026-11-01: Retry budgets reconciled (option 1). `status_for_task(task, max_attempts=...)` marks
   exhausted tasks; `decide()` escalates on them whatever the policy allows. Suite: 243 passed. Committed and pushed for PR.
+- 2026-11-01: Phase 1 PR opened (user opened it in browser). GitHub CLI installed and logged in by
+  user; restarting session to load it and the GitHub connector, which failed with "Authorization
+  header is badly formatted". Next: confirm `gh auth status` and connector tools, then start
+  Phase 2 on `feature/protected-evaluator` branched off `feature/safe-side-effects` (Phase 1 not
+  yet merged; retarget the PR to `main` once it lands). Branch protection needs repo admin on GitHub.
+- 2026-11-01: `gh` 2.103.3 works, logged in as `walleva1715` with ADMIN on FinQuint/Quant-Research.
+  If `gh` is not found, the session PATH is stale: use `& "C:\Program Files\GitHub CLI\gh.exe"`.
+  GitHub connector still fails to connect. PR #14 (Phase 1) merged; `main` has no branch
+  protection yet. Created `feature/protected-evaluator` from `main`. Suite green.
+- 2026-11-01: Phase 2 code in `orchestration/verify/` (paths, invariants, CLI), wired into
+  `decide()`, `GuardedTools` and `adapters.status_for_invariants`; `.github/CODEOWNERS`; CI
+  protected-path step. `tests/test_orchestration_protected.py`: 293 passed (243 + 50). Not
+  committed.
+- 2026-11-01: Branch protection applied to `main` (option 1): CI checks `Python 3.10/3.11/3.12`
+  must pass on an up-to-date branch, 1 approving review from a code owner, stale reviews
+  dismissed, conversations resolved, no force-push or deletion. `enforce_admins` is false so
+  the sole owner can merge their own PRs; switch it on once a second reviewer exists.
+  Phase 2 committed and PR opened. Next: review/merge PR, then Phase 3 (approval path).

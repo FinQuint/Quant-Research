@@ -1,0 +1,18 @@
+# Protected evaluator (ADR-005, docs/AGENTIC_WORKFLOW_SPEC.md).
+# Changes here need review from the code owner. Keep in sync with
+# DEFAULT_PROTECTED_PATHS in src/finquint/orchestration/verify/paths.py.
+
+/tests/                              @walleva1715
+/configs/                            @walleva1715
+/src/finquint/evaluation/            @walleva1715
+/src/finquint/backtesting/           @walleva1715
+/src/finquint/orchestration/gate/    @walleva1715
+/src/finquint/orchestration/verify/  @walleva1715
+/.github/                            @walleva1715
+/CODEOWNERS                          @walleva1715
+/docs/CODEOWNERS                     @walleva1715
+/pyproject.toml                      @walleva1715
+/conftest.py                         @walleva1715
+/pytest.ini                          @walleva1715
+/setup.cfg                           @walleva1715
+/tox.ini                             @walleva1715

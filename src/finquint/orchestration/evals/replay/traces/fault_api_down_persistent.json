@@ -1,0 +1,58 @@
+{
+ "calls": [
+  {
+   "error": {
+    "message": "data API unavailable (HTTP 503)",
+    "type": "RetryableError"
+   },
+   "key": "6a1fed090bea5ee97a7a07daf60e7b38ba00e4b9cadb0ff4ed38432616a2cb30",
+   "kind": "method",
+   "name": "source_review",
+   "output": null
+  },
+  {
+   "error": null,
+   "key": "3001149c6d8491a7ec2b8a0c43fe07f4ecffa2b7da779f46c7ffcc430472bd40",
+   "kind": "method",
+   "name": "bond_analytics",
+   "output": {
+    "bond_price": 104.4912925031211,
+    "convexity": 22.92314562534249,
+    "dv01": 0.046087870605298065,
+    "macaulay_duration": 4.498903644526232,
+    "modified_duration": 4.410689847574737,
+    "ytm": 0.04
+   }
+  },
+  {
+   "error": {
+    "message": "data API unavailable (HTTP 503)",
+    "type": "RetryableError"
+   },
+   "key": "6a1fed090bea5ee97a7a07daf60e7b38ba00e4b9cadb0ff4ed38432616a2cb30",
+   "kind": "method",
+   "name": "source_review",
+   "output": null
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "autonomous_planned",
+   "autonomous_claimed",
+   "autonomous_wave_started",
+   "autonomous_task_finished",
+   "autonomous_task_finished",
+   "autonomous_wave_started",
+   "autonomous_task_finished",
+   "autonomous_run_finished"
+  ],
+  "facts": {
+   "gate": "escalate",
+   "reported": false,
+   "research_attempts": 2,
+   "status": "failed"
+  }
+ },
+ "task": "fault_api_down_persistent"
+}

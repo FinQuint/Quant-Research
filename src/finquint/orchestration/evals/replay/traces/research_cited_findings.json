@@ -1,0 +1,59 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "d4179a1cb6d1ff8df12d1ed00633bf64a408ae4588adc725c36b277d21df88b9",
+   "kind": "method",
+   "name": "source_review",
+   "output": {
+    "findings": [
+     {
+      "quote": "Yields use nominal annual compounding.",
+      "source_id": "conventions"
+     },
+     {
+      "quote": "Coupons are paid twice a year on a 30/360 basis.",
+      "source_id": "calendar"
+     }
+    ]
+   }
+  },
+  {
+   "error": null,
+   "key": "56dd3e1eedcc9998fcaf02065af00f0944d541fcc4927c1637429263f61127dc",
+   "kind": "method",
+   "name": "bond_analytics",
+   "output": {
+    "bond_price": 104.4912925031211,
+    "convexity": 22.92314562534249,
+    "dv01": 0.046087870605298065,
+    "macaulay_duration": 4.498903644526232,
+    "modified_duration": 4.410689847574737,
+    "ytm": 0.04
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "autonomous_planned",
+   "autonomous_claimed",
+   "autonomous_wave_started",
+   "autonomous_task_finished",
+   "autonomous_task_finished",
+   "autonomous_wave_started",
+   "autonomous_run_finished"
+  ],
+  "facts": {
+   "cited": [
+    "conventions",
+    "calendar"
+   ],
+   "findings": 2,
+   "report_sources_hashed": 2,
+   "status": "completed",
+   "verbatim": 2
+  }
+ },
+ "task": "research_cited_findings"
+}

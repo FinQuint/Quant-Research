@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from finquint.autonomous.models import canonical
 
 from ..gate.capabilities import CapabilityError
+from ..tracing import NULL_TRACER
 from ..gate.decide import ProposedAction, fingerprint
 from ..verify.paths import DEFAULT_PROTECTED_PATHS, ProtectedPathError, check_action_paths
 from .ledger import EffectStatus, idempotency_key
@@ -31,11 +32,20 @@ class GuardedTools:
     """protected_paths: no side-effecting tool may touch these, token or not (ADR-005).
     The check reads the action's patch itself, so it does not trust declared paths."""
 
-    def __init__(self, registry, ledger, authority, *, protected_paths=DEFAULT_PROTECTED_PATHS):
+    def __init__(self, registry, ledger, authority, *, protected_paths=DEFAULT_PROTECTED_PATHS, tracer=None):
         self.registry, self.ledger, self.authority = registry, ledger, authority
         self.protected_paths = tuple(protected_paths)
+        self.tracer = tracer or NULL_TRACER
 
     def call(self, run_id, action, *, token=None, attempt_scope="0"):
+        with self.tracer.span("tool.call", run_id=run_id, tool=getattr(action, "action_type", None),
+                              code_sha=getattr(action, "code_sha", None) or None,
+                              attempt_scope=attempt_scope) as span:
+            outcome = self._call(run_id, action, token=token, attempt_scope=attempt_scope)
+            span.set(effect_status=outcome.status.value, replayed=outcome.replayed)
+            return outcome
+
+    def _call(self, run_id, action, *, token, attempt_scope):
         if not isinstance(action, ProposedAction):
             raise TypeError("expected ProposedAction")
         tool = self.registry.get(action.action_type)
@@ -82,8 +92,13 @@ class OutboxWorker:
     recover() must run only when no other worker is alive (same rule as RunStore.recover).
     """
 
-    def __init__(self, registry, ledger):
+    def __init__(self, registry, ledger, *, tracer=None):
         self.registry, self.ledger = registry, ledger
+        self.tracer = tracer or NULL_TRACER
+
+    def _span(self, name, entry):
+        return self.tracer.span(name, run_id=entry.run_id, task_id=f"outbox:{entry.tool}", tool=entry.tool,
+                                code_sha=entry.action.get("code_sha") or None, key=entry.key)
 
     def _action(self, entry):
         action = ProposedAction.from_dict(entry.action)
@@ -105,28 +120,36 @@ class OutboxWorker:
         """Settle entries left dispatching by a crashed worker, without ever re-sending blindly."""
         settled = []
         for entry in self.ledger.entries(status=EffectStatus.DISPATCHING):
-            tool = self.registry.get(entry.tool)
-            try:
-                action = self._action(entry)
-            except Exception as exc:
-                settled.append(self.ledger.finish(entry.key, EffectStatus.IN_DOUBT, error=str(exc)))
-                continue
-            found = self._reconcile(tool, action, entry)
-            if isinstance(found, dict):
-                settled.append(self.ledger.finish(entry.key, EffectStatus.DONE, result=found))
-            elif found is False:
-                self.ledger.requeue(entry.key)
-                settled.append(self.ledger.get(entry.key))
-            else:
-                settled.append(self.ledger.finish(
-                    entry.key, EffectStatus.IN_DOUBT,
-                    error="dispatch interrupted and outcome cannot be confirmed; escalate"))
+            with self._span("outbox.recover", entry) as span:
+                settled.append(self._recover(entry))
+                span.set(effect_status=settled[-1].status.value)
         return tuple(settled)
+
+    def _recover(self, entry):
+        tool = self.registry.get(entry.tool)
+        try:
+            action = self._action(entry)
+        except Exception as exc:
+            return self.ledger.finish(entry.key, EffectStatus.IN_DOUBT, error=str(exc))
+        found = self._reconcile(tool, action, entry)
+        if isinstance(found, dict):
+            return self.ledger.finish(entry.key, EffectStatus.DONE, result=found)
+        if found is False:
+            self.ledger.requeue(entry.key)
+            return self.ledger.get(entry.key)
+        return self.ledger.finish(entry.key, EffectStatus.IN_DOUBT,
+                                  error="dispatch interrupted and outcome cannot be confirmed; escalate")
 
     def run_once(self):
         entry = self.ledger.claim_next()
         if entry is None:
             return None
+        with self._span("outbox.dispatch", entry) as span:
+            finished = self._dispatch(entry)
+            span.set(effect_status=finished.status.value)
+            return finished
+
+    def _dispatch(self, entry):
         tool = self.registry.get(entry.tool)
         try:
             action = self._action(entry)

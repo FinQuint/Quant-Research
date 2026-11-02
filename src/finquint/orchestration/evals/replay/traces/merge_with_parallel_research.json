@@ -1,0 +1,80 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "a8d92d74d2d3a0c50e53d50f64aa76eb01f370d9ac9ebc6615e5282ce3733251",
+   "kind": "tool",
+   "name": "research",
+   "output": {
+    "read": "source:0"
+   }
+  },
+  {
+   "error": null,
+   "key": "b04bf5f9659f616a4bd4c2af5ad34699dbaf2e8b9c818d626584872543a5750c",
+   "kind": "tool",
+   "name": "research",
+   "output": {
+    "read": "source:1"
+   }
+  },
+  {
+   "error": null,
+   "key": "1e026817513aa2e9d51b611a0f5c869b97bccc417ddf092b8e5c75ccf25b3e5e",
+   "kind": "tool",
+   "name": "research",
+   "output": {
+    "read": "source:2"
+   }
+  },
+  {
+   "error": null,
+   "key": "2f59a6c62309c1ed2644b012a777c53ecdbdbdbc2849176307b8ad04bad8488b",
+   "kind": "tool",
+   "name": "open_pr",
+   "output": {
+    "pr": "agent/signal-window"
+   }
+  },
+  {
+   "error": null,
+   "key": "0109574f20003a9917bc169237470d7280ae1649e4871c1c9f79c1e8c315ecb7",
+   "kind": "tool",
+   "name": "merge_to_main",
+   "output": {
+    "merged": "agent/signal-window"
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "branch_added",
+   "branch_added",
+   "branch_advanced",
+   "side_effect_enqueued",
+   "branch_advanced",
+   "branch_advanced",
+   "approval_requested",
+   "branch_waiting",
+   "branch_advanced",
+   "side_effect_dispatching",
+   "side_effect_done",
+   "approval_decided",
+   "approval_verified",
+   "side_effect_enqueued",
+   "branch_advanced",
+   "side_effect_dispatching",
+   "side_effect_done"
+  ],
+  "facts": {
+   "human_interrupts": 1,
+   "merges": 1,
+   "merges_before_approval": 0,
+   "research_while_waiting": "done",
+   "ship_final": "done",
+   "ship_while_waiting": "waiting_approval"
+  }
+ },
+ "task": "merge_with_parallel_research"
+}

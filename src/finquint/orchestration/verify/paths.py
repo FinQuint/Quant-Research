@@ -26,6 +26,8 @@ DEFAULT_PROTECTED_PATHS = (
     # The code that enforces the rules.
     "src/finquint/orchestration/gate",
     "src/finquint/orchestration/verify",
+    # Golden tasks, fault suite, baselines and recorded traces (Phase 4).
+    "src/finquint/orchestration/evals",
     # Files that change how tests run or who must review.
     ".github",
     "CODEOWNERS",

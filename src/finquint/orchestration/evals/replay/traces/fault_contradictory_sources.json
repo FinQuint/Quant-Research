@@ -1,0 +1,57 @@
+{
+ "calls": [
+  {
+   "error": null,
+   "key": "5ad93e971042a57569720a97e4432843dccfec1de725c1a111e3f4ea601fca61",
+   "kind": "method",
+   "name": "source_review",
+   "output": {
+    "findings": [
+     {
+      "quote": "Yields use nominal annual compounding.",
+      "source_id": "paper_a"
+     },
+     {
+      "quote": "Yields use continuous compounding.",
+      "source_id": "paper_b"
+     }
+    ]
+   }
+  },
+  {
+   "error": null,
+   "key": "7a0bdf63a992cc576f0ccee6c0b1f5af8e29e2489ee6d0f749db6a07c06cfd68",
+   "kind": "method",
+   "name": "bond_analytics",
+   "output": {
+    "bond_price": 104.4912925031211,
+    "convexity": 22.92314562534249,
+    "dv01": 0.046087870605298065,
+    "macaulay_duration": 4.498903644526232,
+    "modified_duration": 4.410689847574737,
+    "ytm": 0.04
+   }
+  }
+ ],
+ "format": 1,
+ "outcome": {
+  "events": [
+   "autonomous_planned",
+   "autonomous_claimed",
+   "autonomous_wave_started",
+   "autonomous_task_finished",
+   "autonomous_task_finished",
+   "autonomous_wave_started",
+   "autonomous_run_finished"
+  ],
+  "facts": {
+   "cited": [
+    "paper_a",
+    "paper_b"
+   ],
+   "reported": true,
+   "status": "completed"
+  }
+ },
+ "task": "fault_contradictory_sources"
+}

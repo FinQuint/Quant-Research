@@ -20,7 +20,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Done** — merged to `main` as PR #16 (df104b3) |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
-| 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Exit test passes; PR #19 into `main` awaiting review** — branch `feature/knowledge-lifecycle` |
+| 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -286,3 +286,8 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   reserved names and divide-by-zero. Baselines unchanged. Suite: 406 passed (379 + 27).
   Committed (549dfed), pushed, PR #19 opened; CI green on 3.10–3.12. Next: code-owner review
   and merge of PR #19 (user merges). All six roadmap phases then done.
+- 2026-11-04: PR #19 (Phase 6) merged (93d432f; CI green on 3.10–3.12, merged by the user).
+  All six roadmap phases are done. Open follow-ups: real-model plugs through the socket
+  (optional install, recorded and replayed), re-running the Phase 5 sweep per real model,
+  folding the Decisions above into ADRs in the spec, and updating the Phase 4
+  contradictory-sources task to use the context layer (human change to a protected task).

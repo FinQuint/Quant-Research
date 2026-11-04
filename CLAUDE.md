@@ -20,7 +20,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Done** — merged to `main` as PR #16 (df104b3) |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
-| 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Exit test passes; reviewed, not committed** — branch `feature/knowledge-lifecycle` |
+| 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Exit test passes; PR #19 into `main` awaiting review** — branch `feature/knowledge-lifecycle` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -284,4 +284,5 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   unverified or failed-run values; `knowledge/` was unprotected; code index broke on BOM,
   non-UTF-8, `__init__` and duplicate names; duplicated current-version logic. Also `derive()`
   reserved names and divide-by-zero. Baselines unchanged. Suite: 406 passed (379 + 27).
-  Next: user review, then commit and PR (protected files need code-owner review).
+  Committed (549dfed), pushed, PR #19 opened; CI green on 3.10–3.12. Next: code-owner review
+  and merge of PR #19 (user merges). All six roadmap phases then done.

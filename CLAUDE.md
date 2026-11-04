@@ -19,7 +19,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Done** — merged to `main` as PR #15 (f44815f) |
 | 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Done** — merged to `main` as PR #16 (df104b3) |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
-| 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Exit test passes; reviewed, not committed** — branch `feature/context-layer` |
+| 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Exit test passes; PR #18 into `main` awaiting review** — branch `feature/context-layer` |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | Not started |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
@@ -237,4 +237,5 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   `additionalProperties` schema objects silently ignored; retrieval re-indexing per question.
   Not changed: `ask()` still builds a full request before a utilization rebuild. Baseline and
   picks unchanged. Suite: 379 passed (341 + 38); Phase 4 evals and replay unchanged.
-  Next: user review, then commit and PR (new protected files need code-owner review).
+  Committed (661554e), pushed, PR #18 opened; CI green on 3.10–3.12. Next: code-owner review
+  and merge of PR #18 (user merges), then Phase 6 (knowledge lifecycle, number provenance).

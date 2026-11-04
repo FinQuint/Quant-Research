@@ -25,14 +25,17 @@ class AutonomousWorkflow:
     With it, approval tasks open signed approval requests and resume only through
     resume_with_approval() with an approval record ID; decide() is refused."""
 
-    def __init__(self, store, registry, *, max_workers=4, approvals=None, tracer=None):
-        """tracer: optional orchestration Tracer; each task execution gets a span."""
+    def __init__(self, store, registry, *, max_workers=4, approvals=None, tracer=None, knowledge=None):
+        """tracer: optional orchestration Tracer; each task execution gets a span.
+        knowledge: optional orchestration Ingestor; a completed run's succeeded outputs are
+        ingested as evidence. Without it, behavior is unchanged."""
         if type(max_workers) is not int or not 1 <= max_workers <= 16:
             raise ValueError("max_workers must be between 1 and 16")
         self.store, self.registry, self.max_workers = store, registry, max_workers
         self.supervisor = Supervisor()
         self.approvals = approvals
         self.tracer = tracer
+        self.knowledge = knowledge
 
     def submit(self, request):
         return self.store.create(Planner().build(request, self.registry))
@@ -240,4 +243,12 @@ class AutonomousWorkflow:
         except Exception as exc:
             state.update(status="failed", error=f"{type(exc).__name__}: {exc}")
         self.store.save(state, "autonomous_run_finished")
+        if self.knowledge is not None and state["status"] == "completed":
+            try:
+                report = self.knowledge.on_run_completed(state)
+                event = ("knowledge_ingested", {"added": [list(r) for r in report.added]})
+            except Exception as exc:  # ingestion never changes a finished run's outcome
+                event = ("knowledge_ingest_failed", {"error": f"{type(exc).__name__}: {exc}"})
+            with self.store.db:   # commit the audit event; never leave a transaction open
+                self.store.research._event(event[0], run_id, event[1])
         return state

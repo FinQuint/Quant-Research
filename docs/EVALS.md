@@ -131,3 +131,55 @@ sweep for each real model plug; baselines are kept per model.
 
 The baseline (`evals/context/baseline.json`) and `configs/context_policy.json` are protected
 paths. `tests/test_orchestration_context.py` fails if either one drifts from a fresh sweep.
+
+## Report golden tasks (Phase 6)
+
+`finquint.orchestration.evals.numbers` is the Phase 6 exit test: "100% of reported numbers
+trace to artifacts on the golden suite."
+
+```powershell
+python -m finquint.orchestration.evals.numbers                    # compare with the baseline
+python -m finquint.orchestration.evals.numbers --write-baseline   # humans only
+```
+
+**Tasks.** Each task stores results through real code paths, then a `SimulatedReporter` writes
+a prose report about them:
+
+- `report_bond_risk`: a real `AutonomousWorkflow` bond run (`run:report-bond/analytics`).
+- `report_backtest`: a registered `ExperimentRecord` (`experiment:exp-momentum-a`).
+- `report_strategy_change`: two experiments and two derived changes (`derived:sharpe_change`,
+  `derived:turnover_change`).
+- Faults:
+  - `fault_invented_number`: the model adds a figure that is in no artifact.
+  - `fault_missing_artifact`: a placeholder names an artifact that does not exist.
+  - `fault_raw_numbers`: the model types numbers instead of using placeholders.
+
+**Pipelines.**
+
+- `unchecked`: before Phase 6. The model types numbers, and its text is the report.
+- `provenance`: `knowledge.reporting.write_report`. It renders `{{metric:ARTIFACT:FIELD|fmt}}`
+  placeholders from the metric store and runs the numeral post-check (`verify/numbers.py`). A
+  failing report is sent back once for repair; if it still fails, the run escalates and no
+  report is produced.
+
+| Total (6 tasks) | Numbers reported | Traced to an artifact | Invented number reported | Wrong outcome |
+| --- | --- | --- | --- | --- |
+| unchecked | 21 | 0 (0%) | 1 | 3 (every fault reached a report) |
+| provenance | 10 | 10 (100%) | 0 | 0 (every fault escalated) |
+
+**What counts as a number.** Any digit run in the final text. The only exemptions are:
+
+- rendered placeholders;
+- identifiers named in the request's tags (criterion and evidence IDs, versions, SHAs, field
+  names);
+- ISO dates;
+- a "double-quoted" passage copied verbatim from an input.
+
+**Limits.**
+
+- The simulated reporter tests the mechanism, not how often a real model skips placeholders.
+  Real models use the same socket and tasks.
+- The Phase 4 golden tasks return JSON facts, not prose, so they contain no reported numbers to
+  check.
+
+The baseline (`evals/numbers/baseline.json`) and `verify/numbers.py` are protected paths.

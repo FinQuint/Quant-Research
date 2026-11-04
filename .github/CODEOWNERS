@@ -9,6 +9,7 @@
 /src/finquint/orchestration/gate/    @walleva1715
 /src/finquint/orchestration/verify/  @walleva1715
 /src/finquint/orchestration/evals/   @walleva1715
+/src/finquint/orchestration/knowledge/ @walleva1715
 /.github/                            @walleva1715
 /CODEOWNERS                          @walleva1715
 /docs/CODEOWNERS                     @walleva1715

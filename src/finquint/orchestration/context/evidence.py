@@ -39,6 +39,7 @@ class Evidence:
     deprecated: bool = False
     claims: dict = field(default_factory=dict)   # structured facts, e.g. {"compounding": "nominal"}
     source: str = ""
+    supports: tuple = ()   # (evidence_id, version) refs a promoted claim rests on
 
     def __post_init__(self):
         identifier(self.evidence_id)
@@ -50,6 +51,7 @@ class Evidence:
         if self.dataset is not None and "@" not in self.dataset:
             raise ValueError("dataset must look like name@version")
         object.__setattr__(self, "permissions", frozenset(self.permissions))
+        object.__setattr__(self, "supports", tuple((str(i), str(v)) for i, v in self.supports))
         object.__setattr__(self, "claims", MappingProxyType({str(k): str(v) for k, v in dict(self.claims).items()}))
         # Fail now, not mid-run: IDs, version, run and dataset must fit the request tag format.
         evidence_line(self.evidence_id, self.version, self.run_id, self.topic, "", self.dataset)
@@ -70,6 +72,7 @@ class Evidence:
         data = {name: getattr(self, name) for name in self.__dataclass_fields__}
         data["permissions"] = sorted(self.permissions)
         data["claims"] = dict(self.claims)
+        data["supports"] = [list(ref) for ref in self.supports]
         return json.dumps(data, sort_keys=True)
 
     @classmethod
@@ -77,6 +80,15 @@ class Evidence:
         data = json.loads(text)
         data["permissions"] = frozenset(data["permissions"])
         return cls(**data)
+
+
+def current_items(store):
+    """The current version of every evidence ID, in insertion order (one pass over items())."""
+    latest = {}
+    for item in store.items():
+        latest.pop(item.evidence_id, None)
+        latest[item.evidence_id] = item
+    return list(latest.values())
 
 
 @runtime_checkable
@@ -116,14 +128,17 @@ class InMemoryEvidenceStore(_Lexical):
     def __init__(self, items=()):
         self._items = {}
         self._order = {}
+        self._next = 0
         self._lock = threading.Lock()
         for item in items:
             self.put(item)
 
     def put(self, evidence):
+        """The item put last is current, also when it re-puts an existing version (a revert)."""
         with self._lock:
-            if evidence.ref not in self._order:
-                self._order[evidence.ref] = len(self._order)
+            self._order.pop(evidence.ref, None)
+            self._order[evidence.ref] = self._next
+            self._next += 1
             self._items[evidence.ref] = evidence
 
     def get(self, evidence_id, version=None):
@@ -139,7 +154,7 @@ class InMemoryEvidenceStore(_Lexical):
         return [self._items[ref] for ref in sorted(self._order, key=self._order.get)]
 
     def deprecate(self, evidence_id):
-        for ref in [r for r in self._order if r[0] == evidence_id]:
+        for ref in sorted((r for r in self._order if r[0] == evidence_id), key=self._order.get):
             self.put(replace(self._items[ref], deprecated=True))
 
 
@@ -154,9 +169,11 @@ class SQLiteEvidenceStore(_Lexical):
         self.db.commit()
 
     def put(self, evidence):
+        """The item put last is current, also when it re-puts an existing version (a revert)."""
         with self.db:
-            self.db.execute("""INSERT INTO context_evidence (evidence_id, version, data) VALUES (?, ?, ?)
-                ON CONFLICT (evidence_id, version) DO UPDATE SET data = excluded.data""",
+            self.db.execute("DELETE FROM context_evidence WHERE evidence_id = ? AND version = ?",
+                            (evidence.evidence_id, evidence.version))
+            self.db.execute("INSERT INTO context_evidence (evidence_id, version, data) VALUES (?, ?, ?)",
                             (evidence.evidence_id, evidence.version, evidence.to_json()))
 
     def get(self, evidence_id, version=None):

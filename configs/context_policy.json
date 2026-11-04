@@ -1,0 +1,14 @@
+{
+ "format": 1,
+ "policy": {
+  "history_last_n": 16,
+  "max_failed_rebuilds": 2,
+  "output_reserve": 0.15,
+  "retrieval_first_k": 1,
+  "retrieval_max_items": 24,
+  "retrieval_max_rounds": 3,
+  "retrieval_more_k": 2,
+  "utilization_threshold": 0.8
+ },
+ "source": "src/finquint/orchestration/evals/context (Phase 5 sweep, plug simulated-v1)"
+}

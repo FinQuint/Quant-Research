@@ -1,0 +1,362 @@
+{
+ "format": 1,
+ "naive_sensitivity": [
+  {
+   "citation_failures": 1,
+   "forgotten_criteria": 21,
+   "input_tokens": 6846,
+   "model_calls": 4,
+   "rebuilds": 0,
+   "summary_share": 0.1,
+   "wrong_status": 1
+  },
+  {
+   "citation_failures": 1,
+   "forgotten_criteria": 16,
+   "input_tokens": 6914,
+   "model_calls": 4,
+   "rebuilds": 0,
+   "summary_share": 0.15,
+   "wrong_status": 1
+  },
+  {
+   "citation_failures": 7,
+   "forgotten_criteria": 0,
+   "input_tokens": 6856,
+   "model_calls": 4,
+   "rebuilds": 0,
+   "summary_share": 0.25,
+   "wrong_status": 1
+  }
+ ],
+ "picked": {
+  "history_last_n": 16,
+  "max_failed_rebuilds": 2,
+  "utilization_threshold": 0.8
+ },
+ "plug": {
+  "attention_tokens": 1400,
+  "context_window": 2048,
+  "name": "simulated-v1"
+ },
+ "summary_share": 0.15,
+ "sweeps": {
+  "context": [
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 2,
+    "input_tokens": 7467,
+    "model_calls": 9,
+    "rebuilds": 9,
+    "utilization_threshold": 0.5,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 4,
+    "input_tokens": 7578,
+    "model_calls": 9,
+    "rebuilds": 11,
+    "utilization_threshold": 0.5,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 8,
+    "input_tokens": 7578,
+    "model_calls": 9,
+    "rebuilds": 11,
+    "utilization_threshold": 0.5,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 16,
+    "input_tokens": 7578,
+    "model_calls": 9,
+    "rebuilds": 11,
+    "utilization_threshold": 0.5,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 2,
+    "input_tokens": 8568,
+    "model_calls": 9,
+    "rebuilds": 9,
+    "utilization_threshold": 0.6,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 4,
+    "input_tokens": 8859,
+    "model_calls": 9,
+    "rebuilds": 10,
+    "utilization_threshold": 0.6,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 21,
+    "history_last_n": 8,
+    "input_tokens": 9237,
+    "model_calls": 9,
+    "rebuilds": 11,
+    "utilization_threshold": 0.6,
+    "wrong_status": 3
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 16,
+    "input_tokens": 7153,
+    "model_calls": 7,
+    "rebuilds": 9,
+    "utilization_threshold": 0.6,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 2,
+    "input_tokens": 7398,
+    "model_calls": 7,
+    "rebuilds": 5,
+    "utilization_threshold": 0.7,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 4,
+    "input_tokens": 7611,
+    "model_calls": 7,
+    "rebuilds": 8,
+    "utilization_threshold": 0.7,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 8,
+    "input_tokens": 8337,
+    "model_calls": 7,
+    "rebuilds": 8,
+    "utilization_threshold": 0.7,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 7,
+    "history_last_n": 16,
+    "input_tokens": 6023,
+    "model_calls": 5,
+    "rebuilds": 7,
+    "utilization_threshold": 0.7,
+    "wrong_status": 1
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 2,
+    "input_tokens": 7398,
+    "model_calls": 7,
+    "rebuilds": 5,
+    "utilization_threshold": 0.8,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 4,
+    "input_tokens": 7725,
+    "model_calls": 7,
+    "rebuilds": 6,
+    "utilization_threshold": 0.8,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 7,
+    "history_last_n": 8,
+    "input_tokens": 6080,
+    "model_calls": 5,
+    "rebuilds": 6,
+    "utilization_threshold": 0.8,
+    "wrong_status": 1
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 0,
+    "history_last_n": 16,
+    "input_tokens": 3937,
+    "model_calls": 3,
+    "rebuilds": 5,
+    "utilization_threshold": 0.8,
+    "wrong_status": 0
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 2,
+    "input_tokens": 7398,
+    "model_calls": 7,
+    "rebuilds": 5,
+    "utilization_threshold": 0.9,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 4,
+    "input_tokens": 7725,
+    "model_calls": 7,
+    "rebuilds": 6,
+    "utilization_threshold": 0.9,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 14,
+    "history_last_n": 8,
+    "input_tokens": 10622,
+    "model_calls": 8,
+    "rebuilds": 7,
+    "utilization_threshold": 0.9,
+    "wrong_status": 2
+   },
+   {
+    "citation_failures": 0,
+    "forgotten_criteria": 7,
+    "history_last_n": 16,
+    "input_tokens": 6926,
+    "model_calls": 5,
+    "rebuilds": 7,
+    "utilization_threshold": 0.9,
+    "wrong_status": 1
+   }
+  ],
+  "rebuilds": [
+   {
+    "false_escalations": 1,
+    "max_failed_rebuilds": 1,
+    "missed_escalations": 0,
+    "recoverable_calls": 4,
+    "unrecoverable_calls": 2
+   },
+   {
+    "false_escalations": 0,
+    "max_failed_rebuilds": 2,
+    "missed_escalations": 0,
+    "recoverable_calls": 5,
+    "unrecoverable_calls": 3
+   },
+   {
+    "false_escalations": 0,
+    "max_failed_rebuilds": 3,
+    "missed_escalations": 0,
+    "recoverable_calls": 5,
+    "unrecoverable_calls": 4
+   }
+  ]
+ },
+ "tasks": {
+  "longrun_backtest_analysis": {
+   "builder": {
+    "citation_failures": 0,
+    "forgotten_criteria": 0,
+    "input_tokens": 1382,
+    "model_calls": 1,
+    "rebuilds": 2,
+    "wrong_status": 0
+   },
+   "naive": {
+    "citation_failures": 0,
+    "forgotten_criteria": 6,
+    "input_tokens": 1727,
+    "model_calls": 1,
+    "rebuilds": 0,
+    "wrong_status": 0
+   }
+  },
+  "longrun_bond_research": {
+   "builder": {
+    "citation_failures": 0,
+    "forgotten_criteria": 0,
+    "input_tokens": 1209,
+    "model_calls": 1,
+    "rebuilds": 2,
+    "wrong_status": 0
+   },
+   "naive": {
+    "citation_failures": 0,
+    "forgotten_criteria": 7,
+    "input_tokens": 1737,
+    "model_calls": 1,
+    "rebuilds": 0,
+    "wrong_status": 0
+   }
+  },
+  "longrun_conflicting_sources": {
+   "builder": {
+    "citation_failures": 0,
+    "forgotten_criteria": 0,
+    "input_tokens": 0,
+    "model_calls": 0,
+    "rebuilds": 0,
+    "wrong_status": 0
+   },
+   "naive": {
+    "citation_failures": 1,
+    "forgotten_criteria": 0,
+    "input_tokens": 1717,
+    "model_calls": 1,
+    "rebuilds": 0,
+    "wrong_status": 1
+   }
+  },
+  "longrun_strategy_coding": {
+   "builder": {
+    "citation_failures": 0,
+    "forgotten_criteria": 0,
+    "input_tokens": 1346,
+    "model_calls": 1,
+    "rebuilds": 1,
+    "wrong_status": 0
+   },
+   "naive": {
+    "citation_failures": 0,
+    "forgotten_criteria": 3,
+    "input_tokens": 1733,
+    "model_calls": 1,
+    "rebuilds": 0,
+    "wrong_status": 0
+   }
+  }
+ },
+ "totals": {
+  "builder": {
+   "citation_failures": 0,
+   "forgotten_criteria": 0,
+   "input_tokens": 3937,
+   "model_calls": 3,
+   "rebuilds": 5,
+   "wrong_status": 0
+  },
+  "naive": {
+   "citation_failures": 1,
+   "forgotten_criteria": 16,
+   "input_tokens": 6914,
+   "model_calls": 4,
+   "rebuilds": 0,
+   "wrong_status": 1
+  }
+ }
+}

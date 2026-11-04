@@ -18,8 +18,8 @@ executes.* No live trading; never change the numerical algorithms.
 | 1 Safe side effects | Tool registry, idempotency ledger, outbox, capability tokens, `decide()` + tests | **Done** — merged to `main` as PR #14 (383f069) |
 | 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Done** — merged to `main` as PR #15 (f44815f) |
 | 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Done** — merged to `main` as PR #16 (df104b3) |
-| 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Exit test passes; PR #17 into `main` awaiting review** — branch `feature/eval-harness` |
-| 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | Not started |
+| 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
+| 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Exit test passes; reviewed, not committed** — branch `feature/context-layer` |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | Not started |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
@@ -122,6 +122,40 @@ Each phase is done only when its **exit test** in the spec passes. Update this t
     `pip install` would need package-data config in `pyproject.toml`, which is protected and
     was left unchanged.
 
+- **2026-11-04 — Phase 5 decisions** (open questions in
+  https://claude.ai/artifact/HpEBmEQMin85YEVorDmD1m, settled with the user).
+  - **Model socket.** Agents reach models only through `orchestration/models/`, never a vendor
+    SDK. A plug implements `complete(ModelRequest) -> ModelReply` and declares `Capabilities`
+    and `SOCKET_VERSION`. Optional abilities (exact token counts, caching, tool calls) are flags
+    a plug has or lacks. Requests carry hints (`stable`, output schema), which a plug uses or
+    ignores.
+  - Schema checks, the spec's one repair retry, ESCALATE after that, fallback order, and error
+    mapping run in the core (`models/core.py`), so every model gets the same safety behavior.
+    A plug raises `ModelUnavailable` for an outage; when every plug is out the core raises a
+    plain `RetryableError`, because `status_for_task` matches the recorded "RetryableError"
+    prefix. `decide()` then treats the outage as INFRA_ERROR. No Pydantic: a small JSON-schema subset validator, no new dependency.
+  - Plugs in Phase 5: `SimulatedModel` (deterministic, the CI gate) and replay (recorded replies
+    keyed by request digest). Every plug must pass `models/conformance.py`. Real-model plugs
+    come in a later PR as optional installs. Eval baselines are kept per model; CI gates only
+    on the simulated plug.
+  - Tokens: each plug may bring an exact counter; otherwise a characters/4 estimate plus a
+    safety margin (tune). `Calibration` records reported usage per model and corrects the
+    estimate. Budgets are percentages of the plug's window. On fallback to a smaller window
+    the request is rebuilt.
+  - Exit measurement = option C: simulated agent as the CI gate now; real models later through
+    the same socket. Long-run task = 30+ steps, 5+ criteria, evidence that overflows a small
+    budget. (tune) thresholds are swept over the long-run tasks; sweeps and picks are recorded
+    in the context baseline, and `configs/context_policy.json` must match the picks.
+  - Storage: SQLite plus lexical retrieval behind an `EvidenceStore` interface; no embeddings or
+    Postgres yet. Phase 5 = task card, builder, retrieval, health triggers, rebuild. Tiers and
+    promotion stay in Phase 6.
+  - Task card holds budget *limits* (immutable); budget *left* goes in the volatile part of
+    the request, so the card can stay byte-identical across calls.
+  - Evidence-conflict check: evidence with the same claim key but different values → ESCALATE.
+    It lives in the context layer. The Phase 4 task `fault_contradictory_sources` keeps its
+    known gap, because closing it would mean editing that protected task or changing the PR #13
+    runtime. It closes once agents run through the context layer.
+
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
 - Additive changes only: existing analytics, `QuantPipeline`, 10A/10B/10C behavior and their tests
@@ -179,4 +213,28 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   Phase 4 on `feature/eval-harness`: `orchestration/tracing.py`, `orchestration/evals/`
   (13 golden/fault tasks, baseline, 13 replay traces, CLI), `docs/EVALS.md`,
   `tests/test_orchestration_evals.py`. Suite: 341 passed (321 + 20). Committed (2ce0aa9),
-  PR #17 opened. Next: CI + review/merge PR #17; then Phase 5 (context layer). Its exit compares against this baseline.
+  PR #17 opened. Next: CI + review/merge PR #17; then Phase 5 (context layer).
+- 2026-11-01: PR #17 merged (605c641; CI green on 3.10–3.12, merged by the user with admin
+  bypass). Claude Code's permission check blocks Claude from bypass-merging, so the user merges.
+  Use bash syntax for `!` commands: `"/c/Program Files/GitHub CLI/gh.exe" ...`. Created
+  `feature/context-layer` from `main` for Phase 5. Phase 5 is on hold until the user decides
+  how to measure its exit test. Open questions and proposed defaults are in the doc
+  https://claude.ai/artifact/HpEBmEQMin85YEVorDmD1m. Its exit compares against this baseline.
+- 2026-11-04: Phase 5 decisions settled (model socket, option C, defaults 2–7; see Decisions).
+  Built `orchestration/models/` (socket, core, schema, tokens, simulated, replay, conformance),
+  `orchestration/context/` (task_card, handoff, evidence, retrieval, builder, health, session,
+  tags), `verify/citations.py`, `evals/context/` (4 long-run tasks, naive vs builder, sweeps,
+  `baseline.json`), `configs/context_policy.json` (sweep picks: utilization 0.8, history 16,
+  failed rebuilds 2), `tests/test_orchestration_context.py`, Phase 5 section in
+  `docs/EVALS.md`. Exit: naive 16 forgotten / 1 citation failure, builder 0 / 0.
+  Test fixes verified: suite 370 passed (341 + 29).
+- 2026-11-04: Code review (high) found 10 issues, all fixed with regression tests: history
+  output dropped as a duplicate when its retrieved copy was not included; dedupe across topics;
+  conflict check limited to what fit the budget (now over all candidates); provisional evidence
+  citable (now refused); bad card/evidence values crashing mid-run (now rejected at
+  construction, and `ask()` escalates); constraint newlines injecting tags; handoff evidence not
+  counted as offered; `fit()` errors and oversized repair requests escaping the core;
+  `additionalProperties` schema objects silently ignored; retrieval re-indexing per question.
+  Not changed: `ask()` still builds a full request before a utilization rebuild. Baseline and
+  picks unchanged. Suite: 379 passed (341 + 38); Phase 4 evals and replay unchanged.
+  Next: user review, then commit and PR (new protected files need code-owner review).

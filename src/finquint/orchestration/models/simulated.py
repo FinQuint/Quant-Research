@@ -79,3 +79,65 @@ class SimulatedModel:
             for cid, topic in criteria]}
         body = json.dumps(report, sort_keys=True)
         return ModelReply(body, self.name, Usage(tokens, self.count_tokens(body), exact=True))
+
+
+REPORT_MODES = ("placeholder", "raw", "missing")
+
+
+class SimulatedReporter(SimulatedModel):
+    """Writes a prose report (knowledge.reporting.REPORT_TEXT_SCHEMA) from what it can see.
+
+    For each visible criterion it finds the [metric ...] line whose field (or its last dotted
+    part) equals the criterion's topic, and writes one sentence about it. mode decides how the
+    number is written:
+
+      placeholder  {{metric:ARTIFACT:FIELD|.4f}}             (the ADR-007 way)
+      raw          the value typed out, e.g. 104.4913        (how reports were written before)
+      missing      the first placeholder names an artifact that does not exist
+
+    invent=True adds one made-up figure to the first section (a hallucinated number).
+    """
+
+    def __init__(self, name="simulated-reporter-v1", *, mode="placeholder", invent=False, **kwargs):
+        if mode not in REPORT_MODES:
+            raise ValueError(f"mode must be one of {REPORT_MODES}")
+        super().__init__(name, **kwargs)
+        self.mode, self.invent = mode, invent
+
+    def complete(self, request):
+        text = request.text()
+        tokens = self.count_tokens(text)
+        if tokens + request.max_output_tokens > self.capabilities.context_window:
+            raise ModelRefused(f"request of {tokens} tokens exceeds the {self.capabilities.context_window}-token window")
+        card, criteria, metrics = {}, [], {}
+        for line in self.visible_lines(text):
+            tag = parse_line(line)
+            if tag is None:
+                continue
+            if tag.kind == "card":
+                card = tag.fields
+            elif tag.kind == "criterion" and tag.positional:
+                criteria.append((tag.positional[0], tag.fields.get("topic")))
+            elif tag.kind == "metric" and tag.positional and "field" in tag.fields:
+                field = tag.fields["field"]
+                metrics[field.rsplit(".", 1)[-1]] = (tag.positional[0], field, tag.text)
+        sections = []
+        for index, (cid, topic) in enumerate(criteria):
+            if topic not in metrics:
+                sections.append({"id": cid, "text": f"No result is available for {topic.replace('_', ' ')}."})
+                continue
+            artifact_id, field, value = metrics[topic]
+            if self.mode == "raw":
+                number = f"{float(value):.4f}"
+            elif self.mode == "missing" and index == 0:
+                number = f"{{{{metric:{artifact_id}-old:{field}|.4f}}}}"
+            else:
+                number = f"{{{{metric:{artifact_id}:{field}|.4f}}}}"
+            sentence = f"The {topic.replace('_', ' ')} is {number}."
+            if self.invent and index == 0:
+                sentence += " That is about 15 percent better than last quarter."
+            sections.append({"id": cid, "text": sentence})
+        if not sections:
+            sections.append({"id": "none", "text": "No criteria were visible."})
+        body = json.dumps({"run_id": card.get("run", ""), "sections": sections}, sort_keys=True)
+        return ModelReply(body, self.name, Usage(tokens, self.count_tokens(body), exact=True))

@@ -19,8 +19,8 @@ executes.* No live trading; never change the numerical algorithms.
 | 2 Protected evaluator | Branch protection, CODEOWNERS, lookahead/split invariants | **Done** — merged to `main` as PR #15 (f44815f) |
 | 3 Approval path | Human gate, signed approvals, verification, expiry, branch-level pausing | **Done** — merged to `main` as PR #16 (df104b3) |
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
-| 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Exit test passes; PR #18 into `main` awaiting review** — branch `feature/context-layer` |
-| 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | Not started |
+| 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
+| 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Exit test passes; PR #19 into `main` awaiting review** — branch `feature/knowledge-lifecycle` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -156,6 +156,33 @@ Each phase is done only when its **exit test** in the spec passes. Update this t
     known gap, because closing it would mean editing that protected task or changing the PR #13
     runtime. It closes once agents run through the context layer.
 
+- **2026-11-04 — Phase 6 decisions** (open questions in
+  https://claude.ai/artifact/86ymZMXBCe4jBvNSQKjhVz; option A and defaults 2–9 chosen by the user).
+  - Exit measurement = option A: new report golden tasks where the simulated model writes prose
+    reports with `{{metric:artifact_id:field}}` placeholders. Fault variants write a raw number,
+    an invented number, and a placeholder pointing at a missing artifact. Real-model runs come later.
+  - A "number" is any digit run in a final output. Exempt only rendered placeholders, request tags
+    (IDs, versions, SHAs), ISO dates and text quoted verbatim from an input. Fail closed otherwise.
+  - Placeholders resolve through a read-only `MetricStore` over existing stores (task outputs in
+    `ResearchStore`, evidence items); `artifact_id` names one stored output, `field` is a dotted
+    path. No new database; an interface lets Postgres replace it later.
+  - Placeholders may format (`{{metric:id:field|.2f}}`), never compute. A derived number is first
+    computed by a deterministic method and stored as its own artifact.
+  - Re-indexing runs on explicit in-process events (new code SHA at run start, verified experiment
+    saved, dataset version change). Stale marks come from per-file content hashes; old versions are kept.
+  - Code index: standard-library `ast` over `src/finquint` (exact function and class text per
+    SHA) plus Phase 5 keyword search. No embeddings.
+  - Promotion provisional → verified is a deterministic verifier: every number a rendered
+    placeholder, every citation passing against authoritative evidence. Automatic demotion when a
+    source is superseded. No human or model in the loop.
+  - The context layer is wired into `AutonomousWorkflow` as an opt-in hook; default unchanged.
+  - Storage stays SQLite behind the existing interfaces.
+  - Implementation: `src/finquint/orchestration/knowledge` is a protected path (added to
+    `DEFAULT_PROTECTED_PATHS` and CODEOWNERS) because it holds the promotion gate and report
+    escalation. Metric stores serve only verified artifacts: completed runs, experiments with
+    status "verified", and current trusted evidence. Evidence stores treat the item put last as
+    current, also on a re-put (code revert). A promoted claim version is never rewritten.
+
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
 - Additive changes only: existing analytics, `QuantPipeline`, 10A/10B/10C behavior and their tests
@@ -239,3 +266,23 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   picks unchanged. Suite: 379 passed (341 + 38); Phase 4 evals and replay unchanged.
   Committed (661554e), pushed, PR #18 opened; CI green on 3.10–3.12. Next: code-owner review
   and merge of PR #18 (user merges), then Phase 6 (knowledge lifecycle, number provenance).
+- 2026-11-04: PR #18 (Phase 5) merged (12cf50c; CI green on 3.10–3.12, merged by the user).
+  Created `feature/knowledge-lifecycle` from `main` for Phase 6.
+- 2026-11-04: Phase 6 decided (option A + defaults 2–9) and implemented on
+  `feature/knowledge-lifecycle`: `verify/numbers.py` (placeholder renderer, numeral post-check),
+  `knowledge/` (metrics, evidence_store promotion/demotion, code_index, ingestion, reporting),
+  `Evidence.supports`, `[metric ...]` tag, `SimulatedReporter`, opt-in
+  `AutonomousWorkflow(knowledge=Ingestor)`, `evals/numbers/` (6 report tasks + baseline),
+  `tests/test_orchestration_knowledge.py`, Phase 6 section in `docs/EVALS.md`. Exit: provenance
+  pipeline traces 10/10 reported numbers and escalates all 3 faults; unchecked traces 0/21 and
+  lets the invented figure through. Suite: 394 passed (379 + 15). Phase 4/5 evals unchanged.
+  Next: code review, then commit and PR.
+- 2026-11-04: Code review (high) of Phase 6 found 10 issues, all fixed with regression tests:
+  the hook left an SQLite transaction open (second run crashed); bare versions and quoted digit
+  fragments let invented numbers pass the post-check; a re-put version did not become current;
+  re-promotion rewrote history; deleted code stayed current; metric stores served superseded,
+  unverified or failed-run values; `knowledge/` was unprotected; code index broke on BOM,
+  non-UTF-8, `__init__` and duplicate names; duplicated current-version logic. Also `derive()`
+  reserved names and divide-by-zero. Baselines unchanged. Suite: 406 passed (379 + 27).
+  Committed (549dfed), pushed, PR #19 opened; CI green on 3.10–3.12. Next: code-owner review
+  and merge of PR #19 (user merges). All six roadmap phases then done.

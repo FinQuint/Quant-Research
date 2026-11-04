@@ -8,6 +8,7 @@ Every item in a request is one tagged line, so evidence always carries its ID an
     [evidence ev-7 v2 run=R topic=duration dataset=prices@v3] content
     [mention ev-7 v1 topic=duration] free text that refers to evidence (notes, summaries)
     [handoff from=researcher to=analyst] {"json": "payload"}
+    [metric run:R/analytics field=bond_price] 104.4912925   a value a report may cite by placeholder
 
 REPORT_SCHEMA is the output contract for a task report: every criterion addressed, each with
 the evidence it relies on.
@@ -16,7 +17,7 @@ from dataclasses import dataclass
 import re
 
 _TOKEN = r"[A-Za-z0-9_.@,:/-]+"
-_LINE = re.compile(r"^\[(card|criterion|evidence|mention|handoff)((?:\s+" + _TOKEN + r"(?:=" + _TOKEN + r")?)*)\]\s?(.*)$")
+_LINE = re.compile(r"^\[(card|criterion|evidence|mention|handoff|metric)((?:\s+" + _TOKEN + r"(?:=" + _TOKEN + r")?)*)\]\s?(.*)$")
 
 REPORT_SCHEMA = {
     "type": "object",
@@ -68,6 +69,10 @@ def evidence_line(evidence_id, version, run_id, topic, content, dataset=None):
 
 def mention_line(evidence_id, version, topic, text):
     return f"[mention {_clean(evidence_id)} v{_clean(version)} topic={_clean(topic)}] {_one_line(text)}"
+
+
+def metric_line(artifact_id, field, value):
+    return f"[metric {_clean(artifact_id)} field={_clean(field)}] {_one_line(value)}"
 
 
 def handoff_line(source, target, payload_json):

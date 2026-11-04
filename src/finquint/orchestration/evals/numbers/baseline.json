@@ -1,0 +1,137 @@
+{
+ "format": 1,
+ "plug": {
+  "context_window": 4096,
+  "name": "simulated-reporter-v1"
+ },
+ "tasks": {
+  "fault_invented_number": {
+   "provenance": {
+    "invented_reported": 0,
+    "model_calls": 2,
+    "numbers_reported": 0,
+    "numbers_traced": 0,
+    "status": "escalated",
+    "wrong_status": 0
+   },
+   "unchecked": {
+    "invented_reported": 1,
+    "model_calls": 1,
+    "numbers_reported": 5,
+    "numbers_traced": 0,
+    "status": "ok",
+    "wrong_status": 1
+   }
+  },
+  "fault_missing_artifact": {
+   "provenance": {
+    "invented_reported": 0,
+    "model_calls": 2,
+    "numbers_reported": 0,
+    "numbers_traced": 0,
+    "status": "escalated",
+    "wrong_status": 0
+   },
+   "unchecked": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 3,
+    "numbers_traced": 0,
+    "status": "ok",
+    "wrong_status": 1
+   }
+  },
+  "fault_raw_numbers": {
+   "provenance": {
+    "invented_reported": 0,
+    "model_calls": 2,
+    "numbers_reported": 0,
+    "numbers_traced": 0,
+    "status": "escalated",
+    "wrong_status": 0
+   },
+   "unchecked": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 3,
+    "numbers_traced": 0,
+    "status": "ok",
+    "wrong_status": 1
+   }
+  },
+  "report_backtest": {
+   "provenance": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 3,
+    "numbers_traced": 3,
+    "status": "ok",
+    "wrong_status": 0
+   },
+   "unchecked": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 3,
+    "numbers_traced": 0,
+    "status": "ok",
+    "wrong_status": 0
+   }
+  },
+  "report_bond_risk": {
+   "provenance": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 4,
+    "numbers_traced": 4,
+    "status": "ok",
+    "wrong_status": 0
+   },
+   "unchecked": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 4,
+    "numbers_traced": 0,
+    "status": "ok",
+    "wrong_status": 0
+   }
+  },
+  "report_strategy_change": {
+   "provenance": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 3,
+    "numbers_traced": 3,
+    "status": "ok",
+    "wrong_status": 0
+   },
+   "unchecked": {
+    "invented_reported": 0,
+    "model_calls": 1,
+    "numbers_reported": 3,
+    "numbers_traced": 0,
+    "status": "ok",
+    "wrong_status": 0
+   }
+  }
+ },
+ "totals": {
+  "provenance": {
+   "invented_reported": 0,
+   "model_calls": 9,
+   "numbers_reported": 10,
+   "numbers_traced": 10,
+   "wrong_status": 0
+  },
+  "unchecked": {
+   "invented_reported": 1,
+   "model_calls": 6,
+   "numbers_reported": 21,
+   "numbers_traced": 0,
+   "wrong_status": 3
+  }
+ },
+ "traced_share": {
+  "provenance": 1.0,
+  "unchecked": 0.0
+ }
+}

@@ -1,5 +1,5 @@
 > Repo copy of the Claude Doc spec (v0.1, 2026-10-30). Live doc: https://claude.ai/artifact/A8HdytgAaEqZrKU8o1dijF
-> Implementation decisions that refine this spec are in `CLAUDE.md` ("Decisions") until folded back into an ADR.
+> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes.
 
 # FinQuint Reliable Agentic Workflow — Architecture Spec
 
@@ -7,11 +7,11 @@ Oct 30, 2026 · @Yunan Xie
 
 ## Document control
 
-This is the single source of truth for the FinQuint orchestration architecture; version 0.1, draft for review.
+This is the single source of truth for the FinQuint orchestration architecture; version 0.2, draft for review.
 
 | Field | Value |
 | --- | --- |
-| Version | 0.1 (draft) |
+| Version | 0.2 (draft) |
 | Supersedes | ChatGPT design thread "Autonomous Workflow Architecture" (HITL gate, context management, dynamic knowledge) |
 | Owner | Project lead |
 | Review cadence | Every architecture change, and monthly while in build |
@@ -63,18 +63,28 @@ Agents never touch side effects directly. Outputs are verified, then gated; only
 
 ## Architecture decision records
 
-Eight decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded.
+Eighteen decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-018 record what Phases 1–6 decided while building it (dates are when each was decided).
 
 | ADR | Decision | Why | Status |
 | --- | --- | --- | --- |
 | ADR-001 | Policy, gating, and context budgeting are deterministic code, not LLM agents | Auditable, testable, cannot be talked out of a rule | Proposed |
 | ADR-002 | Gate has five outcomes: AUTO\_CONTINUE, RETRY, REQUEST\_HUMAN, ESCALATE, BLOCK | Separates "needs judgment" (ESCALATE) from "forbidden" (BLOCK) | Proposed |
 | ADR-003 | Enforcement lives in the tool layer via short-lived signed capability tokens; graph gate is advisory routing | No graph path, prompt injection, or tool substitution can bypass approval | Proposed |
-| ADR-004 | Every side-effecting call is its own node with an idempotency key in a Postgres ledger; outbox for merges, deploys, writes | LangGraph replays a node on resume; duplicates must be impossible | Proposed |
+| ADR-004 | Every side-effecting call is its own node with an idempotency key in a Postgres ledger; outbox for merges, deploys, writes | LangGraph replays a node on resume; duplicates must be impossible | Superseded by ADR-009 (storage and runtime only; the idempotency and outbox rules stand) |
 | ADR-005 | Tests, backtest harness, acceptance criteria, and data splits are read-only to agents | Prevents the coding agent from "passing" by changing the evaluator | Proposed |
 | ADR-006 | Context is rebuilt from a pinned task card plus authoritative artifacts, not chained summaries | Summaries of summaries lose and distort facts | Proposed |
 | ADR-007 | LLMs never emit metrics; outputs cite artifact IDs and a renderer inserts numbers | Eliminates hallucinated results | Proposed |
-| ADR-008 | Policy rules live in a policy engine (Cedar or OPA), versioned, changes require approval | Policy changes become reviewable diffs | Proposed |
+| ADR-008 | Policy rules live in a policy engine (Cedar or OPA), versioned, changes require approval | Policy changes become reviewable diffs | Superseded by ADR-013 |
+| ADR-009 | (2026-11-01, supersedes ADR-004's storage and runtime) Orchestration extends the explicit state machine in `finquint.autonomous` (PR #13) on SQLite, sharing `ResearchStore`, instead of LangGraph and Postgres. Ledger, outbox, approvals, evidence and metric stores sit behind storage interfaces, so Postgres, LangGraph or Temporal can plug in later. The idempotency key hashes the canonical JSON list `[run_id, fingerprint, attempt_scope]`. One `OutboxWorker` per ledger; `recover()` runs only after the old worker stops (documented, not enforced). No new runtime dependencies without discussion | Reuses tested code and keeps CI dependency-free; the interfaces keep the original target reachable | Proposed |
+| ADR-010 | (2026-11-01, refines ADR-003/004) Side-effect classes are `read_only`, `idempotent_write` (ledger) and `external` (ledger + outbox). Every non-read-only tool needs a capability token, AUTO\_CONTINUE included. An interrupted or failed external dispatch is settled by the tool's optional `reconcile()`; without one it becomes `in_doubt` for a human and is never re-sent | An unknown outcome must never become a duplicate side effect | Proposed |
+| ADR-011 | (2026-11-01, refines the gate) `ActionStatus.retries_exhausted` (default false, not fingerprinted): when true, an INFRA\_ERROR always escalates, so the policy's retry limit can stop retries sooner than the plan's budget, never later. A failed task with a `RetryableError` maps to INFRA\_ERROR. Enums use `(str, Enum)` because CI includes Python 3.10 | Two retry budgets must not let a run retry past either one | Proposed |
+| ADR-012 | (2026-11-01, implements ADR-005) `orchestration/verify/paths.py` is the one list of protected paths (tests, configs, evaluation, backtesting, the gate, verify, evals and knowledge code, `.github`, CODEOWNERS, pytest config); CODEOWNERS must match it (test-enforced). Touched paths come from the action's patch, not only the agent's claim; malformed or ambiguous paths fail closed (BLOCK). `GuardedTools` checks paths before the token, so a valid token cannot get past it. Lookahead = truncation test; the split is frozen by `SplitManifest.digest()`; a change is accepted only on out-of-sample gain above `min_oos_improvement` (tune). CI fails protected-file changes on `agent/*` branches; humans rely on CODEOWNERS review | The evaluator must be out of reach of the agent being evaluated, whatever it declares | Proposed |
+| ADR-013 | (2026-11-01, supersedes ADR-008) Policy lives in versioned files under the protected `configs/` path (`approval_policy.json`, `context_policy.json`), read by deterministic code; a policy change is a reviewed diff under CODEOWNERS. No Cedar or OPA engine yet. `ApprovalService` stores HMAC-signed, immutable, single-use approval records in SQLite, with a key separate from the capability key and held only by the reviewer CLI (`python -m finquint.orchestration.approve`). `verify()` re-checks signature, reviewer authority under the current policy, fingerprint, expiry and use, then mints the token. An action with no rule cannot open a request. TTLs and approval counts are (tune). Known limit: a crash between `verify()` and the tool call leaves a used record; resume then BLOCKs and a new request is needed | Same reviewable-diff property as ADR-008 without a new dependency; fails closed throughout | Proposed |
+| ADR-014 | (2026-11-01) The scheduler runs persisted branches, one action per branch per tick, single-threaded and deterministic; only a waiting branch pauses. An approved action's checks and preconditions are re-evaluated before it runs, and any change escalates. `escalated` is a terminal run status. The human gate is opt-in on `AutonomousWorkflow`; without it behavior is unchanged | An approval must bind to the state it was given in, and other branches keep working meanwhile | Proposed |
+| ADR-015 | (2026-11-01) Tracing is in-process (`orchestration/tracing.py`), persisted to SQLite and exportable as OTLP/JSON, with no OpenTelemetry dependency. The eval harness (`orchestration/evals/`, protected) runs golden and fault tasks with deterministic reference agents. Replay records only tool handlers, reconcile checks and method executions; gates, invariants, ledger, approvals and scheduler always run for real. Regression metrics must not rise, and the test also fails on improvements so a human re-records the baseline. Known gaps are recorded in the baseline, not hidden | Evals cannot regress silently, and traces compare byte for byte | Proposed |
+| ADR-016 | (2026-11-04) Agents reach models only through the model socket (`orchestration/models/`), never a vendor SDK. A plug implements `complete(ModelRequest) -> ModelReply`, declares capabilities and a socket version, and must pass the conformance suite. Schema checks, one repair retry then ESCALATE, fallback order and error mapping run in the core, so every model gets the same safety behavior; a full outage surfaces as INFRA\_ERROR. CI gates on the deterministic simulated plug; real-model plugs are optional installs with per-model baselines. Token budgets are percentages of the plug's window, from an exact counter or a calibrated estimate (tune) | The model choice must not change safety behavior, and CI stays deterministic | Proposed |
+| ADR-017 | (2026-11-04, implements ADR-006) The context layer stores evidence in SQLite with lexical retrieval behind an `EvidenceStore` interface; no embeddings yet. The task card holds immutable budget limits; budget left goes in the volatile part of the request, so the card stays byte-identical. Evidence with the same claim key but different values escalates; provisional evidence cannot be cited. Thresholds come from sweeps over long-run tasks, and `context_policy.json` must match the recorded picks. Re-indexing runs on explicit events (new code SHA, verified experiment, dataset version change), with stale marks from content hashes and old versions kept; the code index uses `ast` per SHA | Context stays rebuildable and auditable, and thresholds are measured, not guessed | Proposed |
+| ADR-018 | (2026-11-04, implements ADR-007) Reports cite numbers as `{{metric:artifact_id:field}}` placeholders resolved through a read-only `MetricStore` that serves only verified artifacts (completed runs, verified experiments, current trusted evidence). Placeholders may format, never compute; a derived number is stored as its own artifact first. Any other digit run in a final output fails closed, except request tags, ISO dates and verbatim quotes from an input. Promotion from provisional to verified is a deterministic verifier (every number rendered, every citation authoritative); demotion is automatic when a source is superseded, and a promoted version is never rewritten. No human or model in the loop | Every number in a report traces to a verified artifact, or the report escalates | Proposed |
 
 ## Human Intervention Gate
 
@@ -327,11 +337,11 @@ Build safety against irreversible harm first, then the means to measure, then qu
 
 ## Open questions
 
-- [ ] Durable execution: custom scheduler on LangGraph, or Temporal with LangGraph inside activities?
-- [ ] Policy engine: Cedar or OPA?
+- [ ] Durable execution: custom scheduler on LangGraph, or Temporal with LangGraph inside activities? (Proposed for now: the PR #13 state machine on SQLite behind interfaces, ADR-009.)
+- [ ] Policy engine: Cedar or OPA? (Proposed for now: neither; versioned policy files, ADR-013.)
 - [ ] Who are the authorized reviewers, and does any action need two approvers?
 - [ ] Does ESCALATE go to the Supervisor Agent first, or straight to a human, for each escalation type?
-- [ ] Which models per agent, and what is the fallback order?
+- [ ] Which models per agent, and what is the fallback order? (Mechanism settled by ADR-016; the choice of real models is still open.)
 - [ ] Retention period for archived context histories and traces.
 
 ## Glossary
@@ -351,3 +361,4 @@ Build safety against irreversible harm first, then the means to measure, then qu
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-15 | 0.2 | Folded the Phase 1–6 implementation decisions from `CLAUDE.md` into ADR-009 to ADR-018 (proposed); ADR-004 and ADR-008 marked superseded; proposed answers noted on open questions |

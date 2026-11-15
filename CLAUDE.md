@@ -24,7 +24,9 @@ executes.* No live trading; never change the numerical algorithms.
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
-## Decisions that refine the spec (fold into a new ADR in the spec when reviewed)
+## Decisions that refine the spec
+Folded into the spec as ADR-009 to ADR-018 (spec v0.2, proposed, 2026-11-15); the notes below keep the detail.
+New decisions go here first, then into a new ADR when reviewed.
 - **2026-11-01 — Build on PR #13, not LangGraph/Postgres (yet).** Phase 1 extends the existing
   explicit state machine in `finquint.autonomous` on SQLite (sharing `ResearchStore`). Ledger and
   outbox sit behind a storage interface so a Postgres backend (ADR-004) or LangGraph/Temporal can
@@ -291,3 +293,7 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   (optional install, recorded and replayed), re-running the Phase 5 sweep per real model,
   folding the Decisions above into ADRs in the spec, and updating the Phase 4
   contradictory-sources task to use the context layer (human change to a protected task).
+- 2026-11-15: Folded the Phase 1–6 decisions into spec ADR-009 to ADR-018 (v0.2) on
+  `docs/fold-decisions-into-adrs`; ADR-004 and ADR-008 marked superseded. The live Claude Doc spec
+  is not yet updated. Remaining follow-ups: real-model plugs and per-model sweeps (need a vendor and
+  dependency decision), Phase 4 contradictory-sources task (human change to a protected task).

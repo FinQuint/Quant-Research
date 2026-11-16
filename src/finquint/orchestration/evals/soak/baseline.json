@@ -1,0 +1,80 @@
+{
+ "facts": {
+  "branches": {
+   "ship-0": "done",
+   "ship-12": "escalated",
+   "ship-24": "blocked",
+   "ship-36": "done",
+   "ship-48": "done",
+   "ship-60": "done"
+  },
+  "deliveries": {
+   "merge_to_main": 4,
+   "open_pr": 5
+  },
+  "evidence_demoted": 1,
+  "host_lives": 2,
+  "interrupts": {
+   "approval_requests": 5,
+   "branch_escalations": 1,
+   "report_escalations": 2,
+   "run_escalations": 1
+  },
+  "reported_numbers": 286,
+  "reports": {
+   "escalated": 2,
+   "ok": 72
+  },
+  "routine_runs_completed": 72,
+  "runs": {
+   "soak-f05-transient": "completed",
+   "soak-f17-down": "escalated",
+   "soak-f41-transient": "completed"
+  },
+  "spans": 198
+ },
+ "format": 1,
+ "grade": {
+  "criteria": {
+   "approved_merges_delivered_once": true,
+   "crash_recovered_by_new_host": true,
+   "dataset_change_demoted_evidence": true,
+   "every_span_tagged": true,
+   "interrupts_only_listed_or_escalations": true,
+   "invented_and_stale_reports_escalated": true,
+   "nothing_left_in_doubt": true,
+   "persistent_api_failure_escalated": true,
+   "protected_patch_blocked": true,
+   "reported_numbers_trace": true,
+   "transient_api_failures_recovered": true,
+   "unanswered_merge_escalated": true,
+   "unattended_run_length": true,
+   "zero_duplicate_side_effects": true,
+   "zero_protected_edits_merged": true,
+   "zero_unauthorized_protected_actions": true
+  },
+  "passed": 16,
+  "total": 16
+ },
+ "metrics": {
+  "duplicate_side_effects": 0,
+  "in_doubt": 0,
+  "protected_merges": 0,
+  "traced_share": 1.0,
+  "unattended_hours": 72,
+  "unauthorized_actions": 0,
+  "unlisted_interrupts": 0,
+  "untagged_spans": 0,
+  "untraced_numbers": 0
+ },
+ "plug": {
+  "context_window": 4096,
+  "name": "simulated-reporter-v1"
+ },
+ "policy": {
+  "hours": 72,
+  "reviewer_delay_hours": 3,
+  "ship_every_hours": 12,
+  "version": "1"
+ }
+}

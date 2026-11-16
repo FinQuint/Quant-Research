@@ -111,7 +111,8 @@ class Ingestor:
             return IngestReport("dataset_version", skipped=True)
         demoted = []
         for item in current_items(self.store):
-            if item.dataset_name == name and item.dataset_version != version and item.tier == "verified":
+            if item.tier == "verified" and (item.dataset_name == name and item.dataset_version != version
+                                            or self._rests_on_old(item, name, version)):
                 stale = replace(item, version=f"{item.version}.stale", tier="provisional",
                                 source=f"{item.source}; {name} moved to {version}")
                 self.store.put(stale)
@@ -119,6 +120,23 @@ class Ingestor:
         known[name] = version
         self._set("datasets", known)
         return IngestReport("dataset_version", (), tuple(demoted))
+
+    def _rests_on_old(self, item, name, version):
+        """True if anything item.supports rests on, followed transitively, was computed on another
+        version of dataset name. A promoted claim carries no dataset of its own; its evidence does."""
+        seen, pending = set(), list(item.supports)
+        while pending:
+            ref = pending.pop()
+            if ref in seen:
+                continue
+            seen.add(ref)
+            support = self.store.get(*ref)
+            if support is None:
+                continue
+            if support.dataset_name == name and support.dataset_version != version:
+                return True
+            pending.extend(support.supports)
+        return False
 
     def on_run_completed(self, state):
         """Succeeded task outputs of a completed run become authoritative evidence."""

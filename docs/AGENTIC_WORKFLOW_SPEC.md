@@ -7,11 +7,11 @@ Oct 30, 2026 · @Yunan Xie
 
 ## Document control
 
-This is the single source of truth for the FinQuint orchestration architecture; version 0.2, draft for review.
+This is the single source of truth for the FinQuint orchestration architecture; version 0.3, draft for review.
 
 | Field | Value |
 | --- | --- |
-| Version | 0.2 (draft) |
+| Version | 0.3 (draft) |
 | Supersedes | ChatGPT design thread "Autonomous Workflow Architecture" (HITL gate, context management, dynamic knowledge) |
 | Owner | Project lead |
 | Review cadence | Every architecture change, and monthly while in build |
@@ -63,7 +63,7 @@ Agents never touch side effects directly. Outputs are verified, then gated; only
 
 ## Architecture decision records
 
-Eighteen decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-018 record what Phases 1–6 decided while building it (dates are when each was decided).
+Nineteen decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-019 record what the build phases decided (dates are when each was decided).
 
 | ADR | Decision | Why | Status |
 | --- | --- | --- | --- |
@@ -85,6 +85,7 @@ Eighteen decisions define the system; all are Proposed until reviewed. Supersede
 | ADR-016 | (2026-11-04) Agents reach models only through the model socket (`orchestration/models/`), never a vendor SDK. A plug implements `complete(ModelRequest) -> ModelReply`, declares capabilities and a socket version, and must pass the conformance suite. Schema checks, one repair retry then ESCALATE, fallback order and error mapping run in the core, so every model gets the same safety behavior; a full outage surfaces as INFRA\_ERROR. CI gates on the deterministic simulated plug; real-model plugs are optional installs with per-model baselines. Token budgets are percentages of the plug's window, from an exact counter or a calibrated estimate (tune) | The model choice must not change safety behavior, and CI stays deterministic | Proposed |
 | ADR-017 | (2026-11-04, implements ADR-006) The context layer stores evidence in SQLite with lexical retrieval behind an `EvidenceStore` interface; no embeddings yet. The task card holds immutable budget limits; budget left goes in the volatile part of the request, so the card stays byte-identical. Evidence with the same claim key but different values escalates; provisional evidence cannot be cited. Thresholds come from sweeps over long-run tasks, and `context_policy.json` must match the recorded picks. Re-indexing runs on explicit events (new code SHA, verified experiment, dataset version change), with stale marks from content hashes and old versions kept; the code index uses `ast` per SHA | Context stays rebuildable and auditable, and thresholds are measured, not guessed | Proposed |
 | ADR-018 | (2026-11-04, implements ADR-007) Reports cite numbers as `{{metric:artifact_id:field}}` placeholders resolved through a read-only `MetricStore` that serves only verified artifacts (completed runs, verified experiments, current trusted evidence). Placeholders may format, never compute; a derived number is stored as its own artifact first. Any other digit run in a final output fails closed, except request tags, ISO dates and verbatim quotes from an input. Promotion from provisional to verified is a deterministic verifier (every number rendered, every citation authoritative); demotion is automatic when a source is superseded, and a promoted version is never rewritten. No human or model in the loop | Every number in a report traces to a verified artifact, or the report escalates | Proposed |
+| ADR-019 | (2026-11-15) One host `Stack` (`orchestration/host.py`) wires every layer onto one run database: signed approvals, gate, ledger and outbox, scheduler, tracing, the knowledge hook, metric stores and reports through the model socket. It holds no state beyond the database, so a crashed host is replaced by a new `Stack` that runs outbox `recover()` first. Failed research runs are routed by `decide()` and every route is audited (`host_run_routed`). The success criteria are measured by a scorer that reads only durable state (the run database and the remote system's own delivery log), never the driver's counters, and the scorer has tamper tests | The criteria hold for the composed system, not only per layer, and the measurement cannot be talked into a pass | Proposed |
 
 ## Human Intervention Gate
 
@@ -334,6 +335,8 @@ Build safety against irreversible harm first, then the means to measure, then qu
    - Exit: on long-run golden tasks, citation failures and forgotten criteria drop versus baseline; all (tune) thresholds set from data.
 6. **Knowledge lifecycle and number provenance**: event re-indexing, tiers and promotion, placeholder renderer.
    - Exit: 100% of reported numbers trace to artifacts on the golden suite.
+7. **Full-stack soak**: one host wiring every layer, a simulated campaign with injected faults, and a scorer over durable state.
+   - Exit: on a 72 h (tune) simulated campaign with every layer on, the success-criteria table is met, measured from durable state alone; then the same campaign on a real model through the socket.
 
 ## Open questions
 
@@ -361,4 +364,5 @@ Build safety against irreversible harm first, then the means to measure, then qu
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-15 | 0.3 | Added roadmap Phase 7 (full-stack soak) and ADR-019 (host Stack, durable-state scorer) |
 | 2026-11-15 | 0.2 | Folded the Phase 1–6 implementation decisions from `CLAUDE.md` into ADR-009 to ADR-018 (proposed); ADR-004 and ADR-008 marked superseded; proposed answers noted on open questions |

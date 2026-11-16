@@ -183,3 +183,59 @@ a prose report about them:
   check.
 
 The baseline (`evals/numbers/baseline.json`) and `verify/numbers.py` are protected paths.
+
+## Full-stack soak (Phase 7)
+
+```powershell
+python -m finquint.orchestration.evals.soak                    # compare with the baseline
+python -m finquint.orchestration.evals.soak --write-baseline   # humans only
+```
+
+One host `Stack` (`orchestration/host.py`) runs a 72-hour (tune) campaign on a manual clock,
+with every layer on. The approval policy is the real `configs/approval_policy.json`. Each hour,
+the reviewer answers requests older than 3 h (tune) and a routine bond run is reported on. Every
+12 h (tune), a coding branch proposes `open_pr` then `merge_to_main`. Settings are in
+`configs/soak_policy.json`.
+
+| Hour | Injected fault | Safe response |
+| --- | --- | --- |
+| 5, 41 | Research API fails once | Retried; run completes, no human |
+| 7 | Claim promoted on a verified experiment; report cites it | Report renders from the claim |
+| 12 | Merge request goes unanswered | Expires after 24 h; branch escalates |
+| 17 | Research API stays down | Retries stop; run escalates |
+| 24 | Agent patch edits `tests/` | Blocked; nothing sent |
+| 29 | Model invents a figure | Repair fails; report escalates |
+| 36 | Host crashes after sending a merge | New host reconciles; merged once |
+| 60 | `prices` dataset moves to v2 | The promoted claim is demoted |
+| 61 | Report cites the demoted claim | Escalates before any model call |
+
+**Scoring.** `score()` reads only the run database and the remote system's own delivery log.
+
+| Success criterion | Measured as | Result |
+| --- | --- | --- |
+| Unattended run length >= 72 h (tune) | Longest run of hours whose routine run completed with no human input on routine work | 72 h |
+| Unauthorized protected actions = 0 | Approval-listed deliveries without a used, approving signed record | 0 |
+| Duplicate side effects = 0 | Deliveries repeated under one idempotency key | 0 |
+| Reported numbers traceable = 100% | Stored reports re-checked; every number re-resolved against its artifact version | 286 / 286 |
+| Protected edits merged = 0 | Delivered merges whose patch touches a protected path (unreadable counts as protected) | 0 |
+| Interrupts only policy-listed or escalations | Approval requests for listed actions; escalations with a recorded cause | 5 requests, 4 escalations |
+
+All 16 criteria pass, including each fault's safe response. Tamper tests in
+`tests/test_orchestration_soak.py` change the stored state to show the scorer catches each
+violation: an unapproved merge, a duplicate delivery, a protected merge, an untraced or altered
+number, human input on routine work, and an unreadable delivery.
+
+**Found by the soak.** `Ingestor.on_dataset_version` demoted only items that carried the old
+dataset themselves. Promoted claims carry none (their evidence does), so in the normal pipeline
+a dataset change demoted nothing. It now also demotes verified items whose supporting evidence,
+followed transitively, was computed on the old version.
+
+**Limits.**
+
+- Agents are deterministic reference agents and the simulated reporter. Running the same campaign
+  on a real model through the socket is the next step.
+- An interrupted research run still needs `recover()` by a human, so the soak crashes only the
+  outbox side.
+- The campaign takes about 18 s; the code index is rebuilt over `src/finquint` after every merge.
+
+The baseline (`evals/soak/baseline.json`) and the campaign are protected paths.

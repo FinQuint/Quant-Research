@@ -6,11 +6,11 @@
  "numbers_reported": 3,
  "numbers_traced": 3,
  "problems": [],
- "report": "C1: Sharpe ratio: the momentum strategy backtest (experiment exp-momentum-a) achieved a Sharpe ratio of 1.137.\nC2: Max drawdown: the largest peak-to-trough decline observed in the momentum strategy backtest (experiment exp-momentum-a) was 0.184.\nC3: Turnover: the momentum strategy backtest (experiment exp-momentum-a) recorded a turnover of 4.2.",
+ "report": "C1: The momentum strategy backtest achieved a Sharpe ratio of 1.137, measuring risk-adjusted return over the backtest period.\nC2: The maximum drawdown observed during the backtest was 0.184, representing the largest peak-to-trough decline in portfolio value.\nC3: Portfolio turnover for the momentum strategy was 4.2, reflecting the trading activity required to maintain the momentum positions.",
  "status": "ok",
  "usage": {
-  "input_tokens": 443,
-  "output_tokens": 272,
+  "input_tokens": 505,
+  "output_tokens": 261,
   "usd": 0.0072
  },
  "wrong_status": 0

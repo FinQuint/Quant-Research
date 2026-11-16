@@ -5,13 +5,13 @@
  "format": 1,
  "plug": "claude:claude-opus-5-5",
  "replies": {
-  "f58ceec958224fb41a505f314c5cc0fdccd02ab894cc486e8efac470ad92ce6b": {
+  "ca9c7aed5638e5cc447282ac321b9d3f240394e0ab1ea7a497e8ca3ec212b3b1": {
    "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"report-change\",\"sections\":[{\"id\":\"C1\",\"text\":\"Sharpe change: moving the signal window changed the Sharpe ratio by {{metric:derived:sharpe_change:sharpe_change}} relative to the baseline.\"},{\"id\":\"C2\",\"text\":\"Turnover change: moving the signal window changed turnover by {{metric:derived:turnover_change:turnover_change}}, which means turnover went down.\"},{\"id\":\"C3\",\"text\":\"Max drawdown: the maximum drawdown for experiment exp-momentum-b was {{metric:experiment:exp-momentum-b:metrics.max_drawdown}}.\"}]}",
+   "text": "{\"run_id\":\"report-change\",\"sections\":[{\"id\":\"C1\",\"text\":\"Moving the signal window changed the Sharpe ratio by {{metric:derived:sharpe_change:sharpe_change}}. This is the gain in risk-adjusted return relative to the baseline configuration.\"},{\"id\":\"C2\",\"text\":\"Moving the signal window changed turnover by {{metric:derived:turnover_change:turnover_change}}. This is a fall in turnover relative to the baseline, so the strategy trades less often after the change.\"},{\"id\":\"C3\",\"text\":\"After the signal window was moved, the experiment exp-momentum-b recorded a maximum drawdown of {{metric:experiment:exp-momentum-b:metrics.max_drawdown}}.\"}]}",
    "usage": {
     "exact": true,
-    "input_tokens": 448,
-    "output_tokens": 218
+    "input_tokens": 510,
+    "output_tokens": 252
    }
   }
  }

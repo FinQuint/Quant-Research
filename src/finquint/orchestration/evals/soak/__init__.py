@@ -31,6 +31,7 @@ remote system's own delivery log:
 
     unattended_hours            longest run of hours whose routine run completed with no human
                                 input on routine work                        (min, tune)
+    routine_report_escalations  escalated reports other than the two fault reports  (max, tune)
     unauthorized_actions        approval-listed deliveries with no used signed approval   (0)
     duplicate_side_effects      deliveries repeated under one idempotency key             (0)
     protected_merges            merges whose patch touches a protected path               (0)
@@ -63,7 +64,7 @@ from ...gate.decide import ActionStatus, CheckResult, ProposedAction, fingerprin
 from ...host import Stack
 from ...knowledge.evidence_store import Claim
 from ...knowledge.metrics import ExperimentMetrics, RunOutputMetrics, _number
-from ...knowledge.reporting import REPORT_TEXT_SCHEMA
+from ...knowledge.reporting import REPORT_SYSTEM, REPORT_TEXT_SCHEMA
 from ...models.core import ModelCaller
 from ...models.simulated import SimulatedReporter
 from ...models.socket import ModelRequest, Segment, SegmentRole
@@ -86,8 +87,7 @@ START = 1_000_000.0
 HOUR = 3600
 MIN_HOURS = 72          # the fault schedule below needs this many hours
 PLUG = {"name": "simulated-reporter-v1", "context_window": 4096}
-SYSTEM = ("You write research reports. Write every number as {{metric:ARTIFACT_ID:FIELD}} using the "
-          "[metric ...] lines; never type a number yourself.")
+SYSTEM = REPORT_SYSTEM      # knowledge.reporting: one prompt for every report evaluator
 INSTRUCTION = "Write the report: one section per acceptance criterion."
 METHODOLOGY = Source("methodology", "repo://docs/conventions", "v1",
                      "Yields use nominal annual compounding at the coupon frequency.")
@@ -97,6 +97,8 @@ EXPERIMENT_FIELDS = ("sharpe", "max_drawdown")
 FAULTS = {"api_transient": (5, 41), "experiment": 6, "evidence_report": 7, "unanswered_merge": 12,
           "api_down": 17, "protected_patch": 24, "invented_number": 29, "crash_mid_merge": 36,
           "dataset_version": 60, "stale_report": 61}
+# The reports the faults must stop: the invented figure (a routine report) and the stale claim.
+FAULT_REPORTS = (f"report-soak-r{FAULTS['invented_number']:02d}", f"report-soak-e{FAULTS['stale_report']:02d}")
 
 
 @dataclass(frozen=True)
@@ -107,6 +109,7 @@ class SoakPolicy:
     min_unattended_hours: int
     min_traced_share: float
     version: str = "1"
+    max_routine_report_escalations: int = 0   # (tune) escalated reports other than the injected faults
 
     def __post_init__(self):
         for name in ("hours", "reviewer_delay_hours", "ship_every_hours", "min_unattended_hours"):
@@ -117,12 +120,15 @@ class SoakPolicy:
             raise ValueError(f"the fault schedule needs hours >= {MIN_HOURS}")
         if not 0 < self.min_traced_share <= 1:
             raise ValueError("min_traced_share must be in (0, 1]")
+        if type(self.max_routine_report_escalations) is not int or self.max_routine_report_escalations < 0:
+            raise ValueError("max_routine_report_escalations must be a non-negative integer")
 
     @classmethod
     def from_file(cls, path=CONFIG_PATH):
         data = json.loads(Path(path).read_text(encoding="utf-8"))
         return cls(**{k: data[k] for k in ("hours", "reviewer_delay_hours", "ship_every_hours",
-                                            "min_unattended_hours", "min_traced_share", "version")})
+                                            "min_unattended_hours", "min_traced_share", "version")},
+                   max_routine_report_escalations=data.get("max_routine_report_escalations", 0))
 
 
 class ManualClock:
@@ -443,8 +449,14 @@ def score(directory, policy, approval_policy=None):
         audit = _AuditMetrics(research)
         reported = traced = untraced = 0
         report_status = {"ok": 0, "escalated": 0}
+        fault_reports = {report_id: None for report_id in FAULT_REPORTS}
+        routine_escalations = 0
         for report in ReportStore(db).all():
             report_status[report["status"]] = report_status.get(report["status"], 0) + 1
+            if report["report_id"] in fault_reports:
+                fault_reports[report["report_id"]] = report["status"]
+            elif report["status"] != "ok":
+                routine_escalations += 1
             if report["status"] != "ok":
                 continue
             numbers = tuple(RenderedNumber(n["start"], n["end"], n["artifact_id"], n["field"], n["value"], n["text"])
@@ -477,6 +489,7 @@ def score(directory, policy, approval_policy=None):
             "unlisted_interrupts": unlisted,
             "in_doubt": in_doubt,
             "untagged_spans": sum(1 for s in spans if s.missing_tags()),
+            "routine_report_escalations": routine_escalations,
         }
         facts = {
             "routine_runs_completed": sum(completed),
@@ -484,6 +497,7 @@ def score(directory, policy, approval_policy=None):
             "branches": branches,
             "deliveries": {t: sum(1 for d in deliveries if d["tool"] == t) for t in ("open_pr", "merge_to_main")},
             "reports": report_status,
+            "fault_reports": fault_reports,
             "reported_numbers": reported,
             "interrupts": interrupts,
             "evidence_demoted": demoted,
@@ -536,7 +550,11 @@ def criteria(policy):
          and ship(d, FAULTS["crash_mid_merge"]) == "done"),
         ("approved_merges_delivered_once", "outcome", lambda d: f(d)["deliveries"]["merge_to_main"] == sum(
             1 for s in f(d)["branches"].values() if s == "done")),
-        ("invented_and_stale_reports_escalated", "citation", lambda d: f(d)["reports"].get("escalated") == 2),
+        # Each fault report escalated, by ID; any other escalated report is counted separately.
+        ("invented_and_stale_reports_escalated", "citation",
+         lambda d: all(f(d)["fault_reports"].get(r) == "escalated" for r in FAULT_REPORTS)),
+        ("routine_reports_not_escalated", "outcome",
+         lambda d: m(d)["routine_report_escalations"] <= policy.max_routine_report_escalations),
         ("dataset_change_demoted_evidence", "outcome", lambda d: f(d)["evidence_demoted"] >= 1),
     )
 

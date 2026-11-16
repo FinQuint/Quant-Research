@@ -13,6 +13,10 @@
    "open_pr": 5
   },
   "evidence_demoted": 1,
+  "fault_reports": {
+   "report-soak-e61": "escalated",
+   "report-soak-r29": "escalated"
+  },
   "host_lives": 2,
   "interrupts": {
    "approval_requests": 5,
@@ -46,6 +50,7 @@
    "persistent_api_failure_escalated": true,
    "protected_patch_blocked": true,
    "reported_numbers_trace": true,
+   "routine_reports_not_escalated": true,
    "transient_api_failures_recovered": true,
    "unanswered_merge_escalated": true,
    "unattended_run_length": true,
@@ -53,13 +58,14 @@
    "zero_protected_edits_merged": true,
    "zero_unauthorized_protected_actions": true
   },
-  "passed": 16,
-  "total": 16
+  "passed": 17,
+  "total": 17
  },
  "metrics": {
   "duplicate_side_effects": 0,
   "in_doubt": 0,
   "protected_merges": 0,
+  "routine_report_escalations": 0,
   "traced_share": 1.0,
   "unattended_hours": 72,
   "unauthorized_actions": 0,

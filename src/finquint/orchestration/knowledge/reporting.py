@@ -24,6 +24,15 @@ REPORT_TEXT_SCHEMA = {
 }
 
 
+# The report-writing prompt (one copy, used by every report evaluator). A real model's first
+# replies typed convention numbers ("per 100 of face value", "a 1 basis point move"); the numeral
+# check rightly fails them, so the prompt says how to write a number that is not a metric.
+REPORT_SYSTEM = ("You write research reports. Write every number as {{metric:ARTIFACT_ID:FIELD}} using the "
+                 "[metric ...] lines; never type a number yourself. A number that is not one of those "
+                 "metrics (a convention, unit or count, such as a face amount of one hundred, a one "
+                 "basis point move, or a five-year bond) must be spelled out in words, never as digits.")
+
+
 def metric_segment(metrics, refs):
     """An evidence segment listing each (artifact_id, field) with its value, so the model knows
     what it may cite. Raises KeyError for a ref the store cannot resolve."""
@@ -61,7 +70,8 @@ def _repair(problems):
     listing = "\n".join(f"- {p}" for p in problems)
     return Segment(SegmentRole.VOLATILE,
                    "Your report contains numbers that do not trace to an artifact:\n" + listing +
-                   "\nWrite every number as {{metric:ARTIFACT_ID:FIELD}} using the [metric ...] lines.")
+                   "\nWrite every metric as {{metric:ARTIFACT_ID:FIELD}} using the [metric ...] lines, and "
+                   "spell out in words any other number (a convention, unit or count), never as digits.")
 
 
 def write_report(caller, request, *, metrics, inputs=(), max_repairs=1):

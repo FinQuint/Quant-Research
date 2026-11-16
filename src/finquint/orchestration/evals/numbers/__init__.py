@@ -38,7 +38,7 @@ from finquint.research.models import ExperimentRecord
 
 from ...context.tags import card_line, criterion_line
 from ...knowledge.metrics import CompositeMetricStore, DerivedMetrics, ExperimentMetrics, RunOutputMetrics
-from ...knowledge.reporting import REPORT_TEXT_SCHEMA, metric_segment, request_identifiers, write_report
+from ...knowledge.reporting import REPORT_SYSTEM, REPORT_TEXT_SCHEMA, metric_segment, request_identifiers, write_report
 from ...models.core import ModelCaller
 from ...models.simulated import SimulatedReporter
 from ...models.socket import ModelRequest, Segment, SegmentRole
@@ -49,8 +49,7 @@ BASELINE_FORMAT = 1
 BASELINE_PATH = Path(__file__).resolve().parent / "baseline.json"
 PLUG = {"name": "simulated-reporter-v1", "context_window": 4096}
 PIPELINES = ("unchecked", "provenance")
-SYSTEM = ("You write research reports. Write every number as {{metric:ARTIFACT_ID:FIELD}} using the "
-          "[metric ...] lines; never type a number yourself.")
+SYSTEM = REPORT_SYSTEM      # knowledge.reporting: one prompt for every report evaluator
 INSTRUCTION = "Write the report: one section per acceptance criterion."
 TOTAL_KEYS = ("numbers_reported", "numbers_traced", "invented_reported", "wrong_status", "model_calls")
 

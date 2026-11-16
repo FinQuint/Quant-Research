@@ -118,7 +118,9 @@ class Untraced:
 def check_numerals(rendered, *, identifiers=(), inputs=()):
     """Digit runs in rendered.text that trace to nothing. Empty list means every number traces.
 
-    identifiers: tokens allowed to contain digits (IDs, versions, SHAs).
+    identifiers: tokens allowed to contain digits (IDs, versions, SHAs). Matched ignoring case, so a
+    field written as "DV01" is the identifier "dv01": an identifier always contains a letter, so this
+    exempts no number that the exact-case identifier would not.
     inputs: texts the agent was given; a "quoted" passage copied verbatim from one is exempt.
     """
     text = rendered.text
@@ -132,9 +134,9 @@ def check_numerals(rendered, *, identifiers=(), inputs=()):
         cover(number.start, number.end)
     for match in ISO_DATE.finditer(text):
         cover(match.start(), match.end())
-    allowed = {str(i) for i in identifiers}
+    allowed = {str(i).casefold() for i in identifiers}
     for match in TOKEN.finditer(text):
-        if match.group(0).strip(".") in allowed:
+        if match.group(0).strip(".").casefold() in allowed:
             cover(match.start(), match.end())
     for match in QUOTED.finditer(text):
         if _quoted_from_input(match.group(1), inputs):

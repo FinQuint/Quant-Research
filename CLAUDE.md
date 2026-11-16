@@ -403,4 +403,7 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   `configs/soak_policy.json`); soak baseline re-recorded (additions only, 17/17). Claude re-recorded:
   soak 16/17, conventions no longer typed, but 81/81 repairs are the "01" in "DV01" (identifier
   exemption is case-sensitive, `verify/numbers.py`). Spend this step $1.64, Phase 7 total $7.40.
-  Suite: 502 passed. Open (protected): case-insensitive identifier exemption.
+  Suite: 502 passed. PR #28 opened (stacked on #27). Then (user's decision): `verify/numbers.py`
+  matches identifiers ignoring case. Re-scored the recorded Claude replies (no new calls): soak 17/17,
+  72/72 reports ok on the first call; report tasks one call each. Recordings pruned to replies still
+  requested; scores note the re-score. Suite: 505 passed. Phase 7 with Claude: exit criteria met.

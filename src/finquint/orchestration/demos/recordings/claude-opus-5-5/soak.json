@@ -5,15 +5,6 @@
  "format": 1,
  "plug": "claude:claude-opus-5-5",
  "replies": {
-  "065160b08ea77352b6e4b78a63f99dbac91438f3b7b1df4c4699daf0fdaa503d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r18\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r18/analytics:bond_price}} per one hundred of face amount, slightly above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r18/analytics:modified_duration}}. A one percentage point parallel rise in yield would lower the price by roughly that many percent, to first order.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r18/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r18/analytics:convexity}}. This positive value means that, for large yield moves, price gains when yields fall exceed price losses when yields rise, compared with the duration-only estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 500
-   }
-  },
   "079e4e4c2884d0bfa6eefa5eede813d9444c712c9516070671ba8224db09b3b7": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r48\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r48/analytics:bond_price}} per one hundred of face amount. That is above par, so the coupon is above the prevailing yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r48/analytics:modified_duration}}. To first order, the price moves by roughly that percentage for each one percentage point change in yield, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"DV01: the dv01 is {{metric:run:soak-r48/analytics:dv01}}. This is the price change per one hundred of face amount for a one basis point move in yield. It equals the modified duration times the price, scaled to one basis point.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r48/analytics:convexity}}. Because it is positive, the price rises more when yields fall than it drops when yields rise by the same amount. This second-order effect refines the duration-based estimate for larger yield moves.\"}]}",
@@ -50,15 +41,6 @@
     "output_tokens": 322
    }
   },
-  "0e30acea611708ad6aa92b046dddb8bc013c442904cd7036f8d6c0b9c6ae7f53": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r15\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r15/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r15/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r15/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r15/analytics:convexity}}. This is the second-order sensitivity of price to yield. It refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 466
-   }
-  },
   "1333861ce14c518996aa8678fcb819f70df99f44a395aab259039e156e5c4df7": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r27\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r27/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r27/analytics:modified_duration}}. To a first-order approximation, the bond price changes by roughly that percentage for each one percentage point parallel move in yield, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a basis point is {{metric:run:soak-r27/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point parallel shift in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r27/analytics:convexity}}. Convexity is positive, so the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. The effect grows with larger yield moves.\"}]}",
@@ -66,15 +48,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 531
-   }
-  },
-  "147e40882bcd4c9c2ada16554049709a6470615e980650a57dd6ae4a5500210f": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r65\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r65/analytics:bond_price}} per one hundred of face amount. This is a premium to par, which suggests the coupon is above the prevailing discount yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r65/analytics:modified_duration}}. To a first-order approximation, the price falls by about that many percent for each one percentage point parallel rise in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point parallel move in yield is {{metric:run:soak-r65/analytics:dv01}} per one hundred of face amount. This is the absolute price change expected for that small yield shift, and it is consistent with the modified duration applied to the bond price.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r65/analytics:convexity}}. This positive convexity means that duration alone overstates the price loss when yields rise and understates the price gain when yields fall. The second-order correction becomes more significant for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 632
    }
   },
   "17f80d4795fbfbf5a361868dbe8736b72429e5b20b07b9ff9c100bb753ca84a8": {
@@ -95,57 +68,12 @@
     "output_tokens": 317
    }
   },
-  "1aa9fe3927308c28e7c2e0f9af111ff37c2f48e7743caf53dcdbfc02157b0138": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r08\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r08/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r08/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r08/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r08/analytics:convexity}}. This is the second-order curvature adjustment to the duration-based price estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 471
-   }
-  },
-  "1aff0baf2da2fa5c679d8bdd3aedd27dd0b88760ca44e716becdefe24309f862": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r56\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r56/analytics:bond_price}} per one hundred of face amount, which is slightly above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r56/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r56/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r56/analytics:convexity}}. This positive value means the price gains more from a fall in yield than it loses from an equal rise, compared with the linear duration estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 552
-   }
-  },
-  "1d749601437ad84aca0fb4a84b5a9ee9dc73d5a38d32029e86285582040a9eb0": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r20\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r20/analytics:bond_price}} per one hundred of face amount. This is a premium to par, which implies that the coupon rate is above the prevailing yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r20/analytics:modified_duration}}. To first order, the bond price falls by roughly this percentage for each one percentage point parallel rise in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r20/analytics:dv01}} per one hundred of face amount. This is the change in price for a one basis point parallel shift in the yield curve.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r20/analytics:convexity}}. Positive convexity means price gains from falling yields exceed price losses from rising yields of the same size. This adds a second-order correction on top of the duration estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 658
-   }
-  },
   "1e1055dea951f6a530904f990505de9bdcaafa5d3dbef50f5bcd9138bafdca60": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r49\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r49/analytics:bond_price}} per one hundred of face value. Because this is above par, the bond trades at a premium, which suggests the coupon rate is higher than the prevailing yield used for discounting.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r49/analytics:modified_duration}}. As a first-order approximation, the bond's price changes by about this many percent, in the opposite direction, for each one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the DV01 is {{metric:run:soak-r49/analytics:dv01}} per one hundred of face value. This is the approximate price change for a one basis point move in yield. It equals the price multiplied by the modified duration, scaled to a single basis point, so it is consistent with the figures reported above.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r49/analytics:convexity}}. A positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. The second-order correction becomes more significant for larger yield moves.\"}]}",
    "usage": {
     "exact": true,
     "input_tokens": 552,
-    "output_tokens": 568
-   }
-  },
-  "1f53016543bc7a513a7568f48be6dc8777fc2177e04bb711d2dfb156f5a6908d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r26\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r26/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r26/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r26/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r26/analytics:convexity}}. This is the second-order curvature of the price-yield relationship. It improves the duration-based estimate of price changes for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 642,
-    "output_tokens": 522
-   }
-  },
-  "21f9989936813cd52d8669350e69a6f30c0834895522a9d8cd1165904c3b908c": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r36\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r36/analytics:bond_price}} per one hundred of face amount. That is slightly above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r36/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r36/analytics:dv01}} per one hundred of face amount. This is the expected price change for that yield shift.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r36/analytics:convexity}}. This positive value means duration alone slightly overstates price declines when yields rise and understates price gains when yields fall.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
     "output_tokens": 568
    }
   },
@@ -174,24 +102,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 271
-   }
-  },
-  "2792cc4e7793d9f60f8b1b38f432d6bff24027140b4730d5d612cec0a2575572": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r06\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r06/analytics:bond_price}} per one hundred of face amount, which is above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r06/analytics:modified_duration}}. For a small parallel shift in yield, the price changes by about this percentage for each one percentage point move, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: a one basis point parallel move in yield changes the price by about {{metric:run:soak-r06/analytics:dv01}} per one hundred of face amount. Price falls when yields rise and rises when yields fall.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r06/analytics:convexity}}. This positive convexity means the duration-only estimate overstates price losses when yields rise and understates price gains when yields fall. The effect grows with the size of the yield move.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 642,
-    "output_tokens": 578
-   }
-  },
-  "28c637fe9da5f075e497569fd08cce9e7e7243625a2e5e8ccfedc14bcb6cc100": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r63\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r63/analytics:bond_price}} per one hundred of face amount. A price above par means the coupon is above the prevailing yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r63/analytics:modified_duration}}. To a first-order approximation, the price falls by about this percentage for each one percentage point rise in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r63/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a parallel shift of one basis point.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r63/analytics:convexity}}. Positive convexity means the duration-based estimate overstates price declines and understates price gains for large yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 589
    }
   },
   "2bcdf3cdb5b56e4ac92746a35183d9fc6ab4656f4b473fb7b5549562560f621a": {
@@ -228,15 +138,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 400
-   }
-  },
-  "32f695945c24da30565c5306a547e03a85aa3998b1cf80e2ef57e6c0ed51b042": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r49\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r49/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r49/analytics:modified_duration}}. For a one percentage point parallel move in yield, the bond price changes by roughly that many percent in the opposite direction, to first order.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point parallel shift in yield is {{metric:run:soak-r49/analytics:dollar_value_placeholder}}\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r49/analytics:convexity}}. Because it is positive, price gains from falling yields exceed price losses from rising yields of the same size. Duration alone therefore slightly understates the price response to large yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 653,
-    "output_tokens": 562
    }
   },
   "33dff296b389e92ab6c1437107d69a8fb2169bdc1a5490b511f8dee97fe2fc9a": {
@@ -302,33 +203,6 @@
     "output_tokens": 317
    }
   },
-  "41775f35acc99fd41ca8aca4f73f3056877b1389febfa375e061b21f9e0dc5db": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r23\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r23/analytics:bond_price}} per one hundred of face amount, which is above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r23/analytics:modified_duration}}. A parallel yield change of one percentage point implies an approximate proportional price change of that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point parallel yield move is {{metric:run:soak-r23/analytics:dv01}} per one hundred of face amount. This figure is consistent with the reported price and modified duration.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r23/analytics:convexity}}. This positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 551
-   }
-  },
-  "42284d6fd72432def099efecaa3227b80726546775ca0da367d2b49528b2f58b": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r28\",\"sections\":[{\"id\":\"bond_price\",\"text\":\"The bond price is {{metric:run:soak-r28/analytics:bond_price}} per face amount of one hundred.\"},{\"id\":\"modified_duration\",\"text\":\"The modified duration is {{metric:run:soak-r28/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"dv01\",\"text\":\"The dollar value of a basis point is {{metric:run:soak-r28/analytics:dv01}} per face amount of one hundred. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"convexity\",\"text\":\"The convexity is {{metric:run:soak-r28/analytics:convexity}}. It captures the curvature of the price-yield relationship beyond the first-order duration estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 466
-   }
-  },
-  "43744298d025c00cd0be445d731b122d3fdb0a24b73fc4f9d9a944dc14087bf3": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r51\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r51/analytics:bond_price}} per one hundred of face amount, which is above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r51/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r51/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r51/analytics:convexity}}. This positive value means the duration-based approximation understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 516
-   }
-  },
   "44462406778476c8013161b9fcc843171305cc633063e57d05a0c621c1bdc986": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r40\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r40/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r40/analytics:modified_duration}}. To first order, the bond price changes by about that many percent, in the opposite direction, for a parallel shift of one percentage point in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a basis point is {{metric:run:soak-r40/analytics:dv01}} per one hundred of face amount. This is the approximate price decline for a one basis point rise in yield. It is consistent with the reported price and modified duration.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r40/analytics:convexity}}. Because convexity is positive, the price gains from falling yields exceed the losses from rising yields of the same size. This means the duration-only estimate understates the price for large yield moves in either direction.\"}]}",
@@ -338,24 +212,6 @@
     "output_tokens": 530
    }
   },
-  "44549b9d40be8073e9f15645b3c12812fc60f6192a618e5cd70d515c5a2a533e": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r71\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r71/analytics:bond_price}} per one hundred of face amount, which is above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r71/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r71/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r71/analytics:convexity}}. This positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 621
-   }
-  },
-  "459dc3d27fa8be2f9a13b18865fb73a9ccb42b2a33cb107d6d647fb5df59ca68": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r35\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r35/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r35/analytics:modified_duration}}. For a parallel move of one percentage point in yield, the price changes by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r35/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r35/analytics:convexity}}. It is positive, so duration alone overstates price declines and understates price gains for large yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 440
-   }
-  },
   "45a58b96a9b68d9e8115cabb9d3cb6045058936cba9d0c13ff21ed0708ccb344": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r26\",\"sections\":[{\"id\":\"C1\",\"text\":\"The bond price, quoted per face amount of one hundred, is {{metric:run:soak-r26/analytics:bond_price}}. Because this is above par, the coupon rate is higher than the prevailing yield.\"},{\"id\":\"C2\",\"text\":\"The modified duration is {{metric:run:soak-r26/analytics:modified_duration}}. For a one percentage point parallel shift in yield, the bond price moves by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"The DV01 is {{metric:run:soak-r26/analytics:dv01}}. This is the estimated price change, per face amount of one hundred, for a one basis point change in yield.\"},{\"id\":\"C4\",\"text\":\"The convexity is {{metric:run:soak-r26/analytics:convexity}}. This positive convexity means the duration-only approximation understates price gains when yields fall and overstates price losses when yields rise, especially for larger yield moves.\"}]}",
@@ -363,15 +219,6 @@
     "exact": true,
     "input_tokens": 550,
     "output_tokens": 342
-   }
-  },
-  "4a3cf584c87889b4fc136e57b0f8046d301746447683c25b34085ff58eaf4b3d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r09\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r09/analytics:bond_price}} per one hundred of face amount, which is above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r09/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: a one basis point move in yield changes the price by {{metric:run:soak-r09/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r09/analytics:convexity}}. This positive convexity means the price rises more when yields fall than it drops when yields rise by the same amount. It also improves on the duration-only estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 532
    }
   },
   "4b453930e9ff5c20ac783751a604b09a1a47ce73485961bd1243b0dbf20e9df9": {
@@ -392,24 +239,6 @@
     "output_tokens": 331
    }
   },
-  "505aa1927cd5a576c738c0a82c0db5cba90858adcc49e780e46dd11d25a0cdeb": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r64\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r64/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r64/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point change in yield is {{metric:run:soak-r64/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r64/analytics:convexity}}. This is the second-order adjustment to the duration-based price change estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 479
-   }
-  },
-  "50bf8fc8be3eff1b9c33a5c935aaa31f9d2668d55e5464110106fff86a51bf2a": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r59\",\"sections\":[{\"id\":\"bond_price\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r59/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"modified_duration\",\"text\":\"Modified duration: the bond has a modified duration of {{metric:run:soak-r59/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"dollar_value_of_a_basis_point\",\"text\":\"Dollar value of a basis point: the price sensitivity is {{metric:run:soak-r59/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"convexity\",\"text\":\"Convexity: the bond has a convexity of {{metric:run:soak-r59/analytics:convexity}}. This is the second-order adjustment to the duration-based price estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 546
-   }
-  },
   "55df3c5f5866c0480701d0ad95fd86e29d242c66f11a992c38a892914f2925dc": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r00\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r00/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r00/analytics:modified_duration}}. To a first-order approximation, the price changes by roughly this percentage for each one percentage point parallel move in yield, and moves in the opposite direction to yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move in yield is {{metric:run:soak-r00/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point parallel shift in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r00/analytics:convexity}}. Because it is positive, the price rises more when yields fall than it drops when yields rise by the same amount. This second-order effect matters more as yield moves get larger.\"}]}",
@@ -417,60 +246,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 375
-   }
-  },
-  "56c233227c9332b7a5ad37253a394da1b155f17f80d7ee05b4e934428da1de64": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r19\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r19/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r19/analytics:modified_duration}}. For a parallel shift in yield of one percentage point, the price moves by approximately that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r19/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r19/analytics:convexity}}. This positive second-order term means the duration-only estimate understates price gains when yields fall. It also overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 502
-   }
-  },
-  "57d9fcc015879f74652e7a4a85bb37674f4ec5d751d7727e61f1a64627e27d85": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r01\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r01/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r01/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r01/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r01/analytics:convexity}}. This is the second-order adjustment that improves the duration-based price estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 545
-   }
-  },
-  "5ba19307027ef6007006e2f83a155fc5224b7ce16a21246a9dbda52b3c04994d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r68\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: The bond is priced at {{metric:run:soak-r68/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: The modified duration is {{metric:run:soak-r68/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: The price sensitivity to a one basis point change in yield is {{metric:run:soak-r68/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: The convexity is {{metric:run:soak-r68/analytics:convexity}}. This is the second-order adjustment to the duration-based price change estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 602
-   }
-  },
-  "5d5315a7bc8d75b3ea51970af8f59502d37a5e03eeb431d0f10696d3062024fb": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r32\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r32/analytics:bond_price}} per one hundred of face amount. This places it above par, at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r32/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel change in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point parallel move in yield is {{metric:run:soak-r32/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r32/analytics:convexity}}. This measures the curvature of the price-yield relationship beyond the first-order duration approximation.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 555
-   }
-  },
-  "5dbd22e2c4db08b4a705b593ddaa7fae6982f75f867ffc9e31ce01cd0b66b75f": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r14\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r14/analytics:bond_price}} per one hundred of face amount, which places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r14/analytics:modified_duration}}. For a parallel shift in yields of one percentage point, the price changes by roughly that many percent, in the opposite direction to the yield move.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r14/analytics:dv01}} per one hundred of face amount. This is the expected price change for a one basis point parallel shift.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r14/analytics:convexity}}. Positive convexity means price gains from falling yields exceed price losses from rising yields of the same size, which refines the duration-based estimate for larger moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 653,
-    "output_tokens": 530
-   }
-  },
-  "623eb968607ea18a651db375ba9b3cbac45b48f435d2e015162bec428c95736d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r03\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r03/analytics:bond_price}} per one hundred of face amount. This places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r03/analytics:modified_duration}}. For a one percentage point parallel shift in yield, the bond price would change by roughly this percentage, moving in the opposite direction to yields.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r03/analytics:dv01}} per one hundred of face amount. This is the first-order estimate of the bond's price sensitivity to a small parallel shift in rates.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r03/analytics:convexity}}. Positive convexity means duration alone slightly overstates price losses when yields rise and understates price gains when yields fall. This second-order effect becomes more significant for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 639
    }
   },
   "656a408daba1b3541ba051a2ae4e37375f0f3dc9c6b96994a33b0fd4abefdedb": {
@@ -509,78 +284,6 @@
     "output_tokens": 328
    }
   },
-  "698e55d4a46eb3470e5cea2ed1c1d6366d3dd42c048af9b30989f764f1719d38": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r60\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r60/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r60/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r60/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r60/analytics:convexity}}. This captures the second-order curvature of the price-yield relationship beyond the duration estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 453
-   }
-  },
-  "6a82b2600fcaaa9fd1e6941bec5d31a36b5141733945c5fcf71404e9151d65e8": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r50\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r50/analytics:bond_price}} per face amount of one hundred.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r50/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r50/analytics:dv01}} per face amount of one hundred.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r50/analytics:convexity}}. It captures the curvature of the price-yield relationship beyond the duration estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 488
-   }
-  },
-  "721f9969b96ac3b72ccf2a1987c23148bd4eef531d8c8bcc4243ce8d2282d9c9": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r37\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r37/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r37/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r37/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r37/analytics:convexity}}. This measures the curvature of the price-yield relationship beyond what duration alone captures.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 472
-   }
-  },
-  "7257a02f4fd29bc5f8b7f50dc9fa5df68affa4c6e84d1d8d06aa38b22c47806f": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r17\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r17/analytics:bond_price}} per one hundred of face amount, which is slightly above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r17/analytics:modified_duration}}. A one percentage point parallel rise in yield would lower the price by roughly that many percent, to first order.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r17/analytics:dv01}} per one hundred of face amount. This figure is consistent with the reported price and modified duration.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r17/analytics:convexity}}. This positive value means the duration-based estimate slightly overstates price declines and understates price gains for large yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 554
-   }
-  },
-  "739a139442f279276ee4030b14c1452343997d7294c4813529f5815fe15655a7": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r10\",\"sections\":[{\"id\":\"C1\",\"text\":\"The bond price is {{metric:run:soak-r10/analytics:bond_price}} per one hundred of face amount. This is the present value of the bond's discounted cash flows from the analytics run.\"},{\"id\":\"C2\",\"text\":\"The modified duration is {{metric:run:soak-r10/analytics:modified_duration}}. A parallel move of one percentage point in yield would change the bond price by roughly that percentage, in the opposite direction to the yield move.\"},{\"id\":\"C3\",\"text\":\"The dollar value of a basis point is {{metric:run:soak-r10/analytics:dv01}} per one hundred of face amount. This is the approximate change in price for a one basis point parallel shift in yield.\"},{\"id\":\"C4\",\"text\":\"The convexity is {{metric:run:soak-r10/analytics:convexity}}. This positive value means the price-yield relationship is curved. Duration alone therefore understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 477
-   }
-  },
-  "775b061c2c01b90394eee2d181efa7ac4279624a84d5df763d60312ce42cd1c1": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r30\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r30/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r30/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r30/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r30/analytics:convexity}}. This captures the curvature of the price-yield relationship beyond what duration alone describes.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 428
-   }
-  },
-  "77808f8eb28934c7ca573823874099f045a3fdb1b5439b16ba7e76c8034dcefd": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r39\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r39/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r39/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r39/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r39/analytics:convexity}}. This is the second-order curvature of the price-yield relationship, which refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 525
-   }
-  },
-  "77ace6cfe5e2eda50d3d1fa6d22c3ddd0e85afbd8a114e7288b7a01819d7321f": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r25\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: The bond is priced at {{metric:run:soak-r25/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: The modified duration is {{metric:run:soak-r25/analytics:modified_duration}}. For a one basis point parallel move in yield, the bond price changes by approximately this many hundredths of a percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: The price change for a one basis point move in yield is {{metric:run:soak-r25/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: The convexity is {{metric:run:soak-r25/analytics:convexity}}. This positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 540
-   }
-  },
   "784ca2c6f66ead135fb77e13036719b09e7c743019311d7c9a76d7e6a710829e": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r19\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r19/analytics:bond_price}} per one hundred of face amount, which is slightly above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r19/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move in yield is {{metric:run:soak-r19/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r19/analytics:convexity}}. This is the second-order curvature of the price-yield relationship, which refines the duration-based price estimate for larger yield moves.\"}]}",
@@ -615,15 +318,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 346
-   }
-  },
-  "7cad6a71f637a7f89bc12999fda5a62489cac0cb32f5879fc032285db5c0b1b3": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r45\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r45/analytics:bond_price}} per one hundred of face amount. It trades above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r45/analytics:modified_duration}}. The bond price falls by roughly this percentage for each one percentage point parallel rise in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r45/analytics:dv01}} per one hundred of face amount. This is the first-order measure of interest rate risk.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r45/analytics:convexity}}. This positive value means the price gains more from a fall in yields than it loses from an equal rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 535
    }
   },
   "7e7493173d3c962caca982b93ec487769aa40294f6791cc02df18a0e4718f093": {
@@ -689,15 +383,6 @@
     "output_tokens": 205
    }
   },
-  "884bbaddefc8b346d18e94e11767ebcd01c9b0a588a1e2afbcac692defe5a4f8": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r07\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r07/analytics:bond_price}} per face amount of one hundred.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r07/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r07/analytics:dv01}} per face amount of one hundred.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r07/analytics:convexity}}. This is the second-order adjustment to the duration-based price change for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 536
-   }
-  },
   "897592f06ea9b351c720f9d5f5b28009c06ef9e97830bdc1b120ae6ffaf584a2": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r34\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: The bond is priced at {{metric:run:soak-r34/analytics:bond_price}} per one hundred of face amount, which places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: The modified duration is {{metric:run:soak-r34/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: The DV01 is {{metric:run:soak-r34/analytics:dv01}}. This is the price change per one hundred of face amount for a one basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: The convexity is {{metric:run:soak-r34/analytics:convexity}}. A positive value means the duration-based price estimate is a small underestimate of the price gain when yields fall and a small overestimate of the price loss when yields rise.\"}]}",
@@ -705,15 +390,6 @@
     "exact": true,
     "input_tokens": 552,
     "output_tokens": 324
-   }
-  },
-  "8a252400a0649f87382d35257c32eb5928caad4b9c8774c26f4f3867943f6497": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r02\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r02/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r02/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r02/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r02/analytics:convexity}}. This is the second-order curvature of the price-yield relationship, which refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 571
    }
   },
   "8dcfdf83b7d3c53055c6db9171be69dd4b287874caead92890c92e26dd9d25ac": {
@@ -797,15 +473,6 @@
     "output_tokens": 561
    }
   },
-  "a54f8338321805e3332ddf387c60bd715156b80fc3eae0d82594d82a9064dc98": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r38\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r38/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r38/analytics:modified_duration}}. A one percentage point parallel move in yield would change the price by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r38/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r38/analytics:convexity}}. Because it is positive, the price rises more when yields fall than it drops when yields rise by the same amount.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 476
-   }
-  },
   "a59671d5909f11739db46efd6a456f751b84a8fb045231d7ac0e053669806ce8": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r35\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r35/analytics:bond_price}} per one hundred of face amount. It trades above par, which implies the coupon is higher than the current market yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r35/analytics:modified_duration}}. For a one percentage point parallel move in yield, the bond's price changes by roughly that many percent, in the opposite direction to the yield move.\"},{\"id\":\"C3\",\"text\":\"DV01: the DV01 is {{metric:run:soak-r35/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield, and it matches the price multiplied by the modified duration and scaled to a single basis point.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r35/analytics:convexity}}. A positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. This makes the convexity adjustment material for larger yield shifts.\"}]}",
@@ -813,24 +480,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 398
-   }
-  },
-  "a5e5f05e73671226f6427d384d2596e57a67036d5155ae6909726664c29219f2": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r57\",\"sections\":[{\"id\":\"bond_price\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r57/analytics:bond_price}} per one hundred of face amount, which is slightly above par.\"},{\"id\":\"modified_duration\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:soak-r57/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly that many percent, in the opposite direction.\"},{\"id\":\"dv01\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point change in yield is {{metric:run:soak-r57/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"convexity\",\"text\":\"Convexity: the bond's convexity is {{metric:run:soak-r57/analytics:convexity}}. Because it is positive, price gains from falling yields exceed price losses from rising yields of the same size.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 530
-   }
-  },
-  "a6df8231df5ffcd45f5111332046006360d1a8ce81f7f06a0f6cc6a7487a8885": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r12\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r12/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r12/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point change in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity is {{metric:run:soak-r12/analytics:dv01}} per one hundred of face amount for a one basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r12/analytics:convexity}}. This is the second-order price sensitivity to yield changes that duration alone does not capture.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 508
    }
   },
   "a77bbfcb62b0ad1b841c70251933e645c6395590bae58c429ca4a3e75ee7b3b5": {
@@ -860,60 +509,6 @@
     "output_tokens": 320
    }
   },
-  "aa6ab4e7c1aaee00b4b70e53557b3eee3e2b888ffa19dd4561b4e6e50e6498fb": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r69\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r69/analytics:bond_price}} per one hundred of face amount. This places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r69/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by approximately that many percent in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r69/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r69/analytics:convexity}}. This positive value means that the duration-based approximation understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 524
-   }
-  },
-  "abb38bdc9cb46000c8e03ce5c9dbc33c79fbdec70ef8ae440beafba88ab1d2a4": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r44\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r44/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r44/analytics:modified_duration}}. For a one percentage point parallel shift in yield, the bond's price moves by roughly that many percent, in the opposite direction to the yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r44/analytics:dv01}} per one hundred of face amount. This is the approximate price change when the yield moves by one basis point.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r44/analytics:convexity}}. Positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. The effect is more noticeable for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 600
-   }
-  },
-  "af31d5d3e4d217024fbeb23c7c28295dc2bfc7fd1840958f754f06eaedef29d2": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r27\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r27/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r27/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r27/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r27/analytics:convexity}}. This is the second-order sensitivity of price to yield that refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 489
-   }
-  },
-  "b0d1c94b1eee42c6c26ff9cea4a3aef479a15f7f6e1d9529c400d4106fc2ee28": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r67\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r67/analytics:bond_price}} per one hundred of face amount, which is above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r67/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r67/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r67/analytics:convexity}}. This positive second-order term means that the duration-only estimate understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 504
-   }
-  },
-  "b15b59b5087c6d05f68d9027a9fb98cd2e8dc2a59ae2691a1d3284d97a430247": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r61\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r61/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r61/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly this many percent in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r61/analytics:dv01}} per one hundred of face amount. This is the price change expected for a one basis point parallel shift in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r61/analytics:convexity}}. Because convexity is positive, price gains from falling yields exceed price losses from rising yields of equal size. This refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 608
-   }
-  },
-  "b189cf358cf72aaaf513819bfe509ecc77275ffe6a3030a732431f1f468e7d60": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r04\",\"sections\":[{\"id\":\"bond_price\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r04/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"modified_duration\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r04/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly that many percent, in the opposite direction to the yield move.\"},{\"id\":\"dv_basis_point\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point parallel shift in yield is {{metric:run:soak-r04/analytics:dv01}} per one hundred of face amount. A one basis point rise in yield lowers the price by about this amount, and a one basis point fall raises it by about the same amount.\"},{\"id\":\"convexity\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r04/analytics:convexity}}. Positive convexity means price gains from falling yields exceed price losses from rising yields of the same size. The duration-only estimate therefore understates the price after large yield moves in either direction.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 644
-   }
-  },
   "b415d57b3634cf4d569ab6b7de8f24fcd4db32549050354f795772a75d85d7a7": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r07\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r07/analytics:bond_price}} per one hundred of face amount, which places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r07/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move in yield is {{metric:run:soak-r07/analytics:dv01}} per one hundred of face amount. It gives the price sensitivity in currency terms for a small parallel yield shift.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r07/analytics:convexity}}. This is the second-order adjustment that refines the duration-based price change estimate for larger yield moves.\"}]}",
@@ -921,33 +516,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 327
-   }
-  },
-  "b5db46fc3cb130a9e43d2a06abf9e4eb42957187527d3a66fd677f815d65c7ed": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r52\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r52/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r52/analytics:modified_duration}}. A parallel yield move of one percentage point would change the bond price by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point parallel shift in yield is {{metric:run:soak-r52/analytics:dv01}} per one hundred of face amount. This is the first-order measure of rate risk in price terms.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r52/analytics:convexity}}. Positive convexity means price gains from falling yields exceed price losses from rising yields of the same size. It also means the duration-only estimate understates the price for large yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 616
-   }
-  },
-  "b638fc98d68bbfda0fe2299ef6c6d8c3de8ad16a2f5baf33b2274f0056a5be4c": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r47\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r47/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r47/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r47/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r47/analytics:convexity}}. It is positive, so the price gains from falling yields exceed the price losses from rising yields of the same size.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 489
-   }
-  },
-  "b799132c49728869f0abd82cbf65a0fb1cae9a78b5c6385f709b3ca62e7bb999": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r22\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r22/analytics:bond_price}} per face amount of one hundred.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r22/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point change in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r22/analytics:dv01}} per face amount of one hundred.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r22/analytics:convexity}}. This captures the curvature of the price-yield relationship beyond the duration approximation.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 604
    }
   },
   "b7ee42a7465c953693ef8f104a28094b11676f8235ec8b64556da3e3b0906f48": {
@@ -968,15 +536,6 @@
     "output_tokens": 383
    }
   },
-  "c1d24d21c92185858f763dfce74fb23e82c40e5457c4fe2b3f8b2673424f2a5b": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r41\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r41/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r41/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r41/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r41/analytics:convexity}}. This is the second-order sensitivity of price to yield, which refines the duration-based estimate for larger rate moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 574
-   }
-  },
   "c205515eb5f982713b1a610eabe5c97dd8db2fc4c03ee38d486875332bfd34e2": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r51\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r51/analytics:bond_price}} per one hundred of face amount, which places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r51/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move is {{metric:run:soak-r51/analytics:dv01}} per one hundred of face amount. It gives the price change for a one basis point shift in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r51/analytics:convexity}}. Because it is positive, price gains from falling yields are larger than price losses from rising yields of the same size.\"}]}",
@@ -986,60 +545,6 @@
     "output_tokens": 316
    }
   },
-  "c82d21a242b341ed89f3e11f98d829f4cab21ba4e7bbec4a2ba51813a725a307": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r00\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r00/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r00/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel change in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r00/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r00/analytics:convexity}}. This is the second-order adjustment that refines the duration-based estimate of price changes for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 495
-   }
-  },
-  "c83130c9259653d8f670ffb4912f9e7bee4d2ce0666682cfa6cc9228c773b92a": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r58\",\"sections\":[{\"id\":\"bond-price\",\"text\":\"The bond price is {{metric:run:soak-r58/analytics:bond_price}} per one hundred of face amount, which is slightly above par.\"},{\"id\":\"modified-duration\",\"text\":\"The modified duration is {{metric:run:soak-r58/analytics:modified_duration}}. This is the approximate percentage change in the bond price for a one percentage point parallel move in yield.\"},{\"id\":\"dollar-value-of-a-basis-point\",\"text\":\"The dollar value of a basis point is {{metric:run:soak-r58/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"convexity\",\"text\":\"The convexity is {{metric:run:soak-r58/analytics:convexity}}. It measures the curvature of the price-yield relationship, which the duration-based approximation does not capture.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 584
-   }
-  },
-  "c8ab43050e23c8c55adfc14421642aeec57e465eeff7c9eb3669076dfd91598b": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r43\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r43/analytics:bond_price}} per one hundred of face amount. This places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r43/analytics:modified_duration}}. For a parallel shift of one percentage point in yield, the price changes by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r43/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r43/analytics:convexity}}. This positive convexity means the duration-based estimate understates price gains when yields fall. It also overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 575
-   }
-  },
-  "c9cb9fa08cdae79b58ee9bce38e01d57ab7fbd069a817e938e68bd8c95c8621d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r31\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r31/analytics:bond_price}} per face amount of one hundred. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r31/analytics:modified_duration}}. For a small parallel shift in yield, the bond price changes by approximately this percentage for each one percentage point move in yield, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r31/analytics:dv01}} per face amount of one hundred. This gives a first-order estimate of the absolute price sensitivity to small yield changes.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r31/analytics:convexity}}. Positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. This second-order effect grows with the size of the yield move.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 618
-   }
-  },
-  "cab004775869e9ae4eb848527e489f2bddee3eb0e68fa541547897b2407e70e3": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r46\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: The bond is priced at {{metric:run:soak-r46/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: The modified duration is {{metric:run:soak-r46/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: The price change for a one basis point move in yield is {{metric:run:soak-r46/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: The convexity is {{metric:run:soak-r46/analytics:convexity}}. This is the second-order adjustment to the duration-based price estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 642,
-    "output_tokens": 578
-   }
-  },
-  "cb2303713c4f23ff77619ee039d7849e096292c10647609bca2b3bd1196875c6": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r62\",\"sections\":[{\"id\":\"bond-price\",\"text\":\"The bond price is {{metric:run:soak-r62/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"modified-duration\",\"text\":\"The modified duration is {{metric:run:soak-r62/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"price-value-of-a-basis-point\",\"text\":\"The dollar value of a basis point is {{metric:run:soak-r62/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"convexity\",\"text\":\"The convexity is {{metric:run:soak-r62/analytics:convexity}}. This is the second-order sensitivity of price to yield, which refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 515
-   }
-  },
   "cbcfcc998692ec02423ce2c6e02f633fb71212ed0e9a8f38fc16c85e60ae67db": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r69\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond's computed price is {{metric:run:soak-r69/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:soak-r69/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point change in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move in yield is {{metric:run:soak-r69/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the bond's convexity is {{metric:run:soak-r69/analytics:convexity}}. This is the second-order price sensitivity to yield changes that sits on top of the duration estimate.\"}]}",
@@ -1047,24 +552,6 @@
     "exact": true,
     "input_tokens": 552,
     "output_tokens": 297
-   }
-  },
-  "d0bf5058ceac4feb4e79eb09d5b1e84cbc2a3fff673b47aca43eba1640665d9f": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r21\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the analytics run reports a bond price of {{metric:run:soak-r21/analytics:bond_price}} per one hundred of face amount. The bond is trading above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r21/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly that many percent, in the opposite direction to the yield move.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r21/analytics:dv01}} per one hundred of face amount. This value is consistent with the modified duration applied to the bond price.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r21/analytics:convexity}}. This positive convexity means that duration alone understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 653,
-    "output_tokens": 491
-   }
-  },
-  "d142c2ebe5bea6675a53e2bf0841cc33d1a550cb57b1925941a5f78b15530cda": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r66\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r66/analytics:bond_price}} per one hundred of face amount. It trades above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r66/analytics:modified_duration}}. For a one percentage point parallel move in yield, the price changes by roughly that many percent, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point move in yield is {{metric:run:soak-r66/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r66/analytics:convexity}}. This positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 642,
-    "output_tokens": 508
    }
   },
   "d1af485f70dfb37243c5338c7d66b8a7d346bf660cac7cbd1d40249a52ab271b": {
@@ -1094,24 +581,6 @@
     "output_tokens": 407
    }
   },
-  "d5d26e295261d6caf5bf301985265637420845397e9904e0e8394ca1f5efd95b": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r13\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is valued at {{metric:run:soak-r13/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r13/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity is {{metric:run:soak-r13/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r13/analytics:convexity}}. This is the second-order curvature of the price-yield relationship, which refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 524
-   }
-  },
-  "d6e76e759f9971fe431160d78cf15b28cc668f56192b7a2eec07d364eb5e7942": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r05\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond's computed price is {{metric:run:soak-r05/analytics:bond_price}} per one hundred of face amount. It trades above par, which points to a coupon rate above the prevailing yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r05/analytics:modified_duration}}. To a first-order approximation, the bond's price changes by about this percentage for each one percentage point move in yield, in the opposite direction.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r05/analytics:dv01}} per one hundred of face amount. This is the bond's absolute price sensitivity to a small parallel shift in rates.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r05/analytics:convexity}}. Positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. This second-order effect grows with larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 560
-   }
-  },
   "da2a00335ba39dbfdbac870d5cae7cee6ef69cdee8e906eb7b26403d59b93a00": {
    "model": "claude-opus-5-5",
    "text": "{\"run_id\":\"soak-r46\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r46/analytics:bond_price}} per face amount of one hundred. This is above par, which means the coupon rate is higher than the prevailing yield.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r46/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield, with price moving opposite to yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move is {{metric:run:soak-r46/analytics:dv01}} per face amount of one hundred. This is the approximate fall in price when yield rises by one basis point.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r46/analytics:convexity}}. Because convexity is positive, price rises more when yields fall than it drops when yields rise by the same amount. Duration alone therefore overstates losses and understates gains for larger yield moves.\"}]}",
@@ -1119,24 +588,6 @@
     "exact": true,
     "input_tokens": 550,
     "output_tokens": 376
-   }
-  },
-  "dc298d54fcc82351ceb9be45a16ab143ded3fe3655f34187f9880c1beb247b3b": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r70\",\"sections\":[{\"id\":\"C1\",\"text\":\"The bond price is {{metric:run:soak-r70/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"The modified duration is {{metric:run:soak-r70/analytics:modified_duration}}. This is the approximate percentage change in the bond price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"The dollar value of a basis point is {{metric:run:soak-r70/analytics:dv01}}. This is the approximate change in the bond price, per one hundred of face amount, for a one basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"The convexity is {{metric:run:soak-r70/analytics:convexity}}. It captures the curvature of the price-yield relationship and refines the duration-based price change estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 652,
-    "output_tokens": 410
-   }
-  },
-  "df60a2f86afcafa47a968ec37d5dbcfac4a3b027afd67bc0248a76d917ddd194": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r40\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the analytics artifact reports a bond price of {{metric:run:soak-r40/analytics:bond_price}} per one hundred of face amount. The bond therefore trades above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r40/analytics:modified_duration}}. To first order, a one percentage point parallel rise in yield lowers the price by about that many percent.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r40/analytics:dv01}} per one hundred of face amount. This is the first-order rate sensitivity in price terms.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r40/analytics:convexity}}. Because it is positive, the price rises more when yields fall than it drops when yields rise by the same amount. This refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 545
    }
   },
   "e1c7b1aa210c6d3639a3f1642a5f02798215ad303017dbf79595375a39e797ab": {
@@ -1155,24 +606,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 352
-   }
-  },
-  "e7c5611076a20bf1bf374a5ad884ebbb027b27ad8eb036160529d183564eb0f0": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r53\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r53/analytics:bond_price}} per face amount of one hundred.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r53/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r53/analytics:dv01}} per face amount of one hundred.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r53/analytics:convexity}}. This is the second-order curvature of the price-yield relationship, which refines the duration-based price estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 483
-   }
-  },
-  "e8f5f5b0ae9735cc6289a00bf0d53f8c54b4c5e991de305d810487fa9068f098": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r42\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: The bond is priced at {{metric:run:soak-r42/analytics:bond_price}} per one hundred of face value. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: The modified duration is {{metric:run:soak-r42/analytics:modified_duration}}. To first order, a one percentage point parallel rise in yield lowers the price by roughly that many percent.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: The price change for a one basis point move in yield is {{metric:run:soak-r42/analytics:dv01}} per one hundred of face value. This is the bond's interest-rate sensitivity in price terms.\"},{\"id\":\"C4\",\"text\":\"Convexity: The convexity is {{metric:run:soak-r42/analytics:convexity}}. This positive convexity means the duration-only estimate understates price gains when yields fall. It also overstates price losses when yields rise, and the gap grows with larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 656
    }
   },
   "ea2d07bb09ef1d5edb9f8d042b656d944557f36e5f883449c7a176afe21a382c": {
@@ -1200,51 +633,6 @@
     "exact": true,
     "input_tokens": 551,
     "output_tokens": 335
-   }
-  },
-  "f054cf90457eb1d0ba2894ef7b7b7ac6f12ce977a4c7a41cd9acc31ebc516ec7": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r55\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r55/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r55/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point change in yield is {{metric:run:soak-r55/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r55/analytics:convexity}}. This is the second-order curvature of the price-yield relationship, which refines the duration-based price estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 590
-   }
-  },
-  "f66cc0f17df18c4a50de211e8e30c74c242278720c6abf1c2b9185ac0307f4b8": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r34\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r34/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r34/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r34/analytics:dv01}} per one hundred of face amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r34/analytics:convexity}}. This is the second-order adjustment to the duration-based price change for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 653,
-    "output_tokens": 446
-   }
-  },
-  "f82f65506f7c4dc05978d0c1efed2e90d288c73f15df63dda10a7093d438ae9d": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r54\",\"sections\":[{\"id\":\"bond_price\",\"text\":\"The bond price is {{metric:run:soak-r54/analytics:bond_price}} per one hundred of face amount, indicating the bond trades above par.\"},{\"id\":\"modified_duration\",\"text\":\"The modified duration is {{metric:run:soak-r54/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel shift in yield.\"},{\"id\":\"dollar_value_of_basis_point\",\"text\":\"The dollar value of a basis point is {{metric:run:soak-r54/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"convexity\",\"text\":\"The convexity is {{metric:run:soak-r54/analytics:convexity}}. This positive value means price gains from falling yields exceed price losses from rising yields of the same size, which refines the duration estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 644,
-    "output_tokens": 567
-   }
-  },
-  "fb10d1cf64a52c90e05b94486311cb7a742d218c7adb89b86b07fa69f97026c9": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r48\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r48/analytics:bond_price}} per one hundred of face amount. This is above par, which indicates that the coupon rate exceeds the prevailing yield used for discounting.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r48/analytics:modified_duration}}. To a first-order approximation, the bond's price changes by roughly this many percent, in the opposite direction, for each one percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point change in yield is {{metric:run:soak-r48/analytics:dv01}} per one hundred of face amount. A one basis point rise in yield lowers the price by approximately this amount, and a one basis point fall raises it by approximately the same amount.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r48/analytics:convexity}}. Convexity is positive, so the price-yield relationship curves upward. For large yield moves, price gains from falling yields exceed price losses from rising yields of equal size, which improves on the linear duration estimate.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 652
-   }
-  },
-  "fba7abbb583c50220ea5d66cc8c857d005b3a705ced8de28bddb575b27ee352a": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"soak-r24\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the bond is priced at {{metric:run:soak-r24/analytics:bond_price}} per one hundred of face amount. This places it above par.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the modified duration is {{metric:run:soak-r24/analytics:modified_duration}}. For a one percentage point parallel move in yield, the bond price changes by roughly that many percent, in the opposite direction to the yield move.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price change for a one basis point move in yield is {{metric:run:soak-r24/analytics:dv01}} per one hundred of face amount. This measures the absolute rate sensitivity of the position.\"},{\"id\":\"C4\",\"text\":\"Convexity: the convexity is {{metric:run:soak-r24/analytics:convexity}}. Positive convexity means the duration-based estimate understates price gains when yields fall and overstates price losses when yields rise. This second-order effect grows with the size of the yield move.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 643,
-    "output_tokens": 602
    }
   },
   "fd8011d533f50922f66eea4c9f09ef35b7805414d9bb24647033d2267733d62b": {

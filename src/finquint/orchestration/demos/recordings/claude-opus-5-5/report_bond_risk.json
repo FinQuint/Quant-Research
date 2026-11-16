@@ -13,15 +13,6 @@
     "input_tokens": 549,
     "output_tokens": 605
    }
-  },
-  "ec7257076aa4fdaba503c66cb34cc1131799c9924f2fa11b468e6b1351530c30": {
-   "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"The five-year bond is priced at {{metric:run:report-bond/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"The modified duration of the five-year bond is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"The dollar value of a basis point is {{metric:run:report-bond/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"The convexity of the five-year bond is {{metric:run:report-bond/analytics:convexity}}. It measures the second-order curvature of price with respect to yield and refines the duration-based estimate for larger yield moves.\"}]}",
-   "usage": {
-    "exact": true,
-    "input_tokens": 641,
-    "output_tokens": 538
-   }
   }
  }
 }

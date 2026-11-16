@@ -9,7 +9,7 @@ from finquint.orchestration.models import ReplayPlug
 
 TASK, MODEL = "report_bond_risk", "claude-opus-5-5"
 # task -> (criteria, model calls in the live run)
-RECORDED = {"report_bond_risk": (4, 2), "report_backtest": (3, 1), "report_strategy_change": (3, 1)}
+RECORDED = {"report_bond_risk": (4, 1), "report_backtest": (3, 1), "report_strategy_change": (3, 1)}
 
 
 def recorded_scores(task=TASK):
@@ -38,12 +38,13 @@ def test_every_clean_report_task_has_a_claude_recording():
     assert sorted(RECORDED) == sorted(claude_report.CLEAN_TASKS)
 
 
-def test_live_run_needed_one_provenance_repair():
-    """With the shared report prompt Claude spells out conventions ("five-year", "one hundred"); its
-    first reply was still sent back once, for the "01" in the section label "DV01" (identifiers are
-    matched case-sensitively), and the second reply passed."""
+def test_live_run_passes_on_the_first_call():
+    """With the shared report prompt Claude spells out conventions ("five-year", "one hundred"), and
+    the section label "DV01" is the identifier "dv01" (matched ignoring case), so the first reply
+    passes. Before those fixes this task needed one provenance repair."""
     document = json.loads(claude_report.recording_path(TASK, MODEL).read_text(encoding="utf-8"))
-    assert recorded_scores()["model_calls"] == 2 == len(document["replies"])
+    assert recorded_scores()["model_calls"] == 1 == len(document["replies"])
+    assert "DV01" in recorded_scores()["report"] or "dollar value" in recorded_scores()["report"]
     assert document["plug"] == f"claude:{MODEL}"
 
 

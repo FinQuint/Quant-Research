@@ -426,3 +426,18 @@ Claude re-recorded with the new prompt (report tasks $0.04, soak 140 calls $1.60
 Every remaining repair is for the "01" in the section label "DV01": `request_identifiers` exempts the
 field name `dv01`, but `verify/numbers.py` matches identifiers case-sensitively. One report, told that
 "01" was untraced, wrote a placeholder with an invented field and escalated, correctly.
+
+**Identifiers matched ignoring case** (protected `verify/numbers.py`, code owner's decision). The
+numeral check now exempts a token equal to a request identifier in any case, so "DV01" is the field
+`dv01`. Identifiers always contain a letter (`request_identifiers` drops all-digit tokens), so no bare
+or invented number gains an exemption (`tests/test_orchestration_numeral_identifiers.py`). No
+simulated baseline moved. Re-scoring the recorded Claude replies (unchanged, no new API calls):
+
+| `claude-opus-5-5` | live (case-sensitive) | re-scored |
+|---|---|---|
+| soak grade | 16 / 17 | 17 / 17 |
+| soak reports ok first call / after repair / escalated | 4 / 67 / 1 | 72 / 0 / 0 |
+| report tasks: model calls (bond / backtest / change) | 2 / 1 / 1 | 1 / 1 / 1 |
+
+With the shared prompt and this fix, a soak needs one model call per report: 72 instead of 140, about
+$0.80 instead of $1.60. The recordings keep only the replies still requested.

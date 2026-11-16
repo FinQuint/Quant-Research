@@ -71,13 +71,19 @@ class ClaudePlug:
 
     def __init__(self, model=DEFAULT_MODEL, *, client=None, context_window=DEFAULT_CONTEXT_WINDOW,
                  effort=DEFAULT_EFFORT, thinking_headroom=DEFAULT_THINKING_HEADROOM, exact_tokens=False,
-                 structured_output=False, server_fallbacks=None, cache=True, max_retries=2, timeout=600.0):
+                 structured_output=False, server_fallbacks=None, cache=True, max_retries=2, timeout=600.0,
+                 message_overhead=0):
+        """message_overhead: tokens the count_tokens API adds for wrapping a text as a message,
+        subtracted from every exact count. 0 (default) keeps raw counts, which overcount; None
+        measures it once as count("a") - 1 (8 for claude-opus-5-5 on 2026-11-15)."""
         if not isinstance(model, str) or not model.strip():
             raise ValueError("model must be a model ID")
         if effort is not None and effort not in EFFORTS:
             raise ValueError(f"effort must be one of {EFFORTS} or None")
         if type(thinking_headroom) is not int or thinking_headroom < 0:
             raise ValueError("thinking_headroom must be a non-negative integer")
+        if message_overhead is not None and (type(message_overhead) is not int or message_overhead < 0):
+            raise ValueError("message_overhead must be a non-negative integer or None")
         if client is None:
             try:
                 import anthropic
@@ -95,14 +101,17 @@ class ClaudePlug:
         self.capabilities = Capabilities(context_window=context_window, prompt_caching=cache,
                                          native_structured_output=structured_output,
                                          exact_token_count=exact_tokens)
+        self._overhead = message_overhead
         self._count = lru_cache(maxsize=4096)(self._count_uncached)
 
     # --- optional exact counter -----------------------------------------------------------
 
     def count_tokens(self, text):
-        """Exact count from the API (one network call per distinct text, cached). Counts the
-        text as one user message, so it includes a few tokens of message overhead: overcounts."""
-        return self._count(text)
+        """Exact count from the API (one network call per distinct text, cached). The API counts
+        the text as one user message; message_overhead is subtracted (see __init__)."""
+        if self._overhead is None:
+            self._overhead = max(0, self._count("a") - 1)
+        return max(0, self._count(text) - self._overhead)
 
     def _count_uncached(self, text):
         try:

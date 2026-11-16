@@ -43,6 +43,10 @@ class ContextPolicy:
     retrieval_more_k: int = 2
     retrieval_max_rounds: int = 3
     retrieval_max_items: int = 24
+    # Rebuild behavior (off by default: turning either on changes rebuild requests, so the Phase 5
+    # baseline and recorded replays move; enable in configs/context_policy.json and re-baseline).
+    prioritize_uncited: bool = False          # a rebuild places evidence for uncited criteria first
+    escalate_identical_rebuild: bool = False  # a rebuild that repeats a sent request -> ESCALATE
 
     def __post_init__(self):
         if not 0 < self.output_reserve < 1 or not 0 < self.utilization_threshold <= 1:
@@ -51,6 +55,9 @@ class ContextPolicy:
                      "retrieval_max_rounds", "retrieval_max_items"):
             if type(getattr(self, name)) is not int or getattr(self, name) < 1:
                 raise ValueError(f"{name} must be a positive integer")
+        for name in ("prioritize_uncited", "escalate_identical_rebuild"):
+            if type(getattr(self, name)) is not bool:
+                raise ValueError(f"{name} must be true or false")
 
     @classmethod
     def load(cls, path=CONFIG_PATH):
@@ -154,9 +161,12 @@ class ContextBuilder:
 
     def build(self, card, *, retriever, system, instruction, handoffs=(), history=(), sub_questions=None,
               permissions=frozenset(), output_schema=REPORT_SCHEMA, budget_left=None, minimal=False,
-              since_checkpoint=0, limit=None):
+              since_checkpoint=0, limit=None, priority_topics=()):
         """limit: fill only up to this share of the input budget (a rebuild aims under the
-        utilization threshold). The pinned parts may still use the full budget."""
+        utilization threshold). The pinned parts may still use the full budget.
+        priority_topics: evidence on these topics (from retrieval, including extra items a
+        minimal build would drop, and from recent tool outputs) is placed first, so a rebuild
+        after an uncited criterion includes the evidence that criterion needs."""
         budget = self.input_budget
         fill_to = budget if limit is None else min(budget, math.floor(budget * limit))
         sub_questions = tuple(sub_questions if sub_questions is not None else
@@ -178,6 +188,16 @@ class ContextBuilder:
         recent = window[-self.policy.history_last_n:]
         stale = [h for h in recent if h.kind == "tool_output" and stale_output(h.evidence, retriever.store, permissions)]
         recent = [h for h in recent if h not in stale]
+        if priority_topics:
+            pool = (required + [r.evidence for r in selection.items if not r.required]
+                    + [h.evidence for h in reversed(recent) if h.kind == "tool_output"])
+            first, seen = [], set()
+            for item in pool:
+                if item.topic in priority_topics and item.ref not in seen:
+                    first.append(item)
+                    seen.add(item.ref)
+            required = first + [item for item in required if item.ref not in seen]
+            extra = [item for item in extra if item.ref not in seen]
         candidates = tuple(r.evidence for r in selection.items) + tuple(
             h.evidence for h in recent if h.kind == "tool_output")
         dropped = {"evidence": 0, "history": len(window) - len(recent) - len(stale), "stale_history": len(stale)}

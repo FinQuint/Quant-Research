@@ -311,3 +311,55 @@ left C6 uncited instead of inventing one, and two rebuilds produced the same req
 The simulated plug passes 0.8 because it counts tokens exactly; the Claude plug uses chars/4 plus a
 10% margin, so the same threshold leaves less room. Caveats: one sample per setting; 0.9 is the top
 of the grid; `configs/context_policy.json` is shared by every plug and was not changed.
+
+**Run 3: exact token counts (`--exact-tokens`, 43 API calls, 656 counts, $0.90).** `ClaudePlug`
+counts with the API and subtracts the 8-token message overhead each count includes
+(`message_overhead=None` measures it once). Counts are recorded (`context_sweep_exact.counts.json`)
+so the replay needs no API. Claude's real tokens run about 1.7x the chars/4 estimate, so the
+2048-token window holds much less evidence. Every grid setting now has quality failures; the best,
+0.9/16, still escalates on 2 of 4 tasks. 0.8 does not hold for Claude, and no threshold does at
+this window. The 2048 window was sized for the simulated plug's tokens.
+
+### Opt-in rebuild behavior (`ContextPolicy`, both off by default)
+
+Found by the sweeps above. A rebuild after a bad output filled only to budget x threshold, so it
+had less room than the request that failed and could never restore evidence the budget had cut.
+
+- `prioritize_uncited`: a rebuild puts evidence for the criteria the last output left uncited first
+  (from retrieval, extra items a minimal build would drop, and recent tool outputs). Topics
+  accumulate over one `ask()`, so a fix for one criterion cannot push out another's, and such a
+  rebuild may fill the whole input budget.
+- `escalate_identical_rebuild`: a rebuilt request identical to one already sent, while an uncited
+  criterion has no evidence on its topic in it, escalates without a call. With the evidence present
+  the retry still runs: a first version that escalated on any identical request added false
+  escalations in the rebuild sweep, because a sampled model can succeed on the same request.
+
+Simulated plug, whole grid (`tests/test_orchestration_rebuild_policy.py`):
+
+| | grid quality failures | grid model calls | rebuild sweep false / missed escalations | picks |
+|---|---|---|---|---|
+| both off (default) | 336 | 145 | 1,0 / 0,0 / 0,0 | 0.8 / 16 / 2 |
+| `prioritize_uncited` | 264 | 136 | unchanged | unchanged |
+| both on | 264 | 94 | unchanged | unchanged |
+
+A deterministic stand-in for Claude's behavior (cites a criterion only when its evidence is in the
+request) reproduces the live C6 failure with both off and recovers with `prioritize_uncited` on.
+Turning either switch on changes rebuild requests, so it needs `configs/context_policy.json` and a
+human re-baseline of the Phase 5 evals.
+
+### Claude at a window scaled to its tokens
+
+Measured from the exact-count recording (4796 texts, token-weighted), Claude's tokens are 1.437x
+the simulated plug's count. The window scaled by it, `--window 2943` (`SCALED_WINDOW`), keeps the
+overflow the sweep was designed for. Run B serves requests the switches-off recording already holds
+(`--cache-from-off`), so it pays only for the changed rebuild requests.
+
+| run | API calls | cost | picks | grid failures | zero-failure cells | grid calls | builder (suite) | naive forgotten |
+|---|---|---|---|---|---|---|---|---|
+| A: switches off | 40 | $0.92 | 0.8 / 16 / 2 | 320 | 2 / 20 | 140 | 0 / 0 / 0 | 17 |
+| B: both switches on | 14 (+40 from A) | $0.35 | 0.8 / 16 / 2 | 200 | 5 / 20 | 84 | 0 / 0 / 0 | 17 |
+
+At the scaled window Claude picks the values already in `configs/context_policy.json`; the 0.9 pick
+from run 2 came from the mismatch between the chars/4 estimate and the simulated counter. With the
+switches on, every threshold from 0.5 to 0.9 passes at history 16, grid calls drop 40%, and the
+rebuild sweep (false and missed escalations) is unchanged. Real-model spend for Phase 7 step 2: $4.19.

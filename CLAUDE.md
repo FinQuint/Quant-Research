@@ -21,6 +21,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
+| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak built on `feature/full-stack-run`; real-model run not started |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -185,6 +186,20 @@ New decisions go here first, then into a new ADR when reviewed.
     status "verified", and current trusted evidence. Evidence stores treat the item put last as
     current, also on a re-put (code revert). A promoted claim version is never rewritten.
 
+- **2026-11-15 — Phase 7 decisions** (not yet reviewed; fold into ADR-019 when reviewed).
+  - Real models: **Claude first, as a demo**, through the model socket as an optional install;
+    other vendors later through the same socket. CI keeps gating on the simulated plug.
+  - Exit measurement: a 72 h (tune) simulated campaign on one host `Stack` with every layer on and
+    ten injected faults, scored only from durable state (run database plus the remote's delivery
+    log). The spec's zero targets are fixed; hours, reviewer delay, ship cadence, minimum
+    unattended hours and traced share are (tune) in `configs/soak_policy.json`.
+  - The scorer is protected (`evals/soak/`) and has tamper tests; the baseline test fails on any
+    change, as in Phase 4.
+  - "Human input on routine work" = an approval request for, or a recovery of, a research run.
+    Approvals of policy-listed actions (merges) are expected interrupts, not routine input.
+  - `on_dataset_version` also demotes verified items whose supports (transitively) were computed
+    on the old dataset version. Additive: it demotes more, never less.
+
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
 - Additive changes only: existing analytics, `QuantPipeline`, 10A/10B/10C behavior and their tests
@@ -297,3 +312,11 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   `docs/fold-decisions-into-adrs`; ADR-004 and ADR-008 marked superseded. The live Claude Doc spec
   is not yet updated. Remaining follow-ups: real-model plugs and per-model sweeps (need a vendor and
   dependency decision), Phase 4 contradictory-sources task (human change to a protected task).
+- 2026-11-15: Phase 7 (spec v0.3, ADR-019) on `feature/full-stack-run`: `orchestration/host.py`
+  (`Stack`, `ReportStore`), `evals/soak/` (campaign, remote, scorer, baseline, CLI),
+  `configs/soak_policy.json`, `tests/test_orchestration_soak.py`, Phase 7 section in
+  `docs/EVALS.md`. Soak: 16/16 criteria, 72 unattended hours, 0 unauthorized / duplicate /
+  protected / untraced, 286/286 numbers traced. Fix found by the soak: dataset changes now demote
+  promoted claims resting on old-version evidence (`knowledge/ingestion.py`, protected). Suite:
+  422 passed (406 + 16); Phase 4/5/6 evals unchanged. Not committed. Next: review, commit, PR;
+  then the Claude plug (step 2).

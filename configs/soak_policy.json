@@ -1,0 +1,8 @@
+{
+  "version": "1",
+  "hours": 72,
+  "reviewer_delay_hours": 3,
+  "ship_every_hours": 12,
+  "min_unattended_hours": 72,
+  "min_traced_share": 1.0
+}

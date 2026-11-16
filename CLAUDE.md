@@ -21,7 +21,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
-| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak built on `feature/full-stack-run`; real-model run not started |
+| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug built on `feature/claude-plug`; real-model run not started |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -199,6 +199,17 @@ New decisions go here first, then into a new ADR when reviewed.
     Approvals of policy-listed actions (merges) are expected interrupts, not routine input.
   - `on_dataset_version` also demotes verified items whose supports (transitively) were computed
     on the old dataset version. Additive: it demotes more, never less.
+  - **2026-11-15 — Claude plug (step 2).** `orchestration/models/claude.py` `ClaudePlug`, optional
+    install (`pip install anthropic`; not imported by the package or core, no `pyproject.toml` extra
+    yet because that file is protected). Defaults, all (tune): `claude-opus-5-5`, effort `high`,
+    `context_window` 200 000 (the model takes 1M; capped because budgets are a share of the window),
+    thinking headroom 8 000 tokens added to `max_tokens`. SYSTEM segments → system prompt, the rest →
+    one user message; one cache breakpoint on the last stable segment; the output schema is stated in
+    the system prompt (`structured_output=True` also sends `output_config.format`, opt-in). Streamed.
+    Errors by status: 408/409/429/5xx/connection → `ModelUnavailable`; other 4xx and a `refusal`
+    stop → `ModelRefused`. Server-side refusal fallbacks off by default (the core rule is that a
+    refusal is never answered by another model). Exact token counting (`count_tokens` API) is opt-in;
+    the default is the calibrated estimate.
 
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
@@ -320,3 +331,8 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   promoted claims resting on old-version evidence (`knowledge/ingestion.py`, protected). Suite:
   422 passed (406 + 16); Phase 4/5/6 evals unchanged. Not committed. Next: review, commit, PR;
   then the Claude plug (step 2).
+- 2026-11-15: PR #22 (Phase 7 soak) merged (292daae). Claude plug (step 2, steps 2–4 of the plan) on
+  `feature/claude-plug`: `orchestration/models/claude.py`, `tests/test_orchestration_claude_plug.py`
+  (fake client: conformance, mapping, caching, errors, fallback, repair, record/replay). Suite: 447
+  passed (422 + 25). No real API call made yet. Not committed. Next: review, commit, PR; then the
+  paid demo (record one golden task against real Claude, then the per-model Phase 5 sweep).

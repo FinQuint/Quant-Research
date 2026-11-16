@@ -14,9 +14,16 @@ def recorded_scores():
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def comparable(scores):
+    """Scores with the report's long decimals rounded: the rendered values carry the running
+    Python's last-digit float noise (3.10/3.11 vs 3.12), the recorded ones 3.12's."""
+    report = claude_report._LONG_DECIMAL.sub(lambda m: format(float(m.group()), ".12g"), scores["report"])
+    return {**scores, "report": report}
+
+
 def test_replay_reproduces_the_recorded_live_scores():
     scores = claude_report.replay(TASK, MODEL)
-    assert scores == recorded_scores()
+    assert comparable(scores) == comparable(recorded_scores())
     assert scores["status"] == "ok" and scores["model"] == MODEL
     assert scores["numbers_reported"] == scores["numbers_traced"] == scores["criteria"] == 4
     assert scores["invented_reported"] == 0 and scores["wrong_status"] == 0
@@ -59,7 +66,7 @@ def test_replay_tolerates_last_digit_float_noise_across_python_versions(monkeypa
     _last_digit_noise(monkeypatch)
     exact_only = claude_report.run_report(TASK, ReplayPlug.load(claude_report.recording_path(TASK, MODEL)))
     assert exact_only["status"] == "escalated"          # the CI failure on 3.10/3.11 before the fix
-    assert claude_report.replay(TASK, MODEL) == recorded_scores()
+    assert comparable(claude_report.replay(TASK, MODEL)) == comparable(recorded_scores())
 
 
 def test_normalized_key_ignores_float_noise_but_not_real_changes():

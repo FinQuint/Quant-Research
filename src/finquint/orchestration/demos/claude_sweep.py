@@ -162,9 +162,10 @@ def sweep_rebuilds(model, base=None, task=cx.TASKS[0]):
 
 def run_all(model, overrides=None):
     """Both sweeps, then the naive-vs-builder suite and naive sensitivity at the picked policy,
-    as evals.context.write_baseline does for the simulated plug. overrides: ContextPolicy fields
-    held fixed through the sweep (e.g. {"prioritize_uncited": True})."""
-    base = replace(ContextPolicy(), **(overrides or {}))
+    as evals.context.write_baseline does for the simulated plug. The rebuild switches come from
+    configs/context_policy.json, as in the protected sweep; overrides: ContextPolicy fields held
+    fixed through the sweep instead (e.g. REBUILD_OFF)."""
+    base = replace(ContextPolicy(), **{**cx.config_switches(), **(overrides or {})})
     context_rows, context_pick = sweep_context(model, base)
     tuned = replace(base, **context_pick)
     rebuild_rows, rebuild_pick = sweep_rebuilds(model, tuned)
@@ -189,7 +190,8 @@ def compare(result, baseline=None):
 
 # --- record / replay ----------------------------------------------------------------------------
 
-REBUILD = {"prioritize_uncited": True, "escalate_identical_rebuild": True}   # the opt-in rebuild switches
+REBUILD = {"prioritize_uncited": True, "escalate_identical_rebuild": True}   # the rebuild switches on
+REBUILD_OFF = {name: False for name in REBUILD}                              # and off
 # Claude tokens per simulated-plug token, measured from the exact-count recording (2026-11-15):
 # token-weighted over 4796 texts. A window scaled by it keeps the overflow the sweep was designed for.
 CLAUDE_TOKEN_RATIO = 1.437
@@ -236,11 +238,25 @@ def _load_replay(model, root, *, exact, window, rebuild, count_tokens=None):
     return TolerantReplay(base, json.loads(keys.read_text(encoding="utf-8")))
 
 
+def _switches(rebuild):
+    """rebuild: True on, False off, None as configs/context_policy.json sets them."""
+    return cx.config_switches() if rebuild is None else (REBUILD if rebuild else REBUILD_OFF)
+
+
+def _recorded_switches(scores_path):
+    """The switches a recording was made with; recordings from before they existed ran with them off."""
+    run = json.loads(scores_path.read_text(encoding="utf-8")).get("run", {})
+    if "switches" in run:
+        return run["switches"]
+    return REBUILD if run.get("rebuild_switches") else REBUILD_OFF
+
+
 def record(model, *, max_usd=DEFAULT_MAX_USD, plug=None, root=RECORDINGS, exact=False, window=WINDOW,
-           rebuild=False, cache=None, **plug_options):
+           rebuild=None, cache=None, **plug_options):
     """plug: the model to record (default: ClaudePlug at `window`; tests pass another).
     exact: count tokens with the API (message overhead measured and subtracted) and record them.
-    rebuild: run with the opt-in rebuild switches (REBUILD) held on through the sweep.
+    rebuild: True / False holds the rebuild switches on / off; None (default) uses the config's.
+    The recording is named "_rebuild" only for True; its scores record the switches used.
     cache: {"exact", "window", "rebuild"} of an earlier recording to serve identical requests
     from (and seed token counts from), so only new requests are paid for."""
     if plug is None:
@@ -259,10 +275,12 @@ def record(model, *, max_usd=DEFAULT_MAX_USD, plug=None, root=RECORDINGS, exact=
     cached = CacheFirst(budget, _load_replay(model, root, **cache)) if cache is not None else None
     recorder = KeyedRecorder(cached or budget)
     memo = MemoPlug(recorder)
+    switches = _switches(rebuild)
+    rebuild = bool(rebuild)
     recording, keys, scores_path = paths(model, root, exact=exact, window=window, rebuild=rebuild)
     recording.parent.mkdir(parents=True, exist_ok=True)
     try:
-        result = run_all(memo, REBUILD if rebuild else None)
+        result = run_all(memo, switches)
         complete = True
     except BudgetExceeded as exc:
         result, complete = {"stopped": str(exc)}, False
@@ -275,7 +293,7 @@ def record(model, *, max_usd=DEFAULT_MAX_USD, plug=None, root=RECORDINGS, exact=
     result["run"] = {"complete": complete, "api_calls": budget.calls, "memo_hits": memo.hits,
                      "cache_hits": cached.hits if cached else 0, "usd": round(budget.spent, 4),
                      "max_usd": max_usd, "window": window, "exact_tokens": exact,
-                     "rebuild_switches": REBUILD if rebuild else {},
+                     "rebuild_switches": REBUILD if rebuild else {}, "switches": switches,
                      "token_counts": len(counter.counts) if counter else 0}
     if complete:
         result["comparison"] = compare(result)
@@ -288,7 +306,8 @@ def replay(model, root=RECORDINGS, *, count_tokens=None, exact=False, window=WIN
     none), so requests are built, and keyed, exactly as when they were recorded. exact: replay an
     exact-count recording with its recorded counts."""
     plug = _load_replay(model, root, exact=exact, window=window, rebuild=rebuild, count_tokens=count_tokens)
-    result = run_all(MemoPlug(plug), REBUILD if rebuild else None)
+    switches = _recorded_switches(paths(model, root, exact=exact, window=window, rebuild=rebuild)[2])
+    result = run_all(MemoPlug(plug), switches)
     result["comparison"] = compare(result)
     return result
 
@@ -310,13 +329,13 @@ def main(argv=None):
                         help="with --rebuild-switches: serve requests already in the switches-off recording")
     args = parser.parse_args(argv)
     if args.simulated:
-        result = run_all(cx.plug(), REBUILD if args.rebuild_switches else None)
+        result = run_all(cx.plug(), REBUILD if args.rebuild_switches else None)   # None: the config's
         result["comparison"] = compare(result)
     elif args.record:
         cache = ({"exact": args.exact_tokens, "window": args.window, "rebuild": False}
                  if args.cache_from_off else None)
         result = record(args.model, max_usd=args.max_usd, exact=args.exact_tokens, window=args.window,
-                        rebuild=args.rebuild_switches, cache=cache)
+                        rebuild=True if args.rebuild_switches else None, cache=cache)
     else:
         result = replay(args.model, exact=args.exact_tokens, window=args.window, rebuild=args.rebuild_switches)
     summary = {k: result[k] for k in ("comparison", "run", "stopped") if k in result}

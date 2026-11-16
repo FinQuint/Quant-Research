@@ -21,7 +21,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
-| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug merged as PR #23 (230d41a); real-Claude report tasks and context sweep merged as PR #24/#25 (637dab1) |
+| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug merged as PR #23 (230d41a); real-Claude report tasks, context sweeps and rebuild switches merged as PR #24-#26 (a8d5747) |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -383,3 +383,17 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   config; builder 0 failures, naive 17 forgotten. B: grid failures 320 -> 200, calls 140 -> 84, picks
   and rebuild sweep unchanged. Real-model spend $4.19. Suite: 490 passed. Open (human): enable the
   switches in `configs/context_policy.json` and re-baseline Phase 5; per-plug policy not needed.
+- 2026-11-15: PR #26 merged (a8d5747, merged by the user with admin bypass). Phase 7 step 2 (Claude
+  through the socket) done; real-model spend $4.19. Open (human): enable the rebuild switches in
+  `configs/context_policy.json` and re-baseline Phase 5. Then Phase 7 remaining: full-stack soak
+  with the Claude plug.
+- 2026-11-15: On `feature/enable-rebuild-switches` (not committed): rebuild switches enabled in
+  `configs/context_policy.json` (user's decision; they asked Claude to apply it). Protected
+  `evals/context` reads them from the config (`config_switches()`), code defaults stay off.
+  Phase 5 baseline re-recorded: only grid rows moved (336 -> 264 failures, 145 -> 94 calls).
+  Two tests that encoded "switches off" were updated (config assertion; distinct calls 37 -> 57).
+  Then Claude soak: `demos/claude_soak.py` (protected Campaign with the model as reporter, protected
+  scorer). Live: 143 calls, $1.57, grade 15/16; all safety and provenance metrics 0 / traced 1.0;
+  70 of 72 reports needed a repair (typed "100", "1" for conventions), one escalated after repair,
+  which fails `invented_and_stale_reports_escalated` (expects exactly 2). Real-model spend $5.76.
+  Open decisions (protected): report prompt, numeral exemptions or the criterion. Suite: 496 passed.

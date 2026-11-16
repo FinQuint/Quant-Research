@@ -1,9 +1,11 @@
 {
  "format": 1,
  "policy": {
+  "escalate_identical_rebuild": true,
   "history_last_n": 16,
   "max_failed_rebuilds": 2,
   "output_reserve": 0.15,
+  "prioritize_uncited": true,
   "retrieval_first_k": 1,
   "retrieval_max_items": 24,
   "retrieval_max_rounds": 3,

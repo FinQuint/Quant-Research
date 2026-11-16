@@ -66,7 +66,10 @@ def test_memo_answers_a_repeated_request_without_a_call():
 
 def test_record_then_replay_round_trip_offline(tmp_path, simulated_run):
     recorded = sweep.record("claude-opus-5-5", plug=cx.plug(), root=tmp_path, max_usd=100)
-    assert recorded["run"]["complete"] and recorded["run"]["api_calls"] == 37
+    # distinct requests with the config's switches on (37 with them off: prioritized rebuilds
+    # differ from each other, so fewer repeat, though each run makes fewer calls)
+    assert recorded["run"]["complete"] and recorded["run"]["api_calls"] == 57
+    assert recorded["run"]["switches"] == sweep.REBUILD
     assert recorded["run"]["memo_hits"] > recorded["run"]["api_calls"]
     replayed = sweep.replay("claude-opus-5-5", root=tmp_path, count_tokens=cx.plug().count_tokens)
     for key in ("picked", "sweeps", "tasks", "naive_sensitivity", "totals"):

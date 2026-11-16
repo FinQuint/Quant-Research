@@ -407,3 +407,6 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   matches identifiers ignoring case. Re-scored the recorded Claude replies (no new calls): soak 17/17,
   72/72 reports ok on the first call; report tasks one call each. Recordings pruned to replies still
   requested; scores note the re-score. Suite: 505 passed. Phase 7 with Claude: exit criteria met.
+- 2026-11-15: PR #27 merged (fee2ba3, merged by the user with admin bypass); PR #28 retargeted to
+  `main`. CI runs only for PRs into `main` (and listed push branches), so a stacked PR gets CI only
+  after it is retargeted and pushed again.

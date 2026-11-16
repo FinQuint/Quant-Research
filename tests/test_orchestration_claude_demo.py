@@ -1,5 +1,6 @@
 """Phase 7 step 2: the recorded real-Claude report run replays offline (no key, no network, no SDK)."""
 import json
+import math
 
 import pytest
 
@@ -56,8 +57,10 @@ def _last_digit_noise(monkeypatch):
 
     def noisy(store, refs):
         segment = real(store, refs)
-        content = segment.content.replace("104.4912925031211", "104.49129250312108")
-        assert content != segment.content
+        head, value = segment.content.split("\n", 1)[0].rsplit(" ", 1)
+        nudged = math.nextafter(math.nextafter(float(value), math.inf), math.inf)   # two ulps up
+        content = segment.content.replace(f"{head} {value}", f"{head} {nudged!r}", 1)
+        assert content != segment.content and "bond_price" in head
         return type(segment)(segment.role, content, segment.stable, segment.ids)
     monkeypatch.setattr(claude_report, "metric_segment", noisy)
 

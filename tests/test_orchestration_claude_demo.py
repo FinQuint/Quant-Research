@@ -8,10 +8,12 @@ from finquint.orchestration.demos import claude_report
 from finquint.orchestration.models import ReplayPlug
 
 TASK, MODEL = "report_bond_risk", "claude-opus-5-5"
+# task -> (criteria, model calls in the live run)
+RECORDED = {"report_bond_risk": (4, 2), "report_backtest": (3, 1), "report_strategy_change": (3, 1)}
 
 
-def recorded_scores():
-    path = claude_report.recording_path(TASK, MODEL).with_suffix(".scores.json")
+def recorded_scores(task=TASK):
+    path = claude_report.recording_path(task, MODEL).with_suffix(".scores.json")
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -22,12 +24,18 @@ def comparable(scores):
     return {**scores, "report": report}
 
 
-def test_replay_reproduces_the_recorded_live_scores():
-    scores = claude_report.replay(TASK, MODEL)
-    assert comparable(scores) == comparable(recorded_scores())
-    assert scores["status"] == "ok" and scores["model"] == MODEL
-    assert scores["numbers_reported"] == scores["numbers_traced"] == scores["criteria"] == 4
+@pytest.mark.parametrize("task", sorted(RECORDED))
+def test_replay_reproduces_the_recorded_live_scores(task):
+    criteria, calls = RECORDED[task]
+    scores = claude_report.replay(task, MODEL)
+    assert comparable(scores) == comparable(recorded_scores(task))
+    assert scores["status"] == "ok" and scores["model"] == MODEL and scores["model_calls"] == calls
+    assert scores["numbers_reported"] == scores["numbers_traced"] == scores["criteria"] == criteria
     assert scores["invented_reported"] == 0 and scores["wrong_status"] == 0
+
+
+def test_every_clean_report_task_has_a_claude_recording():
+    assert sorted(RECORDED) == sorted(claude_report.CLEAN_TASKS)
 
 
 def test_live_run_needed_one_provenance_repair():
@@ -40,7 +48,7 @@ def test_live_run_needed_one_provenance_repair():
 
 def test_a_changed_request_misses_the_recording_and_escalates():
     replay = ReplayPlug.load(claude_report.recording_path(TASK, MODEL))
-    scores = claude_report.run_report("report_backtest", replay)
+    scores = claude_report.run_report("report_backtest", replay)    # bond replies, backtest request
     assert scores["status"] == "escalated" and scores["numbers_reported"] == 0
     assert replay.served == []
 

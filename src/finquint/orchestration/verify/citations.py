@@ -3,11 +3,28 @@
 A citation fails when the evidence is unknown, superseded by a newer version, deprecated,
 provisional (spec: "never cited as fact"), from another run, or (when `offered` is given) was never shown to the model. A file citation
 fails when the file is not in the snapshot at the task's SHA or the line is out of range.
+
+Versions are accepted as stored ("2") or as the request's tags print them ("v2"; context.tags
+prints v{version} and parse_ref strips the v). The exact version is tried first; "v2" falls back
+to "2" only when no version "v2" exists. Every other check then runs on the resolved version, so
+the tag form can never make a superseded, deprecated, provisional, foreign or unoffered item pass.
 """
+
+
+def resolve_version(store, evidence_id, version):
+    """The stored version a cited version refers to: exact, else the tag form "vN" -> "N"."""
+    if store.get(evidence_id, version) is not None:
+        return version
+    if isinstance(version, str) and len(version) > 1 and version[0] == "v":
+        bare = version[1:]
+        if store.get(evidence_id, bare) is not None:
+            return bare
+    return version
 
 
 def check_citation(evidence_id, version, *, store, run_id, offered=None):
     """None if the citation holds, else the reason it fails."""
+    version = resolve_version(store, evidence_id, version)
     item = store.get(evidence_id, version)
     if item is None:
         return f"{evidence_id} v{version}: no such evidence"

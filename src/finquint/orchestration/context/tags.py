@@ -33,7 +33,9 @@ REPORT_SCHEMA = {
                 "citations": {"type": "array", "items": {
                     "type": "object", "required": ["evidence_id", "version"], "additionalProperties": False,
                     "properties": {"evidence_id": {"type": "string", "minLength": 1},
-                                   "version": {"type": "string", "minLength": 1}}}},
+                                   "version": {"type": "string", "minLength": 1,
+                                               "description": "the version number without the leading v, "
+                                                              "e.g. \"2\" for an [evidence ... v2] line"}}}},
             }}},
         "claims": {"type": "object"},
     },

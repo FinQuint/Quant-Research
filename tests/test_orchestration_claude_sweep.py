@@ -125,3 +125,99 @@ def test_claude_sweep_result_after_the_citation_version_fix(claude_replay):
     assert naive["forgotten_criteria"] > 0
     assert claude_replay["picked"] == {"utilization_threshold": 0.9, "history_last_n": 16, "max_failed_rebuilds": 2}
     assert cx.load_baseline()["picked"]["utilization_threshold"] == 0.8
+
+
+def test_exact_count_mode_records_counts_and_replays_without_the_api(tmp_path):
+    """The simulated plug counts exactly, like ClaudePlug(exact_tokens=True): its counts are
+    recorded and the replay rebuilds identical requests from them alone."""
+    recorded = sweep.record("claude-opus-5-5", plug=cx.plug(), root=tmp_path, max_usd=100, exact=True)
+    assert recorded["run"]["exact_tokens"] and recorded["run"]["token_counts"] > 0
+    assert sweep.counts_path("claude-opus-5-5", tmp_path).exists()
+    replayed = sweep.replay("claude-opus-5-5", root=tmp_path, exact=True)
+    for key in ("picked", "sweeps", "tasks", "naive_sensitivity", "totals"):
+        assert replayed[key] == recorded[key], key
+
+
+def test_recorded_counter_fails_loudly_on_an_uncounted_text():
+    counter = sweep.recorded_counter({})
+    with pytest.raises(KeyError):
+        counter("never counted")
+
+
+def test_claude_plug_message_overhead_is_opt_in_and_measured_once():
+    from types import SimpleNamespace
+    from finquint.orchestration.models.claude import ClaudePlug
+
+    class Client:
+        def __init__(self):
+            self.calls, self.messages = 0, self
+
+        def count_tokens(self, **params):
+            self.calls += 1
+            return SimpleNamespace(input_tokens=8 + len(params["messages"][0]["content"].split()))
+    raw = ClaudePlug(client=Client(), exact_tokens=True)
+    assert raw.count_tokens("a b c") == 11                     # default: raw count, overcounts
+    client = Client()
+    net = ClaudePlug(client=client, exact_tokens=True, message_overhead=None)
+    assert net.count_tokens("a b c") == 3 and net.count_tokens("a") == 1
+    assert client.calls == 2                                   # "a" measured once, then cached
+    assert ClaudePlug(client=Client(), exact_tokens=True, message_overhead=8).count_tokens("a b") == 2
+    with pytest.raises(ValueError):
+        ClaudePlug(client=Client(), message_overhead=-1)
+
+
+def test_recorded_exact_count_claude_sweep_replays_offline():
+    """Live run with Claude's exact token counts (recorded) at the 2048-token window: every grid
+    setting has quality failures, because real tokens run ~1.7x the chars/4 estimate and some
+    criteria's evidence never fits. Picks here are not usable for tuning (see docs/EVALS.md)."""
+    _, _, scores = sweep.paths("claude-opus-5-5", exact=True)
+    saved = json.loads(scores.read_text(encoding="utf-8"))
+    assert saved["run"]["exact_tokens"] and saved["run"]["complete"]
+    replayed = sweep.replay("claude-opus-5-5", exact=True)
+    for key in ("picked", "sweeps", "tasks", "naive_sensitivity", "totals"):
+        assert replayed[key] == saved[key], key
+    fails = lambda r: r["forgotten_criteria"] + r["citation_failures"] + r["wrong_status"]
+    assert min(map(fails, replayed["sweeps"]["context"])) > 0
+
+
+def test_switches_on_run_pays_only_for_requests_the_off_recording_lacks(tmp_path):
+    off = sweep.record("claude-opus-5-5", plug=cx.plug(), root=tmp_path, max_usd=100, exact=True)
+    on = sweep.record("claude-opus-5-5", plug=cx.plug(), root=tmp_path, max_usd=100, exact=True, rebuild=True,
+                      cache={"exact": True, "window": sweep.WINDOW, "rebuild": False})
+    assert on["run"]["cache_hits"] > 0 and on["run"]["api_calls"] < off["run"]["api_calls"]
+    assert on["run"]["rebuild_switches"] == sweep.REBUILD
+    fresh = sweep.run_all(cx.plug(), sweep.REBUILD)
+    for key in ("picked", "sweeps", "tasks", "totals"):
+        assert on[key] == fresh[key], key                    # the cache changes cost, never results
+    replayed = sweep.replay("claude-opus-5-5", root=tmp_path, exact=True, rebuild=True)
+    assert replayed["sweeps"] == on["sweeps"]
+
+
+def test_variant_names_keep_the_original_recordings():
+    assert sweep.variant() == "context_sweep" and sweep.variant(exact=True) == "context_sweep_exact"
+    assert sweep.variant(exact=True, window=2943, rebuild=True) == "context_sweep_exact_w2943_rebuild"
+    assert sweep.SCALED_WINDOW == 2943
+
+
+@pytest.mark.parametrize("rebuild", [False, True])
+def test_recorded_scaled_window_claude_sweeps_replay_offline(rebuild):
+    _, _, scores = sweep.paths("claude-opus-5-5", exact=True, window=sweep.SCALED_WINDOW, rebuild=rebuild)
+    saved = json.loads(scores.read_text(encoding="utf-8"))
+    assert saved["run"]["complete"] and saved["run"]["window"] == sweep.SCALED_WINDOW
+    replayed = sweep.replay("claude-opus-5-5", exact=True, window=sweep.SCALED_WINDOW, rebuild=rebuild)
+    for key in ("picked", "sweeps", "tasks", "naive_sensitivity", "totals"):
+        assert replayed[key] == saved[key], key
+
+
+def test_scaled_window_claude_picks_match_the_config_and_switches_cut_failures_and_calls():
+    """At the window scaled to Claude's tokens, Claude picks the current config's values; the
+    opt-in rebuild switches cut grid failures and calls without changing picks or escalations."""
+    load = lambda rebuild: json.loads(sweep.paths("claude-opus-5-5", exact=True, window=sweep.SCALED_WINDOW,
+                                                  rebuild=rebuild)[2].read_text(encoding="utf-8"))
+    off, on = load(False), load(True)
+    assert off["picked"] == on["picked"] == cx.load_baseline()["picked"]
+    fails = lambda r: r["forgotten_criteria"] + r["citation_failures"] + r["wrong_status"]
+    assert sum(map(fails, on["sweeps"]["context"])) < sum(map(fails, off["sweeps"]["context"]))
+    assert sum(r["model_calls"] for r in on["sweeps"]["context"]) < sum(r["model_calls"] for r in off["sweeps"]["context"])
+    assert on["sweeps"]["rebuilds"] == off["sweeps"]["rebuilds"]
+    assert off["totals"]["builder"]["forgotten_criteria"] == 0 < off["totals"]["naive"]["forgotten_criteria"]

@@ -1,6 +1,8 @@
 """Re-run the Phase 5 context sweep with a real model, record it, and compare its picks with the
 simulated plug's (configs/context_policy.json).
 
+    # exact token counts from the API instead of the chars/4 estimate (counts are recorded too)
+    python -m finquint.orchestration.demos.claude_sweep --record --exact-tokens --max-usd 3
     # dry run with the simulated plug (free): checks the runner and reproduces the protected baseline
     python -m finquint.orchestration.demos.claude_sweep --simulated
     # live (costs money; needs `pip install anthropic` and ANTHROPIC_API_KEY); stops at --max-usd
@@ -26,6 +28,7 @@ Live runs go through three wrappers, outermost first:
 """
 import argparse
 from dataclasses import replace
+from hashlib import sha256
 import json
 import math
 from pathlib import Path
@@ -33,7 +36,7 @@ import sys
 
 from ..context.builder import ContextPolicy
 from ..evals import context as cx
-from ..models.replay import ReplayPlug
+from ..models.replay import ReplayMiss, ReplayPlug
 from ..models.socket import SOCKET_VERSION
 from .claude_report import PRICES, RECORDINGS, KeyedRecorder, TolerantReplay
 
@@ -89,6 +92,29 @@ class BudgetedPlug(_Wrapper):
         return reply
 
 
+class CountRecorder(_Wrapper):
+    """Keeps every exact token count by text digest, so a replay counts exactly as the live run
+    did (requests are built from counts, so their digests depend on them) without the API."""
+
+    def __init__(self, inner):
+        super().__init__(inner)
+        self.counts = {}
+
+    def count_tokens(self, text):
+        key = sha256(text.encode("utf-8")).hexdigest()
+        if key not in self.counts:
+            self.counts[key] = self.inner.count_tokens(text)
+        return self.counts[key]
+
+    def complete(self, request):
+        return self.inner.complete(request)
+
+
+def recorded_counter(counts):
+    """count_tokens for a replay; a text the live run never counted raises KeyError (fail loudly)."""
+    return lambda text: counts[sha256(text.encode("utf-8")).hexdigest()]
+
+
 # --- the protected sweep's loops, with a model passed in ------------------------------------------
 
 def _context_key(row):
@@ -134,11 +160,13 @@ def sweep_rebuilds(model, base=None, task=cx.TASKS[0]):
     return rows, {"max_failed_rebuilds": min(rows, key=_rebuild_key)["max_failed_rebuilds"]}
 
 
-def run_all(model):
+def run_all(model, overrides=None):
     """Both sweeps, then the naive-vs-builder suite and naive sensitivity at the picked policy,
-    as evals.context.write_baseline does for the simulated plug."""
-    context_rows, context_pick = sweep_context(model)
-    tuned = replace(ContextPolicy(), **context_pick)
+    as evals.context.write_baseline does for the simulated plug. overrides: ContextPolicy fields
+    held fixed through the sweep (e.g. {"prioritize_uncited": True})."""
+    base = replace(ContextPolicy(), **(overrides or {}))
+    context_rows, context_pick = sweep_context(model, base)
+    tuned = replace(base, **context_pick)
     rebuild_rows, rebuild_pick = sweep_rebuilds(model, tuned)
     policy = replace(tuned, **rebuild_pick)
     tasks = {t.name: {"naive": cx.run_naive(t, policy, model=model), "builder": cx.run_builder(t, policy, model=model)}
@@ -161,44 +189,106 @@ def compare(result, baseline=None):
 
 # --- record / replay ----------------------------------------------------------------------------
 
-def paths(model, root=RECORDINGS):
-    base = Path(root) / model / f"{NAME}.json"
+REBUILD = {"prioritize_uncited": True, "escalate_identical_rebuild": True}   # the opt-in rebuild switches
+# Claude tokens per simulated-plug token, measured from the exact-count recording (2026-11-15):
+# token-weighted over 4796 texts. A window scaled by it keeps the overflow the sweep was designed for.
+CLAUDE_TOKEN_RATIO = 1.437
+SCALED_WINDOW = round(WINDOW * CLAUDE_TOKEN_RATIO)   # 2943
+
+
+def variant(*, exact=False, window=WINDOW, rebuild=False):
+    return (NAME + ("_exact" if exact else "") + (f"_w{window}" if window != WINDOW else "")
+            + ("_rebuild" if rebuild else ""))
+
+
+def paths(model, root=RECORDINGS, *, exact=False, window=WINDOW, rebuild=False):
+    base = Path(root) / model / (variant(exact=exact, window=window, rebuild=rebuild) + ".json")
     return base, base.with_suffix(".keys.json"), base.with_suffix(".scores.json")
 
 
-def record(model, *, max_usd=DEFAULT_MAX_USD, plug=None, root=RECORDINGS, **plug_options):
-    """plug: the model to record (default: ClaudePlug at the sweep window; tests pass another)."""
+def counts_path(model, root=RECORDINGS, *, window=WINDOW, rebuild=False):
+    return paths(model, root, exact=True, window=window, rebuild=rebuild)[0].with_suffix(".counts.json")
+
+
+class CacheFirst(_Wrapper):
+    """Serves a request from an earlier recording when it holds one, else calls the live plug.
+    A sweep that differs from a recorded one only in its rebuilds pays only for the new requests."""
+
+    def __init__(self, live, cache):
+        super().__init__(live)
+        self.cache, self.hits = cache, 0
+
+    def complete(self, request):
+        try:
+            reply = self.cache.complete(request)
+        except ReplayMiss:
+            return self.inner.complete(request)
+        self.hits += 1
+        return reply
+
+
+def _load_replay(model, root, *, exact, window, rebuild, count_tokens=None):
+    if exact and count_tokens is None:
+        count_tokens = recorded_counter(json.loads(
+            counts_path(model, root, window=window, rebuild=rebuild).read_text(encoding="utf-8")))
+    recording, keys, _ = paths(model, root, exact=exact, window=window, rebuild=rebuild)
+    base = ReplayPlug.load(recording, count_tokens=count_tokens)
+    return TolerantReplay(base, json.loads(keys.read_text(encoding="utf-8")))
+
+
+def record(model, *, max_usd=DEFAULT_MAX_USD, plug=None, root=RECORDINGS, exact=False, window=WINDOW,
+           rebuild=False, cache=None, **plug_options):
+    """plug: the model to record (default: ClaudePlug at `window`; tests pass another).
+    exact: count tokens with the API (message overhead measured and subtracted) and record them.
+    rebuild: run with the opt-in rebuild switches (REBUILD) held on through the sweep.
+    cache: {"exact", "window", "rebuild"} of an earlier recording to serve identical requests
+    from (and seed token counts from), so only new requests are paid for."""
     if plug is None:
         from ..models.claude import ClaudePlug   # optional install
-        plug = ClaudePlug(model, context_window=WINDOW, **plug_options)
-    recorder = KeyedRecorder(plug)
-    budget = BudgetedPlug(recorder, model=model, max_usd=max_usd)
-    memo = MemoPlug(budget)
-    recording, keys, scores_path = paths(model, root)
+        if exact:
+            plug_options = {"exact_tokens": True, "message_overhead": None, **plug_options}
+        plug = ClaudePlug(model, context_window=window, **plug_options)
+    seed = {}
+    if cache is not None and cache.get("exact") and exact:
+        seed = json.loads(counts_path(model, root, window=cache["window"], rebuild=cache["rebuild"])
+                          .read_text(encoding="utf-8"))
+    counter = CountRecorder(plug) if exact else None
+    if counter is not None:
+        counter.counts.update(seed)
+    budget = BudgetedPlug(counter or plug, model=model, max_usd=max_usd)
+    cached = CacheFirst(budget, _load_replay(model, root, **cache)) if cache is not None else None
+    recorder = KeyedRecorder(cached or budget)
+    memo = MemoPlug(recorder)
+    recording, keys, scores_path = paths(model, root, exact=exact, window=window, rebuild=rebuild)
     recording.parent.mkdir(parents=True, exist_ok=True)
     try:
-        result = run_all(memo)
+        result = run_all(memo, REBUILD if rebuild else None)
         complete = True
     except BudgetExceeded as exc:
         result, complete = {"stopped": str(exc)}, False
     finally:   # keep what was paid for, even on a stop or crash
         recorder.save(recording)
         keys.write_text(json.dumps(recorder.keys, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+        if counter is not None:
+            counts_path(model, root, window=window, rebuild=rebuild).write_text(
+                json.dumps(counter.counts, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     result["run"] = {"complete": complete, "api_calls": budget.calls, "memo_hits": memo.hits,
-                     "usd": round(budget.spent, 4), "max_usd": max_usd, "window": WINDOW}
+                     "cache_hits": cached.hits if cached else 0, "usd": round(budget.spent, 4),
+                     "max_usd": max_usd, "window": window, "exact_tokens": exact,
+                     "rebuild_switches": REBUILD if rebuild else {},
+                     "token_counts": len(counter.counts) if counter else 0}
     if complete:
         result["comparison"] = compare(result)
     scores_path.write_text(json.dumps(result, indent=1, sort_keys=True) + "\n", encoding="utf-8")
     return result
 
 
-def replay(model, root=RECORDINGS, *, count_tokens=None):
+def replay(model, root=RECORDINGS, *, count_tokens=None, exact=False, window=WINDOW, rebuild=False):
     """count_tokens: the recorded plug's exact counter, if it had one (ClaudePlug by default has
-    none), so requests are built, and keyed, exactly as when they were recorded."""
-    recording, keys, _ = paths(model, root)
-    base = ReplayPlug.load(recording, count_tokens=count_tokens)
-    plug = TolerantReplay(base, json.loads(keys.read_text(encoding="utf-8")))
-    result = run_all(MemoPlug(plug))
+    none), so requests are built, and keyed, exactly as when they were recorded. exact: replay an
+    exact-count recording with its recorded counts."""
+    plug = _load_replay(model, root, exact=exact, window=window, rebuild=rebuild, count_tokens=count_tokens)
+    result = run_all(MemoPlug(plug), REBUILD if rebuild else None)
     result["comparison"] = compare(result)
     return result
 
@@ -210,14 +300,25 @@ def main(argv=None):
     mode.add_argument("--record", action="store_true", help="call the real API (costs money) and save a recording")
     mode.add_argument("--simulated", action="store_true", help="run with the simulated plug (free dry run)")
     parser.add_argument("--max-usd", type=float, default=DEFAULT_MAX_USD)
+    parser.add_argument("--exact-tokens", action="store_true",
+                        help="count tokens with the API (free) instead of the chars/4 estimate")
+    parser.add_argument("--window", type=int, default=WINDOW,
+                        help=f"context window in the plug's tokens (scaled for Claude: {SCALED_WINDOW})")
+    parser.add_argument("--rebuild-switches", action="store_true",
+                        help="hold prioritize_uncited and escalate_identical_rebuild on")
+    parser.add_argument("--cache-from-off", action="store_true",
+                        help="with --rebuild-switches: serve requests already in the switches-off recording")
     args = parser.parse_args(argv)
     if args.simulated:
-        result = run_all(cx.plug())
+        result = run_all(cx.plug(), REBUILD if args.rebuild_switches else None)
         result["comparison"] = compare(result)
     elif args.record:
-        result = record(args.model, max_usd=args.max_usd)
+        cache = ({"exact": args.exact_tokens, "window": args.window, "rebuild": False}
+                 if args.cache_from_off else None)
+        result = record(args.model, max_usd=args.max_usd, exact=args.exact_tokens, window=args.window,
+                        rebuild=args.rebuild_switches, cache=cache)
     else:
-        result = replay(args.model)
+        result = replay(args.model, exact=args.exact_tokens, window=args.window, rebuild=args.rebuild_switches)
     summary = {k: result[k] for k in ("comparison", "run", "stopped") if k in result}
     json.dump(summary, sys.stdout, indent=1, sort_keys=True)
     print()

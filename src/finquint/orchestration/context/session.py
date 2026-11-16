@@ -9,6 +9,15 @@ the output, and on a failure signal rebuilds and asks again:
     policy.max_failed_rebuilds in a row -> ESCALATE.
   * Evidence conflicts, ContextOverflow and ModelEscalation -> ESCALATE at once.
   * Rebuilds for high utilization or mixed versions are not failed rebuilds.
+  * policy.prioritize_uncited: a rebuild after a bad output asks the builder to place evidence
+    for the criteria left uncited first. Topics accumulate over the ask(), so making room for
+    one criterion's evidence cannot push out evidence an earlier rebuild added for another. Such
+    a rebuild may fill the whole input budget: capping it at the utilization threshold (the aim of
+    a high-utilization rebuild) would leave less room than the request that just failed.
+  * policy.escalate_identical_rebuild: a rebuilt request identical to one already sent in this
+    ask(), while a criterion the last output left uncited has no evidence on its topic in that
+    request -> ESCALATE without calling the model: no retry of that request can supply the
+    evidence. With the evidence present the retry still runs (a sampled model may get it right).
 """
 from dataclasses import dataclass, field
 import json
@@ -16,6 +25,7 @@ import threading
 
 from ..models.core import ModelEscalation
 from ..tracing import NULL_TRACER
+from ..verify.citations import check_citations
 from .builder import ContextOverflow
 from .health import Action, Finding, HealthReport, LoopDetector, Signal, check_output, check_request
 
@@ -71,6 +81,25 @@ class AskResult:
     failed_rebuilds: int = 0
     input_tokens: int = 0       # summed over every request sent
     reports: tuple = field(default=(), repr=False)
+
+
+def uncited_criteria(output, card, built, store):
+    """Criterion IDs the output did not address, or addressed without a citation that holds."""
+    by_id = {c.get("id"): c for c in output.get("criteria", []) if isinstance(c, dict)}
+    out = []
+    for cid in card.criterion_ids:
+        criterion = by_id.get(cid)
+        cites = criterion.get("citations", []) if criterion else []
+        if not cites or check_citations(cites, store=store, run_id=card.run_id, offered=built.offered):
+            out.append(cid)
+    return out
+
+
+def _topics_without_evidence(topics, built):
+    """Of these topics, those with no evidence in the built request (evidence or history output)."""
+    present = {e.topic for e in built.evidence}
+    present |= {h.evidence.topic for h in built.history if h.kind == "tool_output" and h.evidence is not None}
+    return tuple(t for t in topics if t not in present)
 
 
 class ContextSession:
@@ -137,9 +166,14 @@ class ContextSession:
 
     # --- asking the model ----------------------------------------------------------------
 
+    def _uncited_topics(self, output, built):
+        ids = set(uncited_criteria(output, self.card, built, self.store))
+        return tuple(c.topic for c in self.card.criteria if c.criterion_id in ids)
+
     def ask(self, instruction, *, budget_left=None):
         calls = rebuilds = failed = tokens = 0
         reports, minimal, after_bad_output = [], False, False
+        sent, priority, last_problems, uncited = set(), (), "", ()
         limit = 3 + 2 * self.policy.max_failed_rebuilds   # hard stop; the rules below end sooner
 
         def escalate(reason, model=None):
@@ -152,7 +186,9 @@ class ContextSession:
                                                instruction=instruction, handoffs=self.handoffs, history=self.history,
                                                permissions=self.permissions, budget_left=budget_left,
                                                minimal=minimal, since_checkpoint=self.checkpoint_at,
-                                               limit=self.policy.utilization_threshold if minimal else None)
+                                               limit=None if priority or not minimal
+                                               else self.policy.utilization_threshold,
+                                               priority_topics=priority)
                 except ContextOverflow as exc:
                     return escalate(str(exc))
                 except ValueError as exc:   # a value the request format cannot carry: fail closed
@@ -172,6 +208,15 @@ class ContextSession:
                     rebuilds += 1
                     continue
 
+                digest = built.request.digest()
+                unsupplied = _topics_without_evidence(uncited, built)
+                if self.policy.escalate_identical_rebuild and digest in sent and unsupplied:
+                    reports.append(HealthReport((Finding(Signal.REBUILDS_EXHAUSTED,
+                                                         "rebuild repeats a sent request that lacks evidence for "
+                                                         + ", ".join(unsupplied)),)))
+                    return escalate("rebuild repeats a sent request with no evidence for "
+                                    + ", ".join(unsupplied) + "; last: " + last_problems)
+                sent.add(digest)
                 calls += 1
                 tokens += built.input_tokens
                 try:
@@ -191,6 +236,10 @@ class ContextSession:
                                                          f"{failed} failed rebuilds in a row"),)))
                     return escalate(f"{failed} failed rebuilds in a row; last: "
                                     + "; ".join(f.detail for f in outcome.findings[:3]), result.model)
+                last_problems = "; ".join(f.detail for f in outcome.findings[:3])
+                uncited = self._uncited_topics(result.output, built)
+                if self.policy.prioritize_uncited:   # accumulate: a fix for one criterion must not drop another's
+                    priority = priority + tuple(t for t in uncited if t not in priority)
                 self._archive(outcome.action.value)
                 minimal, after_bad_output = True, True
                 rebuilds += 1

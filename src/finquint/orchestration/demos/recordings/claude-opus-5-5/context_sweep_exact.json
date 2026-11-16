@@ -1,0 +1,396 @@
+{
+ "capabilities": {
+  "context_window": 2048
+ },
+ "format": 1,
+ "plug": "claude:claude-opus-5-5",
+ "replies": {
+  "0660dc00d45944515611a48016cc78164b1c8cc62808a5e9a0f6b5f39e0c4890": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-test_plan\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"C5\":\"Not met: this run contains no diff review evidence, so nothing is cited.\",\"C6\":\"Not met: this run contains no lint result evidence, so nothing is cited.\",\"notes\":\"The step 62 query output has no evidence ID and is not cited. C1 to C4 and C7 cite the evidence supplied in this run, including the newest versions of window_param and risk_limits.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1525,
+    "output_tokens": 466
+   }
+  },
+  "0927f06c289872521219b09189566202cd6fa1679b00a860111365ff29b15a6b": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio result 36 (ev-sharpe v2, prices@v3).\",\"C2\":\"Maximum drawdown result 5 (ev-drawdown v1, prices@v3).\",\"C3\":\"Annual turnover result 9 (ev-turnover v1, prices@v3).\",\"C4\":\"Unresolved: there is no evidence for hit rate, so no value is reported.\",\"C5\":\"Unresolved: there is no evidence for gross exposure, so no value is reported.\",\"C6\":\"Unresolved: there is no evidence that the frozen out-of-sample window was checked in this run, so it cannot be confirmed.\",\"C7\":\"Unresolved: there is no evidence stating which transaction cost model this run applied, so it cannot be stated.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1309,
+    "output_tokens": 518
+   }
+  },
+  "0c2c34420e2833c5034cc26edba5aaf30dd19b777b4ad0fcc63ab93acb5307c1": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Supported by ev-sharpe v2 (run=lr-backtest, dataset=prices@v3), which reads 'sharpe result 36'. The text after that is unstructured, so the figure is reported as given and not interpreted further.\",\"C2\":\"Supported by ev-drawdown v1 (run=lr-backtest, dataset=prices@v3), which reads 'drawdown result 5'. The text after that is unstructured, so the figure is reported as given.\",\"C3\":\"Not supported: no turnover evidence for this run. The word 'turnover' appears only as filler text in other records.\",\"C4\":\"Not supported: no hit-rate evidence for this run.\",\"C5\":\"Not supported: no exposure evidence. The step-67 query output (46 rows) mentions 'exposure' only in unstructured text and has no evidence ID or version.\",\"C6\":\"Not supported: no evidence confirms the frozen out-of-sample window for this run. The step-63 'fetch regime' call returned no citable result.\",\"C7\":\"Not supported: no evidence states the transaction cost model applied in this run.\",\"status\":\"incomplete: 2 of 7 criteria supported (C1, C2); C3 to C7 need evidence before this report can be considered complete\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1181,
+    "output_tokens": 743
+   }
+  },
+  "0f373cf3df870284524af4146e4911d5e52dfa3501d8d05366d2ae7fb46c6153": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"status\":\"incomplete\",\"summary\":\"Only C1\u2013C3 have evidence. No evidence was provided for C4\u2013C7, so those criteria are not met and have no citations.\",\"C1\":\"The signal specification is covered by ev-signal_spec v1.\",\"C2\":\"The current window parameter is covered by ev-window_param v2.\",\"C3\":\"The current risk limits are covered by ev-risk_limits v2.\",\"C4\":\"Unmet: no test plan evidence was provided.\",\"C5\":\"Unmet: no diff review from this run was provided.\",\"C6\":\"Unmet: no lint result from this run was provided.\",\"C7\":\"Unmet: no unit test result from this run was provided.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1108,
+    "output_tokens": 521
+   }
+  },
+  "155bba60b017e4ddc87d2cad2d97936180cf8b56ee56b79a8e778392e703c05e": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-hit_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio: result 36 (ev-sharpe v2, prices@v3).\",\"C2\":\"Maximum drawdown: result 5 (ev-drawdown v1, prices@v3).\",\"C3\":\"Annual turnover: result 9 (ev-turnover v1, prices@v3).\",\"C4\":\"Hit rate: result 13 (ev-hit_rate v1, prices@v3).\",\"C5\":\"Not established. No exposure evidence record exists. The query at step 67 returned 46 rows but no versioned evidence ID, so gross exposure cannot be cited.\",\"C6\":\"Not confirmed. A fetch for oos_window was issued at step 60, but no versioned evidence record was returned. The frozen out-of-sample window cannot be confirmed for this run.\",\"C7\":\"Not established. A fetch for cost_model was issued at step 65, but no versioned evidence record was returned. The transaction cost model applied in this run cannot be stated.\",\"status\":\"partial: C1-C4 are supported by evidence; C5-C7 have no citable evidence and remain open.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1668,
+    "output_tokens": 770
+   }
+  },
+  "25a8758a983e03e332c8ff1913faaaf26fbb853a8f8e667856864edd0f6e5d47": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-exposure\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio result is 36 (ev-sharpe v2, prices@v3).\",\"C2\":\"Maximum drawdown result is 5 (ev-drawdown v1, prices@v3).\",\"C3\":\"Annual turnover result is 9 (ev-turnover v1, prices@v3).\",\"C4\":\"Not reported: no hit-rate evidence was provided for this run.\",\"C5\":\"Gross exposure result is 17 (ev-exposure v1, prices@v3).\",\"C6\":\"Not confirmed: no evidence about the frozen out-of-sample window checked in this run was provided.\",\"C7\":\"Not stated: no evidence about the transaction cost model applied in this run was provided.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1530,
+    "output_tokens": 574
+   }
+  },
+  "285d7000d32b046b81e596a289d91562bac7925355050703ad796208edaf54ed": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"ev-duration v2 reports 'duration result 37'. The rest of the record is unstructured text, and the card does not confirm that this value is modified duration or give its units. For a 5y 5% semiannual bond, modified duration should be roughly 4.4, so 37 is implausible on any standard basis. Needs verification.\",\"C2\":\"ev-convexity v1 reports 'convexity result 4'. The rest of the record is unstructured text, and the units and scaling are not confirmed. For this bond, convexity would normally be about 22, so 4 does not match a standard convexity basis. Needs verification.\",\"C3\":\"ev-dv01 v2 reports 'dv01 result 38'. The rest of the record is unstructured text, and the card does not confirm that this is per 100 face. For this bond, DV01 would be about 0.044 per 100 face, so 38 is not a per-100-face DV01 on any standard basis. Needs verification.\",\"C4\":\"Not answered. No key rate duration evidence exists for run lr-bond.\",\"C5\":\"Not answered. No evidence names the yield curve used. The query at step 70 (query 47) returned unstructured rows that do not identify a curve, and it produced no citable evidence ID.\",\"C6\":\"Not answered. No liquidity evidence exists for run lr-bond.\",\"C7\":\"Not confirmed. A fetch of price_check was issued at step 66, but no result or evidence record came back. I cannot confirm that the final price check completed or what it showed.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1272,
+    "output_tokens": 880
+   }
+  },
+  "2da5b671ccdcd435e36255650d655bee5a62be5c49379f37cc3bd2d4f694c045": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"criteria\":[{\"id\":\"diff_review\",\"citations\":[{\"evidence_id\":\"wk-diff_review\",\"version\":\"1\"}]},{\"id\":\"lint_result\",\"citations\":[{\"evidence_id\":\"wk-lint_result\",\"version\":\"1\"}]},{\"id\":\"unit_tests\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"note\":\"The acceptance criteria list was not available, so the criteria IDs come from the three evidence records fetched in run lr-coding. test_plan, signal_spec, window_param and risk_limits were only mentioned (ev-* v1), never fetched as evidence, so they are not cited. code_sha is omitted because no evidence supplied it.\",\"diff_review\":\"diff review result 39 recorded (wk-diff_review v1)\",\"lint_result\":\"lint result 42 recorded (wk-lint_result v1)\",\"unit_tests\":\"unit tests result 45 recorded (wk-unit_tests v1)\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2005,
+    "output_tokens": 595
+   }
+  },
+  "2ec89a7b89ae44141935d4523cfeaf180fe7092cfb6e9a27e0eadaf47a5b6dcc": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-hit_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio: result 36 (ev-sharpe v2, prices@v3).\",\"C2\":\"Maximum drawdown: result 5 (ev-drawdown v1, prices@v3).\",\"C3\":\"Annual turnover: result 9 (ev-turnover v1, prices@v3).\",\"C4\":\"Hit rate: result 13 (ev-hit_rate v1, prices@v3).\",\"C5\":\"Unresolved: no evidence was supplied for gross exposure. The tool output at step 67 (query 46) has no evidence ID or version and states no exposure figure, so it cannot be cited.\",\"C6\":\"Unresolved: no evidence confirms the frozen out-of-sample window checked in this run.\",\"C7\":\"Unresolved: no evidence states the transaction cost model applied in this run.\",\"status\":\"Incomplete. C1-C4 are supported by cited evidence. C5-C7 have no supporting evidence and are left uncited, not assumed.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1619,
+    "output_tokens": 640
+   }
+  },
+  "3148c373e3becc17c9cd119b677881ba374f675c38035f49658fc44b98682673": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-key_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-yield_curve\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration from the current risk run is in ev-duration v2 (duration result 37).\",\"C2\":\"Convexity is in ev-convexity v1 (convexity result 4).\",\"C3\":\"DV01 per 100 face is in ev-dv01 v2 (dv01 result 38).\",\"C4\":\"Key rate durations are in ev-key_rate v1 (key rate result 10).\",\"C5\":\"The yield curve used is in ev-yield_curve v1 (yield curve result 13).\",\"C6\":\"Unsupported: no liquidity evidence exists for run lr-bond, so I cannot assess liquidity.\",\"C7\":\"Unsupported: the price_check fetch at step 66 returned no evidence record. Query 47 at step 70 is not a price check result. I cannot confirm the final price check.\",\"note\":\"The evidence text gives only the result labels, not numeric values, so none of the figures are quoted here.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1656,
+    "output_tokens": 677
+   }
+  },
+  "379470fe71cbe78b93e6dc17428fe028686f1b734d684f844b386c8ffcc36b2e": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-test_plan\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"wk-diff_review\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"wk-lint_result\",\"version\":\"1\"}]},{\"id\":\"C7\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}]}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1879,
+    "output_tokens": 292
+   }
+  },
+  "3b29ebb9efd934f01c7e74696daeda9f92cef8acbbba689e1f5a5f90028ef025": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-test_plan\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"wk-lint_result\",\"version\":\"1\"}]},{\"id\":\"C7\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"C1\":\"The change follows the signal specification (ev-signal_spec v1).\",\"C2\":\"The change uses the current window parameter (ev-window_param v2).\",\"C3\":\"The change respects the current risk limits (ev-risk_limits v2).\",\"C4\":\"The change follows the test plan (ev-test_plan v1).\",\"C5\":\"Not met: no diff review evidence was produced in this run, so there is nothing to cite. A diff review is still needed before this change can be called reviewed.\",\"C6\":\"The lint result from this run is included (wk-lint_result v1).\",\"C7\":\"The unit test result from this run is included (wk-unit_tests v1).\",\"notes\":\"The step-62 query output (query 46) has no evidence ID, so it is not cited. The evidence text is placeholder-like, so these citations show that each artifact exists, not what it found.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1693,
+    "output_tokens": 586
+   }
+  },
+  "3f793cbe7b13cc23dac9842503d39250bad35d2c5231722db7341b62e5998775": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"\",\"criteria\":[{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-compounding_a\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"ev-compounding_b\",\"version\":\"1\"}]}]}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1989,
+    "output_tokens": 283
+   }
+  },
+  "415c38ea5e4b5dbbd937dcd8429d897268a48c446a16436233c9fbd295d26b73": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-key_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration comes from ev-duration v2 (run lr-bond), labelled 'duration result 37'. The rest of that record is unstructured text with no explicit duration figure or units, so the value needs confirmation.\",\"C2\":\"Convexity comes from ev-convexity v1, labelled 'convexity result 4'. No explicit convexity figure or units are given beyond that label.\",\"C3\":\"DV01 per 100 face comes from ev-dv01 v2, labelled 'dv01 result 38'. The per-100-face basis is not stated in the record.\",\"C4\":\"Key rate durations come from ev-key_rate v1, labelled 'key rate result 10'. No per-tenor breakdown is present in the record.\",\"C5\":\"Unsupported. No evidence names the yield curve used. Curve terms appear only in unstructured text, which does not identify a curve.\",\"C6\":\"Unsupported. No liquidity evidence exists for run lr-bond. The step-70 query (query 47) returned unstructured rows with no liquidity assessment and no evidence ID.\",\"C7\":\"Unsupported. 'fetch price_check' was called at step 66, but no result or evidence record was returned, so the final price check cannot be confirmed.\",\"budget_note\":\"Model call budget is 8. Criteria C5 to C7 still need evidence before this report is complete.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1463,
+    "output_tokens": 838
+   }
+  },
+  "4cfabf31ff8d622822115582b4bbdc2f5cce4761b58a773769b2f228c9146ee8": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-key_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-yield_curve\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"ev-liquidity\",\"version\":\"1\"}]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration from the current risk run: duration result 37 (ev-duration v2).\",\"C2\":\"Convexity: convexity result 4 (ev-convexity v1).\",\"C3\":\"DV01 per 100 face: dv01 result 38 (ev-dv01 v2).\",\"C4\":\"Key rate durations: key rate result 10 (ev-key_rate v1).\",\"C5\":\"Yield curve used: yield curve result 13 (ev-yield_curve v1).\",\"C6\":\"Liquidity assessment for this run: liquidity result 16 (ev-liquidity v1).\",\"C7\":\"Not confirmed. There is no price_check evidence for run lr-bond. The final price check is not covered by any evidence I received. The query 47 tool output at step 70 has no evidence ID or price-check topic, so it cannot be cited. This criterion is still open and needs a price-check evidence record before it can be confirmed.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1831,
+    "output_tokens": 652
+   }
+  },
+  "4ebb1f5cd5be58593a13f46e8f8d0052fa0643350a089ff4e8b98973ba1075ba": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Supported by ev-signal_spec v1.\",\"C2\":\"Supported by ev-window_param v2.\",\"C3\":\"Supported by ev-risk_limits v2.\",\"C4\":\"Not met: no test plan evidence was provided in this run.\",\"C5\":\"Not met: diff_review was requested at step 52, but no result came back, so there is no evidence to cite.\",\"C6\":\"Not met: lint_result was requested at step 56, but no result came back, so there is no evidence to cite.\",\"C7\":\"Not met: unit_tests was requested at step 60, but no result came back, so there is no evidence to cite.\",\"status\":\"incomplete: C4-C7 lack evidence and need follow-up before the change can be considered reviewed\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1158,
+    "output_tokens": 532
+   }
+  },
+  "66abb1b36c9ecf7aa1ca6cd4b037178b68c229526fc67da224cc500885f04ee4": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"criteria\":[{\"id\":\"price_check\",\"citations\":[{\"evidence_id\":\"wk-price_check\",\"version\":\"1\"}]},{\"id\":\"liquidity\",\"citations\":[]},{\"id\":\"duration\",\"citations\":[]},{\"id\":\"convexity\",\"citations\":[]},{\"id\":\"dv01\",\"citations\":[]},{\"id\":\"key_rate\",\"citations\":[]},{\"id\":\"yield_curve\",\"citations\":[]}],\"claims\":{\"price_check\":\"Supported by fetched evidence wk-price_check v1 from run lr-bond.\",\"liquidity\":\"Not supported. The only fetched liquidity evidence, fx-liquidity v1, comes from run lr-bond-old, not lr-bond, so it is not cited. The earlier 'ev-liquidity v1' note was a mention only and no evidence record was fetched for it.\",\"duration\":\"Not supported. 'ev-duration v1' appears only as a note, and no evidence record was fetched for it.\",\"convexity\":\"Not supported. 'ev-convexity v1' appears only as a note, and no evidence record was fetched for it.\",\"dv01\":\"Not supported. 'ev-dv01 v1' appears only as a note, and no evidence record was fetched for it.\",\"key_rate\":\"Not supported. 'ev-key_rate v1' appears only as a note, and no evidence record was fetched for it.\",\"yield_curve\":\"Not supported. 'ev-yield_curve v1' appears only as a note, and no evidence record was fetched for it.\",\"criteria_list_note\":\"The acceptance criteria were not listed explicitly. These criteria are inferred from the topics noted earlier plus price_check, so they may not match the full official set.\",\"code_sha\":\"No code SHA was given, so it is left out.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1965,
+    "output_tokens": 888
+   }
+  },
+  "67cd3b8eefbd272a847844850c59a08ea12da329fe684887e7cd04f52865e6ca": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"claims\":{\"sharpe\":\"Sharpe result 36 (ev-sharpe v2, prices@v3)\",\"drawdown\":\"Maximum drawdown result 5 (ev-drawdown v1, prices@v3)\",\"turnover\":\"Annual turnover result 9 (ev-turnover v1, prices@v3)\",\"hit_rate\":\"Not reported: no hit_rate evidence was provided for this run.\",\"exposure\":\"Not reported: no gross exposure evidence was provided for this run.\",\"oos_window\":\"Not confirmed: no evidence was provided that the frozen out-of-sample window was checked in this run.\",\"cost_model\":\"Not stated: a fetch of cost_model was issued at step 65, but no result or evidence was returned, so the transaction cost model is unknown.\",\"notes\":\"C4-C7 have no citations because no supporting evidence exists. These criteria remain open and have not been met. The cost_model fetch at step 65 also appears to exceed the model_calls=8 budget.\"},\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}]}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1325,
+    "output_tokens": 705
+   }
+  },
+  "6f41fa42dd95211c1e1b679d6969ec41459299c7c536afc028e28049d8f0753e": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration from the current risk run: ev-duration v2 reports 'duration result 37'. The record gives no units or scale, so this number cannot be confirmed as a modified duration in years.\",\"C2\":\"Convexity: ev-convexity v1 reports 'convexity result 4'. The record gives no units or scale.\",\"C3\":\"DV01 per 100 face: ev-dv01 v2 reports 'dv01 result 38'. The record does not state that this is per 100 face, and gives no units.\",\"C4\":\"Not addressed. No key rate duration evidence was provided for run lr-bond.\",\"C5\":\"Not addressed. No evidence naming the yield curve was provided for run lr-bond.\",\"C6\":\"Not addressed. No liquidity evidence was provided for run lr-bond.\",\"C7\":\"Not confirmed. No evidence of a final price check at the end of run lr-bond was provided.\",\"gaps\":\"C4, C5, C6 and C7 have no supporting evidence and are left uncited. C1 to C3 cite only raw result values whose units and definitions the evidence does not state.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1177,
+    "output_tokens": 670
+   }
+  },
+  "707335b0fd8dda63ea9fc4d39b0b76b247c6e8906a23a0378c1ab995fc1b53c1": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"criteria\":[{\"id\":\"price_check\",\"citations\":[{\"evidence_id\":\"wk-price_check\",\"version\":\"1\"}]},{\"id\":\"liquidity\",\"citations\":[]},{\"id\":\"convexity\",\"citations\":[]},{\"id\":\"dv01\",\"citations\":[]},{\"id\":\"key_rate\",\"citations\":[]},{\"id\":\"yield_curve\",\"citations\":[]},{\"id\":\"duration\",\"citations\":[]}],\"claims\":{\"note_on_criteria\":\"No explicit list of acceptance criteria was available. Criteria were inferred from the topics in this conversation: price_check, liquidity, convexity, dv01, key_rate, yield_curve and duration.\",\"price_check\":\"Supported by evidence wk-price_check v1 (run=lr-bond). The evidence text is generic and gives no numeric result, so this record shows only that the check ran.\",\"liquidity\":\"Not cited. The only liquidity evidence is fx-liquidity v1, which belongs to run lr-bond-old, not lr-bond. It is a stale or other-run result and cannot support this report. Liquidity needs a fresh fetch under lr-bond.\",\"convexity\":\"Unsupported. ev-convexity v1 appeared only as a note ('noted convexity for the report'), not as an evidence record with a run ID. No citation.\",\"dv01\":\"Unsupported. ev-dv01 v1 appeared only as a note, not as an evidence record. No citation.\",\"key_rate\":\"Unsupported. ev-key_rate v1 appeared only as a note, not as an evidence record. No citation.\",\"yield_curve\":\"Unsupported. ev-yield_curve v1 appeared only as a note, not as an evidence record. No citation.\",\"duration\":\"Unsupported. ev-duration v1 appeared only as a note, not as an evidence record. No citation.\",\"overall_status\":\"Incomplete. Only 1 of 7 inferred criteria (price_check) has evidence from run lr-bond. The other six need evidence fetched under lr-bond before the report can be considered complete.\",\"code_sha\":\"Not available in the conversation. Omitted rather than invented.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1987,
+    "output_tokens": 950
+   }
+  },
+  "70b8ddc1317b9a1656a5839a8872fcee5c29755d3e072f5e96e17f7f82222a1e": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"claims\":{\"C1_sharpe\":\"Sharpe result 36 on prices@v3 (ev-sharpe v2)\",\"C2_drawdown\":\"Maximum drawdown result 5 on prices@v3 (ev-drawdown v1)\",\"C3_turnover\":\"Not established: no evidence record covers annual turnover\",\"C4_hit_rate\":\"Not established: no evidence record covers hit rate\",\"C5_exposure\":\"Not established: the step-67 query output mentions exposure but has no evidence ID or value, so it cannot be cited\",\"C6_oos_window\":\"Not confirmed: no evidence shows the frozen out-of-sample window was checked in this run\",\"C7_cost_model\":\"Not established: no evidence states the transaction cost model applied in this run\",\"status\":\"Incomplete: only C1 and C2 are supported by cited evidence. C3 through C7 need further evidence before they can be reported.\"},\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}]}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1166,
+    "output_tokens": 628
+   }
+  },
+  "7556907c93a59cdb8963161d0d40bbe412d94ca5315fafdcc3362045b0b30df4": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"criteria\":[{\"id\":\"price_check\",\"citations\":[{\"evidence_id\":\"wk-price_check\",\"version\":\"1\"}]},{\"id\":\"key_rate\",\"citations\":[]},{\"id\":\"yield_curve\",\"citations\":[]},{\"id\":\"liquidity\",\"citations\":[]},{\"id\":\"duration\",\"citations\":[]},{\"id\":\"convexity\",\"citations\":[]},{\"id\":\"dv01\",\"citations\":[]}],\"claims\":{\"price_check\":\"Supported by evidence wk-price_check v1 (run lr-bond).\",\"key_rate\":\"Unsupported: the summary only mentions ev-key_rate v1, and no full evidence record is available to cite.\",\"yield_curve\":\"Unsupported: the summary only mentions ev-yield_curve v1, and no full evidence record is available to cite.\",\"liquidity\":\"Unsupported: the summary only mentions ev-liquidity v1. The one fetched record, fx-liquidity v1, belongs to run lr-bond-old, not lr-bond, so it was not cited.\",\"duration\":\"Unsupported: the summary only mentions ev-duration v1, and no full evidence record is available to cite.\",\"convexity\":\"Unsupported: the summary only mentions ev-convexity v1, and no full evidence record is available to cite.\",\"dv01\":\"Unsupported: the summary only mentions ev-dv01 v1, and no full evidence record is available to cite.\",\"note\":\"The acceptance criteria were not listed explicitly, so these criteria are inferred from the topics in the conversation. The unsupported criteria need their evidence re-fetched for run lr-bond before they can be cited.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2029,
+    "output_tokens": 798
+   }
+  },
+  "7566d2698c0527c3d50ecca42f1f5a2846310b43f7e65196087389ecbf5653a7": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-test_plan\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"C5\":\"unmet: this run produced no diff_review evidence, so there is nothing to cite\",\"C6\":\"unmet: this run produced no lint_result evidence, so there is nothing to cite\",\"status\":\"incomplete: the diff review (C5) and lint result (C6) were not produced in this run and need to be generated before the change can be considered reviewed\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1626,
+    "output_tokens": 420
+   }
+  },
+  "76459a939e6bec94699d888cc27d0480f950072fa0b900565fde90c9c2a21b72": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"criteria\":[{\"id\":\"oos_window\",\"citations\":[{\"evidence_id\":\"wk-oos_window\",\"version\":\"1\"}]},{\"id\":\"regime\",\"citations\":[{\"evidence_id\":\"ev-regime\",\"version\":\"1\"}]},{\"id\":\"cost_model\",\"citations\":[{\"evidence_id\":\"wk-cost_model\",\"version\":\"1\"}]},{\"id\":\"drawdown\",\"citations\":[]},{\"id\":\"turnover\",\"citations\":[]},{\"id\":\"hit_rate\",\"citations\":[]},{\"id\":\"exposure\",\"citations\":[]},{\"id\":\"sharpe\",\"citations\":[]}],\"claims\":{\"oos_window\":\"Out-of-sample window result 42 (run lr-backtest, dataset prices@v3), per wk-oos_window v1.\",\"regime\":\"Regime result 44 (run lr-backtest), per ev-regime v1. Caveat: this evidence was produced on dataset prices@v2, while the oos_window and cost_model evidence used prices@v3. It may not be directly comparable and should be re-run on prices@v3 before the results are combined.\",\"cost_model\":\"Cost model result 45 (run lr-backtest, dataset prices@v3), per wk-cost_model v1.\",\"uncited_criteria\":\"Drawdown, turnover, hit_rate, exposure and sharpe were only noted as mentions earlier in the conversation (ev-drawdown, ev-turnover, ev-hit_rate, ev-exposure, ev-sharpe, all v1). No evidence record was actually fetched for them in this session, so they are left uncited rather than cited on the strength of a mention alone. Each one needs its evidence fetched before the criterion can be treated as met.\",\"criteria_list_note\":\"The acceptance criteria were not stated explicitly, so the criterion IDs were inferred from the evidence and mention topics.\",\"code_sha\":\"No code SHA appeared in any evidence, so it is omitted.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2012,
+    "output_tokens": 980
+   }
+  },
+  "81241a87295a88c81bce09045bcca76404bce20ae268d7c87e9d5dcd0eab9b21": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":{\"topic\":\"sharpe\",\"value\":\"36\",\"dataset\":\"prices@v3\",\"status\":\"supported\",\"note\":\"Value as stated in ev-sharpe v2 ('sharpe result 36'); units and annualization are not given in the evidence.\"},\"C2\":{\"topic\":\"drawdown\",\"value\":\"5\",\"dataset\":\"prices@v3\",\"status\":\"supported\",\"note\":\"Value as stated in ev-drawdown v1 ('drawdown result 5'); units are not given in the evidence.\"},\"C3\":{\"topic\":\"turnover\",\"value\":\"9\",\"dataset\":\"prices@v3\",\"status\":\"supported\",\"note\":\"Value as stated in ev-turnover v1 ('turnover result 9'); the evidence does not say whether this is annual or what the units are.\"},\"C4\":{\"topic\":\"hit_rate\",\"status\":\"unsupported\",\"note\":\"No hit rate evidence was received in this run, so no value is reported.\"},\"C5\":{\"topic\":\"exposure\",\"status\":\"unsupported\",\"note\":\"No gross exposure evidence was received in this run, so no value is reported.\"},\"C6\":{\"topic\":\"oos_window\",\"status\":\"unsupported\",\"note\":\"A fetch for oos_window was issued (step 60), but no evidence record came back. The frozen out-of-sample window cannot be confirmed.\"},\"C7\":{\"topic\":\"cost_model\",\"status\":\"unsupported\",\"note\":\"A fetch for cost_model was issued (step 65), but no evidence record came back. The transaction cost model applied cannot be stated.\"},\"other\":{\"note\":\"A fetch for regime (step 63) also returned no evidence. It does not map to any acceptance criterion.\"}}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1357,
+    "output_tokens": 905
+   }
+  },
+  "86f7d568d0a098c3140138fa9d9b34453a065ee2bccac219a33ba31997252e8c": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Supported by the signal specification evidence ev-signal_spec v1.\",\"C2\":\"Supported by the current window parameter evidence ev-window_param v2.\",\"C3\":\"Supported by the current risk limits evidence ev-risk_limits v2.\",\"C4\":\"Unresolved: no test plan evidence is available in this run, so this criterion has no citation.\",\"C5\":\"Unresolved: no diff review evidence from this run is available, so this criterion has no citation.\",\"C6\":\"Unresolved: lint_result was fetched at step 56, but no evidence record came back. This criterion has no citation.\",\"C7\":\"Unresolved: unit_tests was fetched at step 60, but no evidence record came back. This criterion has no citation.\",\"status\":\"Incomplete. C4 through C7 lack evidence, so the change cannot yet be treated as reviewed.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1141,
+    "output_tokens": 589
+   }
+  },
+  "8773994e1686e14cc6a1b27f3a4a3ce8a8806bb099327a86b9b5401cac2a146c": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"criteria\":[{\"id\":\"diff_review\",\"citations\":[{\"evidence_id\":\"wk-diff_review\",\"version\":\"1\"}]},{\"id\":\"lint_result\",\"citations\":[{\"evidence_id\":\"wk-lint_result\",\"version\":\"1\"}]},{\"id\":\"unit_tests\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"diff_review\":\"Diff review result 39 was fetched for run lr-coding (wk-diff_review v1).\",\"lint_result\":\"Lint result 42 was fetched for run lr-coding (wk-lint_result v1).\",\"unit_tests\":\"Unit tests result 45 was fetched for run lr-coding (wk-unit_tests v1).\",\"unverified_topics\":\"signal_spec, window_param, risk_limits and test_plan (ev-signal_spec, ev-window_param, ev-risk_limits, ev-test_plan, all v1) appear only as mentions in the conversation summary. Their evidence lines are not available, so they are not cited as verified support.\",\"acceptance_criteria_list\":\"No explicit list of acceptance criteria was available. The criteria reported are those with evidence lines for run lr-coding.\",\"code_sha\":\"No code SHA was observed in the available evidence, so it is omitted.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2021,
+    "output_tokens": 1154
+   }
+  },
+  "8a87746702aaef95557ad065030f35db68af53411b108d82affc2429c173b6c2": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"criteria\":[{\"id\":\"oos_window\",\"citations\":[{\"evidence_id\":\"wk-oos_window\",\"version\":\"1\"}]},{\"id\":\"regime\",\"citations\":[{\"evidence_id\":\"ev-regime\",\"version\":\"1\"}]},{\"id\":\"cost_model\",\"citations\":[{\"evidence_id\":\"wk-cost_model\",\"version\":\"1\"}]},{\"id\":\"sharpe\",\"citations\":[]},{\"id\":\"drawdown\",\"citations\":[]},{\"id\":\"turnover\",\"citations\":[]},{\"id\":\"hit_rate\",\"citations\":[]},{\"id\":\"exposure\",\"citations\":[]}],\"claims\":{\"oos_window\":\"Result 42 (wk-oos_window v1, dataset prices@v3).\",\"regime\":\"Result 44 (ev-regime v1). This evidence uses dataset prices@v2, while the oos_window and cost_model evidence use prices@v3. Comparing it with the other results is unconfirmed until it is rerun on prices@v3.\",\"cost_model\":\"Result 45 (wk-cost_model v1, dataset prices@v3).\",\"uncited_criteria\":\"For sharpe, drawdown, turnover, hit_rate and exposure, the conversation summary contains only [mention] lines, such as ev-sharpe v1. It has no [evidence] lines for these topics, so none are cited. These five criteria remain unsupported until the evidence is fetched again.\",\"acceptance_criteria_source\":\"No explicit acceptance criteria list was provided. These criteria are inferred from the topics in the run's evidence and mentions.\",\"code_sha\":\"Not available in the provided context.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2028,
+    "output_tokens": 1187
+   }
+  },
+  "9367f4a335f9b286f5a7649ecc353919d07818aaf0d7903ce6cc98a48f219ad5": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"criteria\":[{\"id\":\"diff_review\",\"citations\":[{\"evidence_id\":\"wk-diff_review\",\"version\":\"1\"}]},{\"id\":\"lint_result\",\"citations\":[{\"evidence_id\":\"wk-lint_result\",\"version\":\"1\"}]},{\"id\":\"unit_tests\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"note\":\"The acceptance criteria were not listed explicitly, so these three were inferred from the evidence lines fetched in this run (wk-diff_review v1, wk-lint_result v1, wk-unit_tests v1). The evidence text does not state whether any of them passed or failed. The summary only mentions window_param, risk_limits, test_plan and signal_spec (as ev-* mention lines), and no evidence lines were retrieved for them, so they are left uncited. No code SHA was found, so code_sha is omitted.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2024,
+    "output_tokens": 506
+   }
+  },
+  "969d1d2b69eba66f74b179464d4f3b90ea370159992d085271ed7c7c50331720": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-key_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-yield_curve\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"ev-liquidity\",\"version\":\"1\"}]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration from the current risk run is reported in ev-duration v2 (duration result 37).\",\"C2\":\"Convexity is reported in ev-convexity v1 (convexity result 4).\",\"C3\":\"DV01 per 100 face is reported in ev-dv01 v2 (dv01 result 38).\",\"C4\":\"Key rate durations are reported in ev-key_rate v1 (key rate result 10).\",\"C5\":\"The yield curve used is reported in ev-yield_curve v1 (yield curve result 13).\",\"C6\":\"The liquidity assessment for this run is in ev-liquidity v1 (liquidity result 16).\",\"C7\":\"Not confirmed. The price_check fetch at step 66 produced no evidence record, and the step 70 query output has no evidence ID or version. The final price check therefore has no supporting evidence and is left uncited.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1847,
+    "output_tokens": 648
+   }
+  },
+  "9dce5531395853f8c57e5ff4dc4b03a97a94482cbcf5f5566b127c1e15eca07d": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-key_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration is taken from ev-duration v2 (duration result 37, run lr-bond). The record labels the result but does not give a readable numeric duration, so no value is stated here.\",\"C2\":\"Convexity is taken from ev-convexity v1 (convexity result 4, run lr-bond). No explicit numeric convexity value appears in the record.\",\"C3\":\"DV01 per 100 face is taken from ev-dv01 v2 (dv01 result 38, run lr-bond). No explicit numeric DV01 value appears in the record.\",\"C4\":\"Key rate durations are taken from ev-key_rate v1 (key rate result 10, run lr-bond). No per-tenor values appear in the record.\",\"C5\":\"Unsupported. No evidence names the yield curve used for this run. Left uncited rather than inferred.\",\"C6\":\"Unsupported. No liquidity evidence exists for run lr-bond, so no assessment can be made.\",\"C7\":\"Not confirmed. No evidence records a final price check at the end of this run. The step-70 tool output (query 47) has no evidence ID or price result and cannot be cited.\",\"gaps\":\"C5, C6 and C7 lack evidence and need further runs or data before they can be reported. For C1 to C4, the cited evidence identifies result records but does not state readable numeric values, so the figures should be checked against the underlying results.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1447,
+    "output_tokens": 906
+   }
+  },
+  "a52b8f3045050173725ad95ab2b4321ed6f4d6c13379934a6aba9683d2ad7248": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration comes from ev-duration v2 (run lr-bond), labelled 'duration result 37'. The rest of that record is unstructured text with no explicit units or value field, so the figure should be checked before anyone relies on it.\",\"C2\":\"Convexity comes from ev-convexity v1 (run lr-bond), labelled 'convexity result 4'. The rest of that record is unstructured text, so the value should be checked.\",\"C3\":\"DV01 comes from ev-dv01 v2 (run lr-bond), labelled 'dv01 result 38'. The record does not say whether this is per 100 face, so the basis is unconfirmed.\",\"C4\":\"Not supported. No key rate duration evidence was provided for run lr-bond. No values are reported.\",\"C5\":\"Not supported. No evidence names the yield curve used. The tool output at step 70 (query 47) only mentions the word 'curve' with no identifier, so it is not cited.\",\"C6\":\"Not supported. No liquidity evidence was provided for run lr-bond. No assessment is made.\",\"C7\":\"Not supported. No final price check result appears in the evidence for this run, so it cannot be confirmed. The uncited tool output at step 70 does not contain a price check.\",\"gaps\":\"C4, C5, C6 and C7 have no supporting evidence and are left without citations rather than inferred. The C1 to C3 values come from records whose payloads are mostly unstructured, so they need verification.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1256,
+    "output_tokens": 860
+   }
+  },
+  "a65408b52221505d4d085dc824d09f5b08dee09fae2a5b187b03a3af1f454344": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-hit_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-exposure\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe result 36 on prices@v3 (ev-sharpe v2).\",\"C2\":\"Maximum drawdown result 5 on prices@v3 (ev-drawdown v1).\",\"C3\":\"Annual turnover result 9 on prices@v3 (ev-turnover v1).\",\"C4\":\"Hit rate result 13 on prices@v3 (ev-hit_rate v1).\",\"C5\":\"Gross exposure result 17 on prices@v3 (ev-exposure v1).\",\"C6\":\"Not confirmed. No evidence in this run records the frozen out-of-sample window, and none of the tool output covers it.\",\"C7\":\"Not stated. The step 65 'fetch cost_model' call returned no evidence record. The step 67 query returned unrelated rows with no ID or version. The transaction cost model applied in this run is therefore unverified.\",\"gaps\":\"C6 and C7 lack citable evidence and remain open. They need an evidence record for the out-of-sample window and one for the cost model before they can be marked satisfied.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1857,
+    "output_tokens": 722
+   }
+  },
+  "b0e7deb93cf216579cb1ee2b09bdcdb6aecbe6164471ffeec9fb623dd9218e10": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"status\":\"incomplete\",\"C1\":\"Supported by ev-signal_spec v1.\",\"C2\":\"Supported by ev-window_param v2.\",\"C3\":\"Supported by ev-risk_limits v2.\",\"C4\":\"Not met: no test plan evidence was received in this run.\",\"C5\":\"Not met: no diff review evidence was received in this run.\",\"C6\":\"Not met: no lint result evidence was received in this run.\",\"C7\":\"Not met: the unit_tests fetch was issued at step 60, but no result came back, so there is no evidence to cite.\",\"note\":\"The change is not ready to be marked reviewed. C4 through C7 need evidence from this run. Remaining model-call budget could be used to fetch the test plan, diff review and lint results, and to retry unit_tests.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1124,
+    "output_tokens": 537
+   }
+  },
+  "b4a77f46b0c5cf57f0cbda07b04eef877ce0dd6ee834e9b7ae302530f67e555b": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-coupon_schedule\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-day_count\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-settlement\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-price_source\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-compounding_a\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"ev-compounding_b\",\"version\":\"1\"}]}],\"claims\":{\"C1\":\"Coupon schedule: the earlier summary only notes that ev-coupon_schedule v1 exists and calls it a 'summarized result'. The full evidence text was not kept, so the actual schedule cannot be quoted here and should be re-fetched to confirm.\",\"C2\":\"Day count: the earlier summary only notes that ev-day_count v1 exists and calls it a 'summarized result'. The full text was not kept, so the convention cannot be quoted and should be re-fetched to confirm.\",\"C3\":\"Settlement lag: the earlier summary only notes that ev-settlement v1 exists and calls it a 'summarized result'. The full text was not kept, so the lag cannot be quoted and should be re-fetched to confirm.\",\"C4\":\"Price source: the earlier summary only notes that ev-price_source v1 exists and calls it a 'summarized result'. The full text was not kept, so the source cannot be named and should be re-fetched to confirm.\",\"C5\":\"ev-compounding_a v1 was fetched in this session (run=-). Its text is a list of generic terms and does not state a yield compounding convention for paper A. The criterion is cited but remains unverified.\",\"C6\":\"ev-compounding_b v1 was fetched in this session (run=-). Its text is a list of generic terms and does not state a yield compounding convention for paper B. The criterion is cited but remains unverified.\",\"run_id_note\":\"No run identifier was recorded; the evidence lines show run=-.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 2000,
+    "output_tokens": 1338
+   }
+  },
+  "ba2a0cf2806fb160807b22c5811316a72ddc9fd9f46457244fb95a35f32f6d7d": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-conflict\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-coupon_schedule\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-day_count\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-settlement\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-price_source\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-compounding_a\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"ev-compounding_b\",\"version\":\"1\"}]}],\"claims\":{\"C1\":\"Coupon schedule: the specific value is not available here. ev-coupon_schedule v1 survives only as a summarized mention.\",\"C2\":\"Day count: the specific value is not available here. ev-day_count v1 survives only as a summarized mention.\",\"C3\":\"Settlement lag: the specific value is not available here. ev-settlement v1 survives only as a summarized mention.\",\"C4\":\"Price source: the specific value is not available here. ev-price_source v1 survives only as a summarized mention.\",\"C5\":\"Paper A compounding convention: the specific value is not available here. ev-compounding_a v1 survives only as a summarized mention.\",\"C6\":\"Paper B compounding convention: ev-compounding_b v1 was fetched (result 22), but its text contains no explicit compounding convention.\",\"note\":\"This report cites evidence but does not state the conventions. C1-C5 rest on summarized mentions of earlier evidence. The ev-compounding_b v1 text does not state a convention. The papers A and B compounding conventions may conflict, and that cannot be settled from what is available. The full evidence should be re-fetched before relying on these conventions.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1868,
+    "output_tokens": 1045
+   }
+  },
+  "badf63316563639bcdafb49160835330d9b7230f5c3387d69aabbdd12a6f5e67": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-hit_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio result 36 on prices@v3 (ev-sharpe v2).\",\"C2\":\"Maximum drawdown result 5 on prices@v3 (ev-drawdown v1).\",\"C3\":\"Annual turnover result 9 on prices@v3 (ev-turnover v1).\",\"C4\":\"Hit rate result 13 on prices@v3 (ev-hit_rate v1).\",\"C5\":\"Not reported. No gross exposure evidence was found. The step 67 query returned rows, but they produced no evidence record.\",\"C6\":\"Not confirmed. No evidence shows the frozen out-of-sample window was checked in this run.\",\"C7\":\"Not stated. A cost_model fetch was issued at step 65, but it returned no evidence, so the applied transaction cost model cannot be confirmed.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1636,
+    "output_tokens": 628
+   }
+  },
+  "c4b5464529875efeb4af0e735133cc426a8e83b296066771b1b3f49bcab45f76": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-bond\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-duration\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-convexity\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-dv01\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-key_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-yield_curve\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Modified duration is reported in duration result 37 (ev-duration v2). The evidence text does not contain a readable numeric duration value, so no figure is stated.\",\"C2\":\"Convexity is reported in convexity result 4 (ev-convexity v1). No readable numeric value appears in the evidence.\",\"C3\":\"DV01 per 100 face is reported in dv01 result 38 (ev-dv01 v2). No readable numeric value appears in the evidence.\",\"C4\":\"Key rate durations are reported in key rate result 10 (ev-key_rate v1). No readable per-tenor values appear in the evidence.\",\"C5\":\"The yield curve is referenced in yield curve result 13 (ev-yield_curve v1). The evidence does not name the curve.\",\"C6\":\"UNSUPPORTED: there is no liquidity evidence for run lr-bond, so no liquidity assessment is made. The step-70 tool output (query 47) has no evidence ID or version and is not liquidity-specific, so it cannot be cited.\",\"C7\":\"UNSUPPORTED: there is no final price check evidence for run lr-bond, so the price check cannot be confirmed. It may not have been computed or recorded.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1640,
+    "output_tokens": 752
+   }
+  },
+  "d604c23fc3cdbf97cea2334291b90109a4930573571133407f2901203317fef8": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-hit_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-exposure\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio result: 36 (ev-sharpe v2, dataset prices@v3).\",\"C2\":\"Maximum drawdown result: 5 (ev-drawdown v1, dataset prices@v3).\",\"C3\":\"Annual turnover result: 9 (ev-turnover v1, dataset prices@v3).\",\"C4\":\"Hit rate result: 13 (ev-hit_rate v1, dataset prices@v3).\",\"C5\":\"Gross exposure result: 17 (ev-exposure v1, dataset prices@v3).\",\"C6\":\"Not confirmed. No evidence line for the frozen out-of-sample window exists in this run. A 'fetch regime' tool call was made at step 63, but it returned no oos_window evidence.\",\"C7\":\"Not stated. A 'fetch cost_model' tool call was made at step 65, but no cost_model evidence line was returned. The transaction cost model applied in this run cannot be reported from the available evidence.\",\"notes\":\"Units and exact definitions for the C1\u2013C5 results are not given in the evidence text. The values are reported exactly as recorded. C6 and C7 remain open and need new evidence before they can be marked satisfied.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1872,
+    "output_tokens": 807
+   }
+  },
+  "d88773f962cb3466a32b5d850d1294f64dd10814b981e94d9419a6bff49654f2": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-test_plan\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"status\":\"incomplete: C1\u2013C4 are supported by evidence, but C5\u2013C7 have none.\",\"C1\":\"Signal spec followed per ev-signal_spec v1.\",\"C2\":\"Window parameter from ev-window_param v2, the latest version provided.\",\"C3\":\"Risk limits from ev-risk_limits v2, the latest version provided.\",\"C4\":\"Test plan per ev-test_plan v1.\",\"C5\":\"No evidence: this run produced no diff review, so the criterion is not met.\",\"C6\":\"No evidence: this run produced no lint result, so the criterion is not met.\",\"C7\":\"No evidence: this run produced no unit test result, so the criterion is not met.\",\"note\":\"The query 46 tool output at step 62 has no evidence ID or version, so it is not cited. C5\u2013C7 need a diff review, lint run and unit test run in this run before the change can count as reviewed.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1354,
+    "output_tokens": 569
+   }
+  },
+  "e0457eba90f272200d8384187a750d2024a140b815ca8f1f3f9186bb1560e732": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-coding\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-signal_spec\",\"version\":\"1\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-window_param\",\"version\":\"2\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-risk_limits\",\"version\":\"2\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-test_plan\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[]},{\"id\":\"C6\",\"citations\":[{\"evidence_id\":\"wk-lint_result\",\"version\":\"1\"}]},{\"id\":\"C7\",\"citations\":[{\"evidence_id\":\"wk-unit_tests\",\"version\":\"1\"}]}],\"claims\":{\"C5\":\"Not met. This run produced no diff_review evidence, so C5 has no citations. A diff review has to be run and recorded before this change can count as reviewed.\",\"C1\":\"Covered by the signal specification evidence ev-signal_spec v1.\",\"C2\":\"Covered by the current window parameter evidence ev-window_param v2.\",\"C3\":\"Covered by the current risk limits evidence ev-risk_limits v2.\",\"C4\":\"Covered by the test plan evidence ev-test_plan v1.\",\"C6\":\"Covered by the lint result from this run, wk-lint_result v1.\",\"C7\":\"Covered by the unit test result from this run, wk-unit_tests v1.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1873,
+    "output_tokens": 525
+   }
+  },
+  "f0ffdbaaee5a5bd99361843ba7171ec571513b9b19f9ba38c32ed477d3bc99de": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"criteria\":[{\"id\":\"oos_window\",\"citations\":[{\"evidence_id\":\"wk-oos_window\",\"version\":\"1\"}]},{\"id\":\"regime\",\"citations\":[{\"evidence_id\":\"ev-regime\",\"version\":\"1\"}]},{\"id\":\"cost_model\",\"citations\":[{\"evidence_id\":\"wk-cost_model\",\"version\":\"1\"}]},{\"id\":\"turnover\",\"citations\":[]},{\"id\":\"hit_rate\",\"citations\":[]},{\"id\":\"exposure\",\"citations\":[]},{\"id\":\"sharpe\",\"citations\":[]},{\"id\":\"drawdown\",\"citations\":[]}],\"claims\":{\"note_criteria_source\":\"The acceptance criteria list was not available. The criteria IDs here are inferred from the evidence topics and the earlier summary.\",\"oos_window\":\"Supported by wk-oos_window v1 (run lr-backtest, dataset prices@v3).\",\"cost_model\":\"Supported by wk-cost_model v1 (run lr-backtest, dataset prices@v3).\",\"regime\":\"Cited ev-regime v1 (run lr-backtest), but it was computed on dataset prices@v2 while the other evidence uses prices@v3. Re-run the regime analysis on prices@v3 before relying on it.\",\"unsupported_criteria\":\"turnover, hit_rate, exposure, sharpe and drawdown appear only as [mention] notes in the summary. No fetched [evidence] record exists for them, so they are left uncited and are not verified.\",\"code_sha\":\"Not reported because no code SHA was present in the available context.\"}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1980,
+    "output_tokens": 839
+   }
+  },
+  "ffd06b5244716d00540214e18b655217e7d5479ff48333d080a603a36c5884e7": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"lr-backtest\",\"code_sha\":\"golden\",\"criteria\":[{\"id\":\"C1\",\"citations\":[{\"evidence_id\":\"ev-sharpe\",\"version\":\"2\"}]},{\"id\":\"C2\",\"citations\":[{\"evidence_id\":\"ev-drawdown\",\"version\":\"1\"}]},{\"id\":\"C3\",\"citations\":[{\"evidence_id\":\"ev-turnover\",\"version\":\"1\"}]},{\"id\":\"C4\",\"citations\":[{\"evidence_id\":\"ev-hit_rate\",\"version\":\"1\"}]},{\"id\":\"C5\",\"citations\":[{\"evidence_id\":\"ev-exposure\",\"version\":\"1\"}]},{\"id\":\"C6\",\"citations\":[]},{\"id\":\"C7\",\"citations\":[]}],\"claims\":{\"C1\":\"Sharpe ratio result 36 on prices@v3 (ev-sharpe v2).\",\"C2\":\"Maximum drawdown result 5 on prices@v3 (ev-drawdown v1).\",\"C3\":\"Annual turnover result 9 on prices@v3 (ev-turnover v1).\",\"C4\":\"Hit rate result 13 on prices@v3 (ev-hit_rate v1).\",\"C5\":\"Gross exposure result 17 on prices@v3 (ev-exposure v1).\",\"C6\":\"Unverified. No evidence in this run confirms the frozen out-of-sample window. The step-67 query output has no evidence ID or version and does not address it.\",\"C7\":\"Unverified. No evidence in this run states the transaction cost model applied.\",\"gaps\":[\"C6 oos_window: no supporting evidence\",\"C7 cost_model: no supporting evidence\"]}}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 1840,
+    "output_tokens": 597
+   }
+  }
+ }
+}

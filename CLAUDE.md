@@ -21,7 +21,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
-| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug merged as PR #23 (230d41a); first real-model report run recorded on `feature/claude-demo` |
+| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug merged as PR #23 (230d41a); real-Claude report tasks and context sweep merged as PR #24/#25 (637dab1) |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -366,3 +366,20 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   criterion needs; rebuild then repeats the same request. Config not changed (shared by all plugs).
   Suite: 474 passed. Batch not committed yet. Open: per-plug context policy or exact token counting
   for Claude; rebuild that repeats an identical request should escalate at once or re-prioritize.
+- 2026-11-15: PR #25 merged (637dab1, merged by the user with admin bypass): Claude report tasks,
+  sweep runner, citation-version fix. Real-model API spend so far ~$2.02. Next decisions: per-plug
+  context policy vs exact token counting for Claude (re-check 0.8, ~$1); rebuild that repeats an
+  identical request.
+- 2026-11-15: On `feature/claude-exact-tokens` (not committed): (1a) `ClaudePlug(message_overhead=...)`
+  (count_tokens adds 8 tokens per text; opt-in subtraction), sweep `--exact-tokens` with recorded
+  counts. Live run ($0.90): Claude's real tokens ~1.7x chars/4, every grid cell fails at the 2048
+  window; 0.8 does not hold, no threshold does. (2) `ContextPolicy.prioritize_uncited` and
+  `escalate_identical_rebuild`, both default off (baselines and recordings unchanged). Priority
+  accumulates topics over an ask() and lets that rebuild use the full budget; the guard fires only
+  when an uncited criterion has no evidence in the repeated request (a first version caused false
+  escalations). Simulated grid: failures 336 -> 264, calls 145 -> 94 with both on. Suite: 485
+  passed. Then: window scaled to Claude's tokens (measured ratio 1.437 -> 2943, `--window`),
+  runs A (off, $0.92) and B (switches on, cache from A, $0.35). A: Claude picks 0.8/16/2 = current
+  config; builder 0 failures, naive 17 forgotten. B: grid failures 320 -> 200, calls 140 -> 84, picks
+  and rebuild sweep unchanged. Real-model spend $4.19. Suite: 490 passed. Open (human): enable the
+  switches in `configs/context_policy.json` and re-baseline Phase 5; per-plug policy not needed.

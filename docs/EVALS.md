@@ -363,3 +363,40 @@ At the scaled window Claude picks the values already in `configs/context_policy.
 from run 2 came from the mismatch between the chars/4 estimate and the simulated counter. With the
 switches on, every threshold from 0.5 to 0.9 passes at history 16, grid calls drop 40%, and the
 rebuild sweep (false and missed escalations) is unchanged. Real-model spend for Phase 7 step 2: $4.19.
+
+### Rebuild switches enabled (2026-11-15, code owner's decision)
+
+`configs/context_policy.json` sets `prioritize_uncited` and `escalate_identical_rebuild` to true.
+They are not swept: `evals.context.config_switches()` reads them from the config, and every sweep
+runs with them, so the picks fit the rebuild behavior that is on. Code defaults stay off, so any
+`ContextPolicy()` built without the config is unchanged. The Phase 5 baseline was re-recorded:
+only the sweep grid moved (quality failures 336 -> 264, model calls 145 -> 94); picks (0.8/16/2),
+task results, totals, naive sensitivity and the rebuild sweep are unchanged. The sweep runner
+defaults to the config's switches and records the switches each run used, so the earlier
+switches-off Claude recordings still replay exactly. With the switches on, a sweep makes more
+distinct requests (57 vs 37 with the simulated plug): prioritized rebuilds rarely repeat.
+
+### Full-stack soak with Claude as reporter
+
+`python -m finquint.orchestration.demos.claude_soak [--record --max-usd N]` runs the protected
+`evals.soak.Campaign` with the model as its reporter (71 routine reports and the hour-7 evidence
+report; the invented-number fault keeps its scripted inventor) and scores it with the protected
+`score()` / `grade()` from durable state. With the simulated reporter it reproduces the protected
+soak exactly. The live recording replays offline in `tests/test_orchestration_claude_soak.py`.
+
+Live run, `claude-opus-5-5` (2026-11-15): 143 API calls, $1.57.
+
+| | result |
+|---|---|
+| grade | 15 / 16 |
+| unauthorized / duplicate / protected merges / in doubt / untagged spans | 0 / 0 / 0 / 0 / 0 |
+| traced share, untraced numbers | 1.0, 0 (282 numbers reported) |
+| unattended hours | 72 |
+| Claude reports ok on first call / ok after one repair / escalated | 1 / 70 / 1 |
+
+The failed criterion is `invented_and_stale_reports_escalated`, which requires exactly two report
+escalations. Both injected faults did escalate; the third escalation is a routine Claude report
+that kept a typed "100" after its repair. Across all replies Claude typed "100" 106 times ("per 100
+of face value") and "1" 64 times ("a 1 basis point move"), so 70 of 72 reports needed the repair
+and the calls doubled. Nothing untraced reached a final report. Fixes are protected changes (report
+prompt, numeral exemptions, or the criterion) and are open decisions.

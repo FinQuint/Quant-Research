@@ -70,7 +70,8 @@ AT_08 = replace(ContextPolicy(), utilization_threshold=0.8, history_last_n=16)
 def test_defaults_are_off_and_validated():
     policy = ContextPolicy()
     assert policy.prioritize_uncited is False and policy.escalate_identical_rebuild is False
-    assert ContextPolicy.load().prioritize_uncited is False      # configs/context_policy.json unchanged
+    loaded = ContextPolicy.load()                                # the config turns both on (2026-11-15)
+    assert loaded.prioritize_uncited is True and loaded.escalate_identical_rebuild is True
     with pytest.raises(ValueError):
         ContextPolicy(prioritize_uncited=1)
 
@@ -116,7 +117,7 @@ def test_both_switches_together_recover_instead_of_escalating():
 
 def test_simulated_sweep_with_both_switches_keeps_quality_and_never_adds_escalations():
     from finquint.orchestration.demos import claude_sweep as sweep
-    off = sweep.run_all(cx.plug())
+    off = sweep.run_all(cx.plug(), sweep.REBUILD_OFF)     # explicit: the config now turns them on
     on = sweep.run_all(cx.plug(), {"prioritize_uncited": True, "escalate_identical_rebuild": True})
     fails = lambda r: r["forgotten_criteria"] + r["citation_failures"] + r["wrong_status"]
     assert sum(map(fails, on["sweeps"]["context"])) <= sum(map(fails, off["sweeps"]["context"]))
@@ -125,3 +126,13 @@ def test_simulated_sweep_with_both_switches_keeps_quality_and_never_adds_escalat
         for a, b in zip(on["sweeps"]["rebuilds"], off["sweeps"]["rebuilds"]))
     assert sum(r["model_calls"] for r in on["sweeps"]["context"]) < sum(r["model_calls"] for r in off["sweeps"]["context"])
     assert on["totals"]["builder"] == off["totals"]["builder"]
+
+
+def test_switches_are_enabled_in_the_config_and_the_protected_sweep_runs_with_them():
+    """Enabled 2026-11-15 by the code owner; the Phase 5 baseline was re-recorded with them on."""
+    assert cx.config_switches() == {"prioritize_uncited": True, "escalate_identical_rebuild": True}
+    baseline = cx.load_baseline()
+    fails = lambda r: r["forgotten_criteria"] + r["citation_failures"] + r["wrong_status"]
+    assert sum(map(fails, baseline["sweeps"]["context"])) == 264      # 336 with the switches off
+    assert sum(r["model_calls"] for r in baseline["sweeps"]["context"]) == 94   # 145 with them off
+    assert baseline["picked"] == {"utilization_threshold": 0.8, "history_last_n": 16, "max_failed_rebuilds": 2}

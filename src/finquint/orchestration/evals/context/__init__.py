@@ -24,7 +24,9 @@ citation failures (an addressed criterion with no citation, or a citation that i
 superseded, deprecated or from another run).
 
 The sweeps set the (tune) thresholds from these tasks; configs/context_policy.json must hold
-the picked values. The simulated plug's attention span is an assumption, so thresholds picked
+the picked values. The rebuild switches (SWITCHES) are not swept: they are a design choice held
+in the config, and every sweep runs with the config's values so the picks fit the rebuild
+behavior that is actually on. The simulated plug's attention span is an assumption, so thresholds picked
 here hold for that plug; the sweep is re-run per real model plug (baselines are per model).
 
 This package is part of the protected evaluator (ADR-005).
@@ -60,6 +62,7 @@ REBUILD_LIMITS = (1, 2, 3)
 RECOVERABLE = (1, 2)
 UNRECOVERABLE = None
 QUALITY = ("forgotten_criteria", "citation_failures", "wrong_status")
+SWITCHES = ("prioritize_uncited", "escalate_identical_rebuild")   # ContextPolicy rebuild switches
 SYSTEM = ("You are a research agent. Reply with JSON matching the report schema. Address every "
           "acceptance criterion and cite the evidence for it by ID and version.")
 INSTRUCTION = "Write the final report now: every acceptance criterion, each with its evidence."
@@ -430,6 +433,16 @@ def naive_sensitivity(policy, tasks=TASKS):
 
 # --- sweeps ------------------------------------------------------------------------------------
 
+def config_switches(config_path=CONFIG_PATH):
+    """The rebuild switches as configs/context_policy.json sets them (off when absent)."""
+    policy = json.loads(Path(config_path).read_text(encoding="utf-8"))["policy"]
+    return {name: policy.get(name, False) for name in SWITCHES}
+
+
+def _base():
+    return replace(ContextPolicy(), **config_switches())
+
+
 def _failures(metrics):
     return sum(metrics[k] for k in QUALITY)
 
@@ -438,7 +451,7 @@ def sweep_context(base=None, tasks=TASKS):
     """Grid over utilization_threshold x history_last_n, builder strategy, summed over tasks.
     Pick: fewest quality failures, then fewest model calls, rebuilds, input tokens; ties go to
     the value nearest the spec default."""
-    base = base or ContextPolicy()
+    base = base or _base()
     rows = []
     for threshold in THRESHOLDS:
         for size in HISTORY_SIZES:
@@ -460,7 +473,7 @@ def sweep_rebuilds(base=None, task=TASKS[0]):
     """For each limit: does a recoverable model escalate by mistake, does an unrecoverable one
     escalate, and how many calls are spent. Pick: no missed escalations, then fewest false
     escalations, then fewest calls; ties go to the spec default."""
-    base = base or ContextPolicy()
+    base = base or _base()
     rows = []
     for limit in REBUILD_LIMITS:
         policy = replace(base, max_failed_rebuilds=limit)
@@ -480,9 +493,10 @@ def sweep_rebuilds(base=None, task=TASKS[0]):
 
 
 def pick_policy():
-    """Run both sweeps; the policy they pick, with every other field at its default."""
+    """Run both sweeps; the policy they pick, with the config's rebuild switches and every other
+    field at its default."""
     context_rows, context_pick = sweep_context()
-    tuned = replace(ContextPolicy(), **context_pick)
+    tuned = replace(_base(), **context_pick)
     rebuild_rows, rebuild_pick = sweep_rebuilds(tuned)
     return replace(tuned, **rebuild_pick), {"context": context_rows, "rebuilds": rebuild_rows}
 

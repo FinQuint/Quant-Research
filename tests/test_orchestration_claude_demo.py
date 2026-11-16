@@ -39,8 +39,9 @@ def test_every_clean_report_task_has_a_claude_recording():
 
 
 def test_live_run_needed_one_provenance_repair():
-    """Claude's first reply typed convention numbers (5y, per 100, 1 basis point, DV01); the
-    numeral post-check sent it back once and the second reply passed."""
+    """With the shared report prompt Claude spells out conventions ("five-year", "one hundred"); its
+    first reply was still sent back once, for the "01" in the section label "DV01" (identifiers are
+    matched case-sensitively), and the second reply passed."""
     document = json.loads(claude_report.recording_path(TASK, MODEL).read_text(encoding="utf-8"))
     assert recorded_scores()["model_calls"] == 2 == len(document["replies"])
     assert document["plug"] == f"claude:{MODEL}"

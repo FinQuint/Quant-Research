@@ -397,3 +397,10 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   70 of 72 reports needed a repair (typed "100", "1" for conventions), one escalated after repair,
   which fails `invented_and_stale_reports_escalated` (expects exactly 2). Real-model spend $5.76.
   Open decisions (protected): report prompt, numeral exemptions or the criterion. Suite: 496 passed.
+- 2026-11-15: PR #27 opened (CI green). On `feature/report-prompt-and-criterion` (from #27): shared
+  report prompt `knowledge.reporting.REPORT_SYSTEM` (spell out non-metric numbers; repair text fixed);
+  soak criterion split (fault reports by ID + `routine_report_escalations`, max 0 in
+  `configs/soak_policy.json`); soak baseline re-recorded (additions only, 17/17). Claude re-recorded:
+  soak 16/17, conventions no longer typed, but 81/81 repairs are the "01" in "DV01" (identifier
+  exemption is case-sensitive, `verify/numbers.py`). Spend this step $1.64, Phase 7 total $7.40.
+  Suite: 502 passed. Open (protected): case-insensitive identifier exemption.

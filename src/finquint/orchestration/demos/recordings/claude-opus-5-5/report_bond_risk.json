@@ -5,22 +5,22 @@
  "format": 1,
  "plug": "claude:claude-opus-5-5",
  "replies": {
-  "4d68f4d1d64fcb0549d7f74f9246e25ff05c2418fc31015a7f4553d62f618204": {
+  "5ded36ef1c50ba5f3b16bb24dd95d48fa63f1c0c1c4474263eaf5a0e2ae925f8": {
    "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the 5y bond is priced at {{metric:run:report-bond/analytics:bond_price}} per 100 of face value.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a 1 percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a basis point is {{metric:run:report-bond/analytics:dv01}}. This is the approximate price change per 100 face for a 1 basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the bond's convexity is {{metric:run:report-bond/analytics:convexity}}. It captures the second-order curvature of the price-yield relationship that duration alone misses.\"}]}",
+   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the five-year bond is priced at {{metric:run:report-bond/analytics:bond_price}} per one hundred of face amount. This is above par, so the bond trades at a premium.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a one basis point move in yield is {{metric:run:report-bond/analytics:dv01}} per one hundred of face amount. This is the price change expected when the yield rises or falls by one basis point.\"},{\"id\":\"C4\",\"text\":\"Convexity: the bond's convexity is {{metric:run:report-bond/analytics:convexity}}. Convexity is positive, so duration alone overstates price losses when yields rise and understates price gains when yields fall.\"}]}",
    "usage": {
     "exact": true,
-    "input_tokens": 487,
-    "output_tokens": 307
+    "input_tokens": 549,
+    "output_tokens": 605
    }
   },
-  "b93a76dd6a42597bae76c691d64048bbb1878df2c17166f0f28719b77e1fc0ce": {
+  "ec7257076aa4fdaba503c66cb34cc1131799c9924f2fa11b468e6b1351530c30": {
    "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the five-year bond is priced at {{metric:run:report-bond/analytics:bond_price}}, quoted per standard face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a unit change in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point change in yield is {{metric:run:report-bond/analytics:dv01}}.\"},{\"id\":\"C4\",\"text\":\"Convexity: the bond's convexity is {{metric:run:report-bond/analytics:convexity}}. This is the second-order price sensitivity to yield changes, which refines the duration-based estimate for larger yield moves.\"}]}",
+   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"The five-year bond is priced at {{metric:run:report-bond/analytics:bond_price}} per one hundred of face amount.\"},{\"id\":\"C2\",\"text\":\"The modified duration of the five-year bond is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a one percentage point parallel move in yield.\"},{\"id\":\"C3\",\"text\":\"The dollar value of a basis point is {{metric:run:report-bond/analytics:dv01}} per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"The convexity of the five-year bond is {{metric:run:report-bond/analytics:convexity}}. It measures the second-order curvature of price with respect to yield and refines the duration-based estimate for larger yield moves.\"}]}",
    "usage": {
     "exact": true,
-    "input_tokens": 599,
-    "output_tokens": 642
+    "input_tokens": 641,
+    "output_tokens": 538
    }
   }
  }

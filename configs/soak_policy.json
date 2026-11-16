@@ -4,5 +4,6 @@
   "reviewer_delay_hours": 3,
   "ship_every_hours": 12,
   "min_unattended_hours": 72,
-  "min_traced_share": 1.0
+  "min_traced_share": 1.0,
+  "max_routine_report_escalations": 0
 }

@@ -5,13 +5,13 @@
  "format": 1,
  "plug": "claude:claude-opus-5-5",
  "replies": {
-  "de03c5904cbe9b6c8b8b35e8cd5d1c2379e55cb0641f12f432847f0bd48b71b9": {
+  "26bad7061e8a755c6a6d56c962a9110a658fb04b6f05cc588045df1ebd106dc0": {
    "model": "claude-opus-5-5",
-   "text": "{\"run_id\":\"report-backtest\",\"sections\":[{\"id\":\"C1\",\"text\":\"Sharpe ratio: the momentum strategy backtest (experiment exp-momentum-a) achieved a Sharpe ratio of {{metric:experiment:exp-momentum-a:metrics.sharpe}}.\"},{\"id\":\"C2\",\"text\":\"Max drawdown: the largest peak-to-trough decline observed in the momentum strategy backtest (experiment exp-momentum-a) was {{metric:experiment:exp-momentum-a:metrics.max_drawdown}}.\"},{\"id\":\"C3\",\"text\":\"Turnover: the momentum strategy backtest (experiment exp-momentum-a) recorded a turnover of {{metric:experiment:exp-momentum-a:metrics.turnover}}.\"}]}",
+   "text": "{\"run_id\":\"report-backtest\",\"sections\":[{\"id\":\"C1\",\"text\":\"The momentum strategy backtest achieved a Sharpe ratio of {{metric:experiment:exp-momentum-a:metrics.sharpe}}, measuring risk-adjusted return over the backtest period.\"},{\"id\":\"C2\",\"text\":\"The maximum drawdown observed during the backtest was {{metric:experiment:exp-momentum-a:metrics.max_drawdown}}, representing the largest peak-to-trough decline in portfolio value.\"},{\"id\":\"C3\",\"text\":\"Portfolio turnover for the momentum strategy was {{metric:experiment:exp-momentum-a:metrics.turnover}}, reflecting the trading activity required to maintain the momentum positions.\"}]}",
    "usage": {
     "exact": true,
-    "input_tokens": 443,
-    "output_tokens": 272
+    "input_tokens": 505,
+    "output_tokens": 261
    }
   }
  }

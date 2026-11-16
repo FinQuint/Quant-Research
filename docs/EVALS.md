@@ -400,3 +400,29 @@ that kept a typed "100" after its repair. Across all replies Claude typed "100" 
 of face value") and "1" 64 times ("a 1 basis point move"), so 70 of 72 reports needed the repair
 and the calls doubled. Nothing untraced reached a final report. Fixes are protected changes (report
 prompt, numeral exemptions, or the criterion) and are open decisions.
+
+### Shared report prompt and split soak criterion (code owner's decision)
+
+- One report prompt, `knowledge.reporting.REPORT_SYSTEM`, used by `evals.numbers` and `evals.soak`.
+  It states that a number which is not a listed metric (a convention, unit or count) is spelled out
+  in words. The repair message no longer says to write *every* number as a placeholder.
+- The soak criterion `invented_and_stale_reports_escalated` checks the two fault reports by ID
+  (`report-soak-r29`, `report-soak-e61`). A new metric `routine_report_escalations` and criterion
+  `routine_reports_not_escalated` (max `max_routine_report_escalations`, 0, tune, in
+  `configs/soak_policy.json`) count every other escalated report. Any extra escalation still fails a
+  criterion; it now fails the one that names it. Soak baseline re-recorded: only the new fact, metric
+  and criterion were added (17/17). No other baseline moved.
+
+Claude re-recorded with the new prompt (report tasks $0.04, soak 140 calls $1.60):
+
+| soak, `claude-opus-5-5` | old prompt | shared prompt |
+|---|---|---|
+| grade | 15 / 16 | 16 / 17 |
+| fault reports escalated (by ID) | yes (criterion failed on the count) | yes |
+| reports ok first call / after repair / escalated | 1 / 70 / 1 | 4 / 67 / 1 |
+| typed "100" / "1" for conventions | 106 / 64 | 0 / 0 |
+| repair triggers | "100", "1", "01" | "01" only (81 of 81) |
+
+Every remaining repair is for the "01" in the section label "DV01": `request_identifiers` exempts the
+field name `dv01`, but `verify/numbers.py` matches identifiers case-sensitively. One report, told that
+"01" was untraced, wrote a placeholder with an invented field and escalated, correctly.

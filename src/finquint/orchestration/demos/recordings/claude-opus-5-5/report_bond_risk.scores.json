@@ -6,12 +6,12 @@
  "numbers_reported": 4,
  "numbers_traced": 4,
  "problems": [],
- "report": "C1: Bond price: the five-year bond is priced at 104.4912925031211, quoted per standard face amount.\nC2: Modified duration: the bond's modified duration is 4.410689847574737. This is the approximate percentage change in price for a unit change in yield.\nC3: Dollar value of a basis point: the price sensitivity to a one basis point change in yield is 0.046087870605298065.\nC4: Convexity: the bond's convexity is 22.92314562534249. This is the second-order price sensitivity to yield changes, which refines the duration-based estimate for larger yield moves.",
+ "report": "C1: The five-year bond is priced at 104.4912925031211 per one hundred of face amount.\nC2: The modified duration of the five-year bond is 4.410689847574737. This is the approximate percentage change in price for a one percentage point parallel move in yield.\nC3: The dollar value of a basis point is 0.046087870605298065 per one hundred of face amount. This is the approximate price change for a one basis point move in yield.\nC4: The convexity of the five-year bond is 22.92314562534249. It measures the second-order curvature of price with respect to yield and refines the duration-based estimate for larger yield moves.",
  "status": "ok",
  "usage": {
-  "input_tokens": 1086,
-  "output_tokens": 949,
-  "usd": 0.0233
+  "input_tokens": 1190,
+  "output_tokens": 1143,
+  "usd": 0.0276
  },
  "wrong_status": 0
 }

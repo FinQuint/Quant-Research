@@ -6,12 +6,12 @@
  "numbers_reported": 3,
  "numbers_traced": 3,
  "problems": [],
- "report": "C1: Sharpe change: moving the signal window changed the Sharpe ratio by 0.15399999999999991 relative to the baseline.\nC2: Turnover change: moving the signal window changed turnover by -0.2619047619047619, which means turnover went down.\nC3: Max drawdown: the maximum drawdown for experiment exp-momentum-b was 0.171.",
+ "report": "C1: Moving the signal window changed the Sharpe ratio by 0.15399999999999991. This is the gain in risk-adjusted return relative to the baseline configuration.\nC2: Moving the signal window changed turnover by -0.2619047619047619. This is a fall in turnover relative to the baseline, so the strategy trades less often after the change.\nC3: After the signal window was moved, the experiment exp-momentum-b recorded a maximum drawdown of 0.171.",
  "status": "ok",
  "usage": {
-  "input_tokens": 448,
-  "output_tokens": 218,
-  "usd": 0.0062
+  "input_tokens": 510,
+  "output_tokens": 252,
+  "usd": 0.0071
  },
  "wrong_status": 0
 }

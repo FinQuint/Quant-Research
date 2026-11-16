@@ -21,7 +21,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
-| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug built on `feature/claude-plug`; real-model run not started |
+| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug merged as PR #23 (230d41a); first real-model report run recorded on `feature/claude-demo` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -210,6 +210,10 @@ New decisions go here first, then into a new ADR when reviewed.
     stop → `ModelRefused`. Server-side refusal fallbacks off by default (the core rule is that a
     refusal is never answered by another model). Exact token counting (`count_tokens` API) is opt-in;
     the default is the calibrated estimate.
+  - **2026-11-15 — First real-model run.** `orchestration/demos/claude_report.py` (not protected, not
+    a CI gate) runs the clean Phase 6 report tasks through `ClaudePlug` using the protected evaluator's
+    own setup, request, pipeline and scoring. Live runs record replies to `demos/recordings/<model>/`
+    and save scores alongside; CI replays them offline. Fault tasks are not run against real models.
 
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
@@ -334,5 +338,15 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
 - 2026-11-15: PR #22 (Phase 7 soak) merged (292daae). Claude plug (step 2, steps 2–4 of the plan) on
   `feature/claude-plug`: `orchestration/models/claude.py`, `tests/test_orchestration_claude_plug.py`
   (fake client: conformance, mapping, caching, errors, fallback, repair, record/replay). Suite: 447
-  passed (422 + 25). No real API call made yet. Not committed. Next: review, commit, PR; then the
+  passed (422 + 25). No real API call made yet. Committed (2d1b88e), PR #23 opened; CI green on
+  3.10–3.12. PR #23 merged (230d41a, merged by the user with admin bypass). Next: the
   paid demo (record one golden task against real Claude, then the per-model Phase 5 sweep).
+- 2026-11-15: First real-Claude run on `feature/claude-demo`: `demos/claude_report.py`, recording and
+  scores for `report_bond_risk` on `claude-opus-5-5`, `tests/test_orchestration_claude_demo.py`, Phase 7
+  step 2 section in `docs/EVALS.md`. Result: 4/4 numbers traced, 0 invented, ok after one provenance
+  repair (convention numbers like "5y" and "DV01" in prose), $0.023. PR #24. CI first failed on
+  3.10/3.11: the bond analytics differ in the last float digit there (3.12 made `sum()` of floats
+  compensated), so the exact request digest missed. Fixed in the demo only: replay falls back to a
+  normalized key (long decimals rounded to 12 significant digits, `<task>.keys.json`). Suite: 453
+  passed (447 + 6). Next: merge PR #24; then the other two clean report tasks and the Phase 5 sweep.
+  Watch for the same float issue in any replay keyed on computed values.

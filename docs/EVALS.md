@@ -239,3 +239,31 @@ followed transitively, was computed on the old version.
 - The campaign takes about 18 s; the code index is rebuilt over `src/finquint` after every merge.
 
 The baseline (`evals/soak/baseline.json`) and the campaign are protected paths.
+
+## Phase 7 step 2: real model (Claude) on a report task
+
+`python -m finquint.orchestration.demos.claude_report --task report_bond_risk [--record]` runs a
+clean Phase 6 report task through `ClaudePlug` with the protected evaluator's own task setup,
+request, `write_report` pipeline and scoring; only the plug differs. `--record` calls the API (needs
+`pip install anthropic` and `ANTHROPIC_API_KEY`) and saves the replies under
+`src/finquint/orchestration/demos/recordings/<model>/`; without it the recording is replayed
+offline. `tests/test_orchestration_claude_demo.py` replays it in CI. Fault tasks are not offered:
+they script a simulated model's misbehavior.
+
+First live run (2026-11-15, `claude-opus-5-5`, effort high), `report_bond_risk`:
+
+| | numbers reported | traced | invented | status | model calls | tokens in / out | cost |
+|---|---|---|---|---|---|---|---|
+| Claude Opus 5.5 | 4 | 4 | 0 | ok | 2 | 1 086 / 949 | $0.023 |
+| simulated reporter (baseline) | 4 | 4 | 0 | ok | 1 | n/a | 0 |
+
+Claude used a placeholder for every metric on its first reply. It was repaired once because it
+typed convention numbers in prose ("5y", "per 100 of face", "1 basis point", "DV01"). The numeral
+post-check fails closed on them, so its second reply spelled them out. Note: identifier exemptions are
+case-sensitive, so "DV01" is flagged while the field name "dv01" is not; that is in the protected
+`verify/numbers.py` and left unchanged.
+
+Replay across Python versions: the bond analytics differ in the last float digit between Python
+3.10/3.11 and 3.12 (3.12 made `sum()` of floats compensated). That changes the exact request
+digest, so the demo replay falls back to a normalized key with long decimals rounded to 12
+significant digits (`<task>.keys.json`, written at record time).

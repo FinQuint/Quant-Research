@@ -350,3 +350,19 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   normalized key (long decimals rounded to 12 significant digits, `<task>.keys.json`). Suite: 453
   passed (447 + 6). Next: merge PR #24; then the other two clean report tasks and the Phase 5 sweep.
   Watch for the same float issue in any replay keyed on computed values.
+- 2026-11-15: PR #24 merged (62be314). On `feature/claude-report-tasks`: recorded the other two clean
+  report tasks on `claude-opus-5-5` (both ok first call, 3/3 traced, 0 invented, $0.013 together);
+  replay tests over all three. Derived values render unformatted (prompt never mentions `|.3f`).
+  Sweep runner `demos/claude_sweep.py`: the protected sweep's loops with a model passed in (pick
+  rules copied; a test checks the simulated plug reproduces the protected baseline exactly), window
+  kept at 2048, `MemoPlug` (identical requests answered once: 187 calls -> 37 with the simulated
+  plug), `BudgetedPlug` cap (`BudgetExceeded` is a BaseException so the core cannot treat it as an
+  outage), recording kept on a stop. Fixed `TolerantReplay` dropping the recorded token counter.
+  Live sweep run 1 ($1.01) was invalid: Claude cited versions as the tags print them (`"v2"`) and
+  `verify/citations.py` compared to the stored `"2"`. Fix (option 3, user applied it as code owner):
+  checker resolves `"vN"` -> `"N"` only when no exact `"vN"` exists, all other checks on the resolved
+  version; `REPORT_SCHEMA` version description. Run 2 ($0.97, 44 calls): builder 0/0/0, naive 20
+  forgotten; picks 0.9/16/2 vs simulated 0.8/16/2. At 0.8 the padded token estimate trims evidence a
+  criterion needs; rebuild then repeats the same request. Config not changed (shared by all plugs).
+  Suite: 474 passed. Batch not committed yet. Open: per-plug context policy or exact token counting
+  for Claude; rebuild that repeats an identical request should escalate at once or re-prioritize.

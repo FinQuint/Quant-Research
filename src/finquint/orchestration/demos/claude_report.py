@@ -66,7 +66,7 @@ class TolerantReplay(ReplayPlug):
     """ReplayPlug that falls back to the normalized key when the exact digest is not recorded."""
 
     def __init__(self, base, keys):
-        super().__init__(base.name, base.recordings, capabilities=base.capabilities)
+        super().__init__(base.name, base.recordings, capabilities=base.capabilities, count_tokens=base._count)
         self.keys = dict(keys)
 
     def complete(self, request):

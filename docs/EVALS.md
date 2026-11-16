@@ -267,3 +267,47 @@ Replay across Python versions: the bond analytics differ in the last float digit
 3.10/3.11 and 3.12 (3.12 made `sum()` of floats compensated). That changes the exact request
 digest, so the demo replay falls back to a normalized key with long decimals rounded to 12
 significant digits (`<task>.keys.json`, written at record time).
+
+All three clean report tasks on `claude-opus-5-5` (2026-11-15):
+
+| task | numbers traced | invented | status | model calls | tokens in / out | cost |
+|---|---|---|---|---|---|---|
+| report_bond_risk | 4/4 | 0 | ok | 2 (one repair) | 1 086 / 949 | $0.023 |
+| report_backtest | 3/3 | 0 | ok | 1 | 443 / 272 | $0.007 |
+| report_strategy_change | 3/3 | 0 | ok | 1 | 448 / 218 | $0.006 |
+
+Claude never added a format spec (`|.3f`), so derived values render at full float precision
+(for example `0.15399999999999991`). The report system prompt does not mention format specs; that
+is a prompt gap, not a provenance failure.
+
+### Phase 5 context sweep on `claude-opus-5-5`
+
+`python -m finquint.orchestration.demos.claude_sweep [--record --max-usd N | --simulated]` repeats
+the protected sweep with a model passed in (the protected functions only take the simulated plug),
+at the same 2048-token window so evidence still overflows. Identical requests are answered once
+(`MemoPlug`), and `BudgetedPlug` stops the run at a cap. With the simulated plug it reproduces the
+protected baseline exactly; the Claude recording replays offline in
+`tests/test_orchestration_claude_sweep.py`.
+
+**Run 1 (invalid, $1.01).** Every builder run escalated: Claude cited versions as the request's tags
+print them (`"v2"`, 223 of 223 citations) and `verify/citations.py` compared them with the stored
+`"2"`. `parse_ref` already stripped the `v`; the checker did not, and neither the prompt nor the
+schema stated the format. The simulated model emits bare versions, so this never showed before.
+Fix (user decision, option 3): the checker resolves `"vN"` to `"N"` when no exact `"vN"` exists, and
+every other check runs on the resolved version (`tests/test_orchestration_citation_versions.py`);
+`REPORT_SCHEMA` now describes the version as "without the leading v". Phase 4 to 6 baselines unchanged.
+
+**Run 2 (after the fix, 44 API calls, 152 memo hits, $0.97):**
+
+| | builder forgotten / citation failures / wrong status | naive forgotten / citation failures / wrong status |
+|---|---|---|
+| Claude Opus 5.5 | 0 / 0 / 0 | 20 / 0 / 1 |
+| simulated (baseline) | 0 / 0 / 0 | 16 / 1 / 1 |
+
+Picks: Claude `utilization_threshold` 0.9, `history_last_n` 16, `max_failed_rebuilds` 2; simulated
+0.8 / 16 / 2. Only 0.9/16 has zero quality failures for Claude. At 0.8/16 the backtest task dropped
+the result for criterion C6 (evidence only in working history; its tool-call line was kept), Claude
+left C6 uncited instead of inventing one, and two rebuilds produced the same request before ESCALATE.
+The simulated plug passes 0.8 because it counts tokens exactly; the Claude plug uses chars/4 plus a
+10% margin, so the same threshold leaves less room. Caveats: one sample per setting; 0.9 is the top
+of the grid; `configs/context_policy.json` is shared by every plug and was not changed.

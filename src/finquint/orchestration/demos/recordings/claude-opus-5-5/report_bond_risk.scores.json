@@ -1,0 +1,17 @@
+{
+ "criteria": 4,
+ "invented_reported": 0,
+ "model": "claude-opus-5-5",
+ "model_calls": 2,
+ "numbers_reported": 4,
+ "numbers_traced": 4,
+ "problems": [],
+ "report": "C1: Bond price: the five-year bond is priced at 104.4912925031211, quoted per standard face amount.\nC2: Modified duration: the bond's modified duration is 4.410689847574737. This is the approximate percentage change in price for a unit change in yield.\nC3: Dollar value of a basis point: the price sensitivity to a one basis point change in yield is 0.046087870605298065.\nC4: Convexity: the bond's convexity is 22.92314562534249. This is the second-order price sensitivity to yield changes, which refines the duration-based estimate for larger yield moves.",
+ "status": "ok",
+ "usage": {
+  "input_tokens": 1086,
+  "output_tokens": 949,
+  "usd": 0.0233
+ },
+ "wrong_status": 0
+}

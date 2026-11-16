@@ -1,0 +1,27 @@
+{
+ "capabilities": {
+  "context_window": 200000
+ },
+ "format": 1,
+ "plug": "claude:claude-opus-5-5",
+ "replies": {
+  "4d68f4d1d64fcb0549d7f74f9246e25ff05c2418fc31015a7f4553d62f618204": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the 5y bond is priced at {{metric:run:report-bond/analytics:bond_price}} per 100 of face value.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a 1 percentage point parallel shift in yield.\"},{\"id\":\"C3\",\"text\":\"DV01: the dollar value of a basis point is {{metric:run:report-bond/analytics:dv01}}. This is the approximate price change per 100 face for a 1 basis point move in yield.\"},{\"id\":\"C4\",\"text\":\"Convexity: the bond's convexity is {{metric:run:report-bond/analytics:convexity}}. It captures the second-order curvature of the price-yield relationship that duration alone misses.\"}]}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 487,
+    "output_tokens": 307
+   }
+  },
+  "b93a76dd6a42597bae76c691d64048bbb1878df2c17166f0f28719b77e1fc0ce": {
+   "model": "claude-opus-5-5",
+   "text": "{\"run_id\":\"report-bond\",\"sections\":[{\"id\":\"C1\",\"text\":\"Bond price: the five-year bond is priced at {{metric:run:report-bond/analytics:bond_price}}, quoted per standard face amount.\"},{\"id\":\"C2\",\"text\":\"Modified duration: the bond's modified duration is {{metric:run:report-bond/analytics:modified_duration}}. This is the approximate percentage change in price for a unit change in yield.\"},{\"id\":\"C3\",\"text\":\"Dollar value of a basis point: the price sensitivity to a one basis point change in yield is {{metric:run:report-bond/analytics:dv01}}.\"},{\"id\":\"C4\",\"text\":\"Convexity: the bond's convexity is {{metric:run:report-bond/analytics:convexity}}. This is the second-order price sensitivity to yield changes, which refines the duration-based estimate for larger yield moves.\"}]}",
+   "usage": {
+    "exact": true,
+    "input_tokens": 599,
+    "output_tokens": 642
+   }
+  }
+ }
+}

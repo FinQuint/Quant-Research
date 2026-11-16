@@ -262,3 +262,8 @@ typed convention numbers in prose ("5y", "per 100 of face", "1 basis point", "DV
 post-check fails closed on them, so its second reply spelled them out. Note: identifier exemptions are
 case-sensitive, so "DV01" is flagged while the field name "dv01" is not; that is in the protected
 `verify/numbers.py` and left unchanged.
+
+Replay across Python versions: the bond analytics differ in the last float digit between Python
+3.10/3.11 and 3.12 (3.12 made `sum()` of floats compensated). That changes the exact request
+digest, so the demo replay falls back to a normalized key with long decimals rounded to 12
+significant digits (`<task>.keys.json`, written at record time).

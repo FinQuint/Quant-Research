@@ -41,3 +41,35 @@ def test_only_clean_report_tasks_are_offered_to_a_real_model():
     assert sorted(claude_report.CLEAN_TASKS) == ["report_backtest", "report_bond_risk", "report_strategy_change"]
     with pytest.raises(KeyError):
         claude_report.run_report("fault_invented_number", None)
+
+
+def _last_digit_noise(monkeypatch):
+    """Simulate another Python's float summation: the bond price differs in its last digits."""
+    real = claude_report.metric_segment
+
+    def noisy(store, refs):
+        segment = real(store, refs)
+        content = segment.content.replace("104.4912925031211", "104.49129250312108")
+        assert content != segment.content
+        return type(segment)(segment.role, content, segment.stable, segment.ids)
+    monkeypatch.setattr(claude_report, "metric_segment", noisy)
+
+
+def test_replay_tolerates_last_digit_float_noise_across_python_versions(monkeypatch):
+    _last_digit_noise(monkeypatch)
+    exact_only = claude_report.run_report(TASK, ReplayPlug.load(claude_report.recording_path(TASK, MODEL)))
+    assert exact_only["status"] == "escalated"          # the CI failure on 3.10/3.11 before the fix
+    assert claude_report.replay(TASK, MODEL) == recorded_scores()
+
+
+def test_normalized_key_ignores_float_noise_but_not_real_changes():
+    from finquint.orchestration.models import ModelRequest, Segment, SegmentRole
+    schema = {"type": "object"}
+
+    def req(value):
+        return ModelRequest("r", "t", (Segment(SegmentRole.EVIDENCE, f"[metric a field=x] {value}"),), schema)
+    base = req("104.4912925031211")
+    assert claude_report.normalized_key(base) == claude_report.normalized_key(req("104.49129250312108"))
+    assert base.digest() != req("104.49129250312108").digest()
+    assert claude_report.normalized_key(base) != claude_report.normalized_key(req("104.4912935031211"))
+    assert claude_report.normalized_key(req("1.5")) != claude_report.normalized_key(req("1.6"))

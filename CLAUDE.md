@@ -344,5 +344,9 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
 - 2026-11-15: First real-Claude run on `feature/claude-demo`: `demos/claude_report.py`, recording and
   scores for `report_bond_risk` on `claude-opus-5-5`, `tests/test_orchestration_claude_demo.py`, Phase 7
   step 2 section in `docs/EVALS.md`. Result: 4/4 numbers traced, 0 invented, ok after one provenance
-  repair (convention numbers like "5y" and "DV01" in prose), $0.023. Suite: 451 passed (447 + 4).
-  Not committed. Next: commit, PR; then the other two clean report tasks and the per-model Phase 5 sweep.
+  repair (convention numbers like "5y" and "DV01" in prose), $0.023. PR #24. CI first failed on
+  3.10/3.11: the bond analytics differ in the last float digit there (3.12 made `sum()` of floats
+  compensated), so the exact request digest missed. Fixed in the demo only: replay falls back to a
+  normalized key (long decimals rounded to 12 significant digits, `<task>.keys.json`). Suite: 453
+  passed (447 + 6). Next: merge PR #24; then the other two clean report tasks and the Phase 5 sweep.
+  Watch for the same float issue in any replay keyed on computed values.

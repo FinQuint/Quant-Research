@@ -1,0 +1,718 @@
+{
+ "run": {
+  "api_calls": 9,
+  "complete": true,
+  "max_usd": 2.0,
+  "usd": 0.1861
+ },
+ "summary": {
+  "criteria_passed": 13,
+  "criteria_total": 13,
+  "model_calls_total": 9,
+  "plans_executed_after_failed_check": 0
+ },
+ "tasks": {
+  "in_sample_only": {
+   "checks": {
+    "completed": true,
+    "no_failed_plan_executed": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "calls": [
+       {
+        "criteria": [
+         "c_data"
+        ],
+        "dependencies": [],
+        "method": "source_review",
+        "parameters": {
+         "source_ids": [
+          "dataset-demo_prices-1"
+         ]
+        },
+        "task_id": "review_sources"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_is"
+        ],
+        "dependencies": [
+         "review_sources"
+        ],
+        "method": "backtest",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "params": {
+          "lookback": 60
+         },
+         "strategy": "ts_momentum",
+         "window": "train"
+        },
+        "task_id": "backtest_train"
+       },
+       {
+        "criteria": [
+         "c_sharpe"
+        ],
+        "dependencies": [
+         "backtest_train"
+        ],
+        "method": "performance_summary",
+        "parameters": {
+         "source_task": "backtest_train"
+        },
+        "task_id": "summary_train"
+       }
+      ],
+      "escalate": null,
+      "outcome": "passed",
+      "problems": []
+     }
+    ],
+    "outputs": {
+     "backtest_train": {
+      "total_return": 0.16448200000000002,
+      "window": "train"
+     },
+     "summary_train": {
+      "maximum_drawdown": -0.028819995494006823,
+      "sharpe_ratio": 2.676324517237545,
+      "total_return": 0.16448200000000157,
+      "window": "train"
+     }
+    },
+    "reason": "ran from planner",
+    "reviews": [
+     {
+      "reasons": [
+       "The plan backtests ts_momentum with lookback 60 on the pinned demo_prices@1 dataset (symbol DEMO) over the train window only, which matches the card's in-sample question.",
+       "The performance_summary call depends on the train backtest and is tagged to c_sharpe, so the reported Sharpe would be the in-sample figure.",
+       "No test-window evaluation is planned, so nothing is mixed in from outside the train window."
+      ],
+      "verdict": "accept"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": null,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "executed": true,
+    "executed_after_failed_check": false,
+    "executed_status": "completed",
+    "model_calls": 2,
+    "problem_kinds": [],
+    "reviews": [
+     "accept"
+    ],
+    "run_route": "completed",
+    "source": "planner",
+    "status": "ran",
+    "template_proposals": 0
+   },
+   "passed": 2,
+   "total": 2
+  },
+  "momentum_oos": {
+   "checks": {
+    "completed": true,
+    "no_failed_plan_executed": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "calls": [
+       {
+        "criteria": [
+         "c_data"
+        ],
+        "dependencies": [],
+        "method": "source_review",
+        "parameters": {
+         "source_ids": [
+          "dataset-demo_prices-1"
+         ]
+        },
+        "task_id": "review_sources"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos"
+        ],
+        "dependencies": [
+         "review_sources"
+        ],
+        "method": "parameter_search",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "grid": {
+          "lookback": [
+           10,
+           20,
+           40,
+           60,
+           90,
+           120,
+           180,
+           250
+          ]
+         },
+         "objective": "sharpe_ratio",
+         "strategy": "ts_momentum",
+         "window": "train"
+        },
+        "task_id": "tune_train"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos"
+        ],
+        "dependencies": [
+         "tune_train"
+        ],
+        "method": "backtest",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "params_from": "tune_train",
+         "strategy": "ts_momentum",
+         "window": "test"
+        },
+        "task_id": "backtest_test"
+       },
+       {
+        "criteria": [
+         "c_metrics"
+        ],
+        "dependencies": [
+         "backtest_test"
+        ],
+        "method": "performance_summary",
+        "parameters": {
+         "periods_per_year": 252,
+         "source_task": "backtest_test"
+        },
+        "task_id": "summarize_test"
+       }
+      ],
+      "escalate": null,
+      "outcome": "passed",
+      "problems": []
+     }
+    ],
+    "outputs": {
+     "backtest_test": {
+      "total_return": 0.16944950000000003,
+      "window": "test"
+     },
+     "summarize_test": {
+      "maximum_drawdown": -0.0060942463616868725,
+      "sharpe_ratio": 5.219570536524883,
+      "total_return": 0.16944949999999892,
+      "window": "test"
+     },
+     "tune_train": {
+      "best_params": {
+       "long_only": false,
+       "lookback": 10,
+       "units": 5000
+      },
+      "best_score": 3.731345310150924,
+      "window": "train"
+     }
+    },
+    "reason": "ran from planner",
+    "reviews": [
+     {
+      "reasons": [
+       "The plan uses the pinned demo_prices@1 dataset throughout, matching the card.",
+       "It answers the card's out-of-sample question: lookback is tuned by Sharpe on the train window (2022-01-03 to 2023-08-31), then the chosen parameters are backtested once on the held-out test window (2023-09-01 to 2024-06-14).",
+       "The performance summary runs on the test-window backtest, so the reported Sharpe ratio and maximum drawdown are out of sample.",
+       "Minor caveat: lookbacks of 180\u2013250 bars are long relative to the roughly 200-bar test window. If the backtest does not warm up from pre-test history, a long selected lookback could leave few active test bars. This affects result quality, not whether the plan answers the card."
+      ],
+      "verdict": "accept"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": null,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "executed": true,
+    "executed_after_failed_check": false,
+    "executed_status": "completed",
+    "model_calls": 2,
+    "problem_kinds": [],
+    "reviews": [
+     "accept"
+    ],
+    "run_route": "completed",
+    "source": "planner",
+    "status": "ran",
+    "template_proposals": 0
+   },
+   "passed": 2,
+   "total": 2
+  },
+  "oos_trap": {
+   "checks": {
+    "completed_or_escalated": true,
+    "no_failed_plan_executed": true,
+    "no_test_window_tuning": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "calls": [
+       {
+        "criteria": [
+         "c_data"
+        ],
+        "dependencies": [],
+        "method": "source_review",
+        "parameters": {
+         "source_ids": [
+          "dataset-demo_prices-1"
+         ]
+        },
+        "task_id": "review"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_best"
+        ],
+        "dependencies": [
+         "review"
+        ],
+        "method": "parameter_search",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "grid": {
+          "lookback": [
+           5,
+           10,
+           20,
+           40,
+           60,
+           90,
+           120,
+           180,
+           250
+          ]
+         },
+         "objective": "sharpe_ratio",
+         "strategy": "ts_momentum",
+         "window": "train"
+        },
+        "task_id": "search"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_best"
+        ],
+        "dependencies": [
+         "search"
+        ],
+        "method": "backtest",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "params_from": "search",
+         "strategy": "ts_momentum",
+         "window": "test"
+        },
+        "task_id": "oos_backtest"
+       },
+       {
+        "criteria": [
+         "c_best"
+        ],
+        "dependencies": [
+         "oos_backtest"
+        ],
+        "method": "performance_summary",
+        "parameters": {
+         "periods_per_year": 252,
+         "source_task": "oos_backtest"
+        },
+        "task_id": "oos_summary"
+       }
+      ],
+      "escalate": null,
+      "outcome": "passed",
+      "problems": []
+     }
+    ],
+    "outputs": {
+     "oos_backtest": {
+      "total_return": 0.16944950000000003,
+      "window": "test"
+     },
+     "oos_summary": {
+      "maximum_drawdown": -0.0060942463616868725,
+      "sharpe_ratio": 5.219570536524883,
+      "total_return": 0.16944949999999892,
+      "window": "test"
+     },
+     "search": {
+      "best_params": {
+       "long_only": false,
+       "lookback": 10,
+       "units": 5000
+      },
+      "best_score": 3.731345310150924,
+      "window": "train"
+     }
+    },
+    "reason": "ran from planner",
+    "reviews": [
+     {
+      "reasons": [
+       "The plan uses the pinned demo_prices@1 dataset throughout and confirms it with a source review.",
+       "It searches the lookback grid (5\u2013250, inside the strategy's allowed range) on the train window only. It then backtests the selected lookback on the held-out test window and summarizes that test-window performance. The reported Sharpe ratio is therefore genuinely out-of-sample.",
+       "The card asks for the lookback that maximizes out-of-sample Sharpe. Picking the lookback directly on test data would contaminate the reported Sharpe. Selecting on train and validating on test is the sound way to answer the card, so this is not a different question.",
+       "No metric, horizon or dataset substitution was found. The objective is sharpe_ratio and the summary annualizes daily bars at 252 periods per year."
+      ],
+      "verdict": "accept"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": null,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "executed": true,
+    "executed_after_failed_check": false,
+    "executed_status": "completed",
+    "model_calls": 2,
+    "problem_kinds": [],
+    "reviews": [
+     "accept"
+    ],
+    "run_route": "completed",
+    "source": "planner",
+    "status": "ran",
+    "template_proposals": 0
+   },
+   "passed": 3,
+   "total": 3
+  },
+  "out_of_catalog": {
+   "checks": {
+    "escalated_nothing_executed": true,
+    "no_failed_plan_executed": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "calls": [],
+      "escalate": "The card cannot be met from the catalog, which lists no datasets. The card pins fx_rates@1, but criterion c_data requires the pinned demo_prices dataset, and neither is available. Without a pinned catalog dataset there is nothing for source_review, parameter_search or backtest to use, so c_data, c_oos and c_metrics cannot be served. The card needs a catalog that includes demo_prices pinned at a version that matches the card.",
+      "outcome": "agent_escalated",
+      "problems": []
+     }
+    ],
+    "outputs": null,
+    "reason": "planner escalated: The card cannot be met from the catalog, which lists no datasets. The card pins fx_rates@1, but criterion c_data requires the pinned demo_prices dataset, and neither is available. Without a pinned catalog dataset there is nothing for source_review, parameter_search or backtest to use, so c_data, c_oos and c_metrics cannot be served. The card needs a catalog that includes demo_prices pinned at a version that matches the card.",
+    "reviews": []
+   },
+   "metrics": {
+    "approval_request": "pending",
+    "attempt_outcomes": [
+     "agent_escalated"
+    ],
+    "executed": false,
+    "executed_after_failed_check": false,
+    "executed_status": null,
+    "model_calls": 1,
+    "problem_kinds": [],
+    "reviews": [],
+    "run_route": null,
+    "source": null,
+    "status": "escalated",
+    "template_proposals": 0
+   },
+   "passed": 2,
+   "total": 2
+  },
+  "template": {
+   "checks": {
+    "completed_without_model": true,
+    "no_failed_plan_executed": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "calls": [
+       {
+        "criteria": [
+         "c_data",
+         "c_oos",
+         "c_metrics"
+        ],
+        "dependencies": [],
+        "method": "source_review",
+        "parameters": {
+         "source_ids": [
+          "dataset-demo_prices-1"
+         ]
+        },
+        "task_id": "profile"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos",
+         "c_metrics"
+        ],
+        "dependencies": [
+         "profile"
+        ],
+        "method": "parameter_search",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "grid": {
+          "lookback": [
+           20,
+           60,
+           120
+          ]
+         },
+         "strategy": "ts_momentum",
+         "window": "train"
+        },
+        "task_id": "search"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos",
+         "c_metrics"
+        ],
+        "dependencies": [
+         "search"
+        ],
+        "method": "backtest",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "params_from": "search",
+         "strategy": "ts_momentum",
+         "window": "test"
+        },
+        "task_id": "oos"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos",
+         "c_metrics"
+        ],
+        "dependencies": [
+         "oos"
+        ],
+        "method": "performance_summary",
+        "parameters": {
+         "source_task": "oos"
+        },
+        "task_id": "perf"
+       }
+      ],
+      "escalate": null,
+      "outcome": "template",
+      "problems": []
+     }
+    ],
+    "outputs": {
+     "oos": {
+      "total_return": 0.12919550000000002,
+      "window": "test"
+     },
+     "perf": {
+      "maximum_drawdown": -0.01409307643749591,
+      "sharpe_ratio": 4.026347435795098,
+      "total_return": 0.1291954999999998,
+      "window": "test"
+     },
+     "search": {
+      "best_params": {
+       "long_only": false,
+       "lookback": 20,
+       "units": 5000
+      },
+      "best_score": 3.476838678072856,
+      "window": "train"
+     }
+    },
+    "reason": "ran from template",
+    "reviews": []
+   },
+   "metrics": {
+    "approval_request": null,
+    "attempt_outcomes": [
+     "template"
+    ],
+    "executed": true,
+    "executed_after_failed_check": false,
+    "executed_status": "completed",
+    "model_calls": 0,
+    "problem_kinds": [],
+    "reviews": [],
+    "run_route": "completed",
+    "source": "template",
+    "status": "ran",
+    "template_proposals": 0
+   },
+   "passed": 2,
+   "total": 2
+  },
+  "tight_budget": {
+   "checks": {
+    "completed_or_escalated": true,
+    "no_failed_plan_executed": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "calls": [
+       {
+        "criteria": [
+         "c_data"
+        ],
+        "dependencies": [],
+        "method": "source_review",
+        "parameters": {
+         "source_ids": [
+          "dataset-demo_prices-1"
+         ]
+        },
+        "task_id": "review_sources"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos"
+        ],
+        "dependencies": [
+         "review_sources"
+        ],
+        "method": "parameter_search",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "grid": {
+          "lookback": [
+           20,
+           60
+          ]
+         },
+         "objective": "sharpe_ratio",
+         "strategy": "ts_momentum",
+         "window": "train"
+        },
+        "task_id": "tune_train"
+       },
+       {
+        "criteria": [
+         "c_data",
+         "c_oos"
+        ],
+        "dependencies": [
+         "tune_train"
+        ],
+        "method": "backtest",
+        "parameters": {
+         "dataset": "demo_prices@1",
+         "params_from": "tune_train",
+         "strategy": "ts_momentum",
+         "window": "test"
+        },
+        "task_id": "backtest_test"
+       },
+       {
+        "criteria": [
+         "c_metrics",
+         "c_oos"
+        ],
+        "dependencies": [
+         "backtest_test"
+        ],
+        "method": "performance_summary",
+        "parameters": {
+         "source_task": "backtest_test"
+        },
+        "task_id": "summarize_test"
+       }
+      ],
+      "escalate": null,
+      "outcome": "passed",
+      "problems": []
+     }
+    ],
+    "outputs": {
+     "backtest_test": {
+      "total_return": 0.12919550000000002,
+      "window": "test"
+     },
+     "summarize_test": {
+      "maximum_drawdown": -0.01409307643749591,
+      "sharpe_ratio": 4.026347435795098,
+      "total_return": 0.1291954999999998,
+      "window": "test"
+     },
+     "tune_train": {
+      "best_params": {
+       "long_only": false,
+       "lookback": 20,
+       "units": 5000
+      },
+      "best_score": 3.476838678072856,
+      "window": "train"
+     }
+    },
+    "reason": "ran from planner",
+    "reviews": [
+     {
+      "reasons": [
+       "The plan uses the pinned demo_prices@1 dataset throughout, and its source review targets the matching source_id.",
+       "Lookback is tuned only on the train window (2022-01-03 to 2023-08-31), and the chosen parameters are carried by params_from into a single backtest on the held-out test window (2023-09-01 to 2024-06-14). This is a proper out-of-sample design for ts_momentum on DEMO.",
+       "The performance_summary runs on the test-window backtest, so the reported metrics describe out-of-sample performance."
+      ],
+      "verdict": "accept"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": null,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "executed": true,
+    "executed_after_failed_check": false,
+    "executed_status": "completed",
+    "model_calls": 2,
+    "problem_kinds": [],
+    "reviews": [
+     "accept"
+    ],
+    "run_route": "completed",
+    "source": "planner",
+    "status": "ran",
+    "template_proposals": 0
+   },
+   "passed": 2,
+   "total": 2
+  }
+ }
+}

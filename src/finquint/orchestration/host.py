@@ -13,6 +13,7 @@ Phases 1-6 each added an opt-in piece. A trusted host process builds them like t
     MetricStore                   run outputs, verified experiments, current trusted evidence
     write_report                  reports through the model socket, every number a placeholder
     ReportStore                   final reports and escalated attempts, for audit
+    RecoveryLadder (opt-in)       triage, repair agent, guards, blind validator, escalation (Phase 8)
 
 The Stack holds no state of its own beyond the database: a crashed host is replaced by a new
 Stack over the same directory, then recover() settles the outbox before anything else runs.
@@ -40,10 +41,12 @@ from .knowledge.metrics import CompositeMetricStore, EvidenceMetrics, Experiment
 from .knowledge.reporting import ReportResult, metric_segment, request_identifiers, write_report
 from .scheduler import Scheduler
 from .tools.guarded import GuardedTools, OutboxWorker
+from .recovery.ladder import RecoveryLadder
+from .recovery.policy import RecoveryPolicy
 from .tools.registry import ToolRegistry
 from .tracing import SQLiteSpanStore, Tracer
 
-RUN_ROUTES = ("completed", "awaiting_approval", "escalated", "blocked", "needs_revision")
+RUN_ROUTES = ("completed", "awaiting_approval", "escalated", "blocked", "needs_revision", "recovered")
 
 
 @dataclass(frozen=True)
@@ -53,6 +56,7 @@ class RunOutcome:
     route: str
     state: dict
     reason: str = ""
+    final_run_id: str = None   # the linked run that recovered (or awaits approval), when the ladder ran
 
 
 class ReportStore:
@@ -96,11 +100,15 @@ class Stack:
     tools: Tool definitions for side-effect branches. registry: MethodRegistry for research runs.
     reporter: a models.core.ModelCaller used by report(); None if this host writes no reports.
     tracer_factory(stack) -> Tracer, or None for no tracing; spans are saved on close().
+    recovery_policy: RecoveryPolicy or a path (configs/recovery_policy.json) to switch on the Phase 8
+    recovery ladder; repairer / validator are ModelCallers for its agents; pricing(reply) -> USD.
+    Without recovery_policy, behavior is unchanged.
     """
 
     def __init__(self, directory, *, approval_key, capability_key, approval_policy, registry, tools=(),
                  gate_policy=None, clock=time.time, reporter=None, code_root=None, capability_ttl=600,
-                 max_workers=1, tracer_factory=None):
+                 max_workers=1, tracer_factory=None, recovery_policy=None, repairer=None, validator=None,
+                 pricing=None):
         if approval_key == capability_key:
             raise ValueError("the approval key and the capability key must differ")
         if not isinstance(approval_policy, ApprovalPolicy):
@@ -133,6 +141,14 @@ class Stack:
         self.reporter = reporter
         self.reports = ReportStore(self.db)
         self._schedulers = {}
+        self.ladder = None
+        if recovery_policy is not None:
+            if not isinstance(recovery_policy, RecoveryPolicy):
+                recovery_policy = RecoveryPolicy.from_file(recovery_policy)
+            self.ladder = RecoveryLadder(self.db, workflow=self.workflow, runs=self.runs, registry=registry,
+                                         policy=recovery_policy, gate=self.gate, audit=self.audit, repairer=repairer,
+                                         validator=validator, pricing=pricing, clock=clock)
+            self.workflow.review = self.ladder.review
 
     # --- side-effect branches -----------------------------------------------------------------
 
@@ -151,8 +167,12 @@ class Stack:
 
     # --- research runs ------------------------------------------------------------------------
 
-    def run_research(self, request):
+    def run_research(self, request, card=None):
         """Submit (once) and run a research request, then route the result through the gate.
+
+        With the recovery ladder on, a finished run is triaged first; a fixable failure climbs the
+        ladder and the outcome names the linked run that recovered. card: optional TaskCard the
+        repair and validator agents see (default: the objective as the one criterion).
 
         A failed task is classified by decide() on its recorded status: an exhausted RetryableError
         escalates to a human, any other failure is blocked. The route is written to the audit log
@@ -162,7 +182,15 @@ class Stack:
             self.runs.load(request.run_id)
         except KeyError:
             self.workflow.submit(request)
+        if self.ladder is not None and card is not None:
+            self.ladder.register_card(request.run_id, card)
         state = self.workflow.run(request.run_id)
+        if self.ladder is not None:
+            outcome = self.ladder.handle(state)
+            if outcome.route is not None:
+                final = self.runs.load(outcome.final_run_id) if outcome.final_run_id else state
+                routed = self._routed(request.run_id, outcome.route, final, outcome.reason)
+                return RunOutcome(routed.run_id, routed.route, final, routed.reason, outcome.final_run_id)
         status = state["status"]
         if status in ("completed", "awaiting_approval", "needs_revision", "escalated"):
             return self._routed(request.run_id, status, state, state.get("error") or "")

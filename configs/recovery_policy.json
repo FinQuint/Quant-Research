@@ -1,0 +1,27 @@
+{
+  "version": "1",
+  "max_repair_attempts": 2,
+  "validator_sample_rate": 0.0,
+  "validator_model": null,
+  "lesson_threshold": 3,
+  "circuit_breaker": {"trips": 3, "window": 10},
+  "cost_cap_usd": 0.5,
+  "methods": {
+    "rolling_volatility": {
+      "tunable": {"window": {"min": 5, "max": 250, "type": "integer"}},
+      "frozen": ["returns", "annualization"],
+      "alternatives": []
+    },
+    "historical_var": {
+      "tunable": {},
+      "frozen": ["pnl", "confidence"],
+      "alternatives": ["parametric_var"]
+    },
+    "parametric_var": {
+      "tunable": {},
+      "frozen": ["pnl", "confidence"],
+      "alternatives": ["historical_var"]
+    }
+  },
+  "known_fixes": []
+}

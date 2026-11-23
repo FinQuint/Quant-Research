@@ -30,6 +30,8 @@ DEFAULT_PROTECTED_PATHS = (
     "src/finquint/orchestration/evals",
     # Promotion gate, report escalation and metric sources (Phase 6).
     "src/finquint/orchestration/knowledge",
+    # Recovery triage, guards and the ladder that enforces them (Phase 8).
+    "src/finquint/orchestration/recovery",
     # Files that change how tests run or who must review.
     ".github",
     "CODEOWNERS",

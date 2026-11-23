@@ -32,6 +32,8 @@ DEFAULT_PROTECTED_PATHS = (
     "src/finquint/orchestration/knowledge",
     # Recovery triage, guards and the ladder that enforces them (Phase 8).
     "src/finquint/orchestration/recovery",
+    # Retention decides what may be deleted (2026-11-23 review).
+    "src/finquint/orchestration/retention.py",
     # Files that change how tests run or who must review.
     ".github",
     "CODEOWNERS",

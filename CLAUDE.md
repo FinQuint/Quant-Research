@@ -27,8 +27,15 @@ executes.* No live trading; never change the numerical algorithms.
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
 ## Decisions that refine the spec
-Folded into the spec as ADR-009 to ADR-018 (v0.2), ADR-019 (v0.3), ADR-020 (Phase 8, v0.4) and ADR-021 (Phase 7 real-model decisions, v0.5); all proposed. The notes below keep the detail.
+Folded into the spec as ADR-009 to ADR-018 (v0.2), ADR-019 (v0.3), ADR-020 (Phase 8, v0.4) and ADR-021 (Phase 7 real-model decisions, v0.5); all accepted in the 2026-11-23 review (spec v0.6). The notes below keep the detail.
 New decisions go here first, then into a new ADR when reviewed.
+- **2026-11-23 — ADR review (user).** ADR-001 to ADR-021 accepted (004/008 stay superseded); a change
+  now needs a new superseding ADR. Open questions answered: state machine on SQLite (ADR-009) and policy
+  files (ADR-013) stay; one reviewer, one approval per action for now (sole owner self-merges with admin
+  bypass; once a second reviewer exists: 2 approvals for deploy/delete_production_data and
+  `enforce_admins` on); every ESCALATE to a human; `claude-opus-5-5` for all agents, no fallback;
+  retention (tune) 1 year for run DBs/approvals/traces, 90 days for context histories (not yet enforced
+  by code).
 - **2026-11-01 — Build on PR #13, not LangGraph/Postgres (yet).** Phase 1 extends the existing
   explicit state machine in `finquint.autonomous` on SQLite (sharing `ResearchStore`). Ledger and
   outbox sit behind a storage interface so a Postgres backend (ADR-004) or LangGraph/Temporal can
@@ -483,3 +490,6 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   the card requires historical simulation), accepted the control. Replay test added. (2) Spec v0.5:
   ADR-021 folds the Phase 7 decisions. Real-model spend: $7.65. Next: user review of ADR-001 to ADR-021
   and the open questions (item 3).
+- 2026-11-23: ADR review done with the user: spec v0.6, every ADR accepted, open questions answered (see
+  Decisions). Committed on `feature/validator-drift-adr021`, not pushed. Open: a retention job (1 y / 90 d)
+  if wanted; a second reviewer to enforce code-owner review.

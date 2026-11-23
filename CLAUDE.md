@@ -22,13 +22,20 @@ executes.* No live trading; never change the numerical algorithms.
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
 | 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
-| 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — merged as PR #29 (e5dfa18), eval 49/49; Claude run 22/22 ($0.20) on `feature/claude-recovery` |
+| 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — PR #29 (e5dfa18), eval 49/49; Claude as repair agent + validator 22/22 ($0.20), PR #30 (2fdd851) |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
 ## Decisions that refine the spec
-Folded into the spec as ADR-009 to ADR-018 (spec v0.2, proposed, 2026-11-15); the notes below keep the detail.
+Folded into the spec as ADR-009 to ADR-018 (v0.2), ADR-019 (v0.3), ADR-020 (Phase 8, v0.4) and ADR-021 (Phase 7 real-model decisions, v0.5); all accepted in the 2026-11-23 review (spec v0.6). The notes below keep the detail.
 New decisions go here first, then into a new ADR when reviewed.
+- **2026-11-23 — ADR review (user).** ADR-001 to ADR-021 accepted (004/008 stay superseded); a change
+  now needs a new superseding ADR. Open questions answered: state machine on SQLite (ADR-009) and policy
+  files (ADR-013) stay; one reviewer, one approval per action for now (sole owner self-merges with admin
+  bypass; once a second reviewer exists: 2 approvals for deploy/delete_production_data and
+  `enforce_admins` on); every ESCALATE to a human; `claude-opus-5-5` for all agents, no fallback;
+  retention (tune) 1 year for run DBs/approvals/traces, 90 days for context histories (not yet enforced
+  by code).
 - **2026-11-01 — Build on PR #13, not LangGraph/Postgres (yet).** Phase 1 extends the existing
   explicit state machine in `finquint.autonomous` on SQLite (sharing `ResearchStore`). Ledger and
   outbox sit behind a storage interface so a Postgres backend (ADR-004) or LangGraph/Temporal can
@@ -187,7 +194,7 @@ New decisions go here first, then into a new ADR when reviewed.
     status "verified", and current trusted evidence. Evidence stores treat the item put last as
     current, also on a re-put (code revert). A promoted claim version is never rewritten.
 
-- **2026-11-15 — Phase 7 decisions** (not yet reviewed; fold into ADR-019 when reviewed).
+- **2026-11-15 — Phase 7 decisions** (folded into ADR-019 and ADR-021, proposed).
   - Real models: **Claude first, as a demo**, through the model socket as an optional install;
     other vendors later through the same socket. CI keeps gating on the simulated plug.
   - Exit measurement: a 72 h (tune) simulated campaign on one host `Stack` with every layer on and
@@ -473,3 +480,16 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   -> parametric VaR, both accepted by the validator; escalated the unfixable task on attempt 1; on the
   goal-drift task the repair agent escalated rather than shrink the card's 60-day window, so the
   validator's drift check was not exercised live. Real-model spend so far: $7.60.
+- 2026-11-23: PR #30 merged (2fdd851; CI green on 3.10–3.12, merged by the user with admin bypass). Phase 8
+  done with simulated agents and Claude. Suite on main: 548 passed. Real-model spend: $7.60. Open: test the
+  validator's goal-drift check on a real model (~$0.05); fold Phase 7 decisions into an ADR; review
+  ADR-001 to ADR-020 and the spec's open questions.
+- 2026-11-23: On `feature/validator-drift-adr021` (committed locally, not pushed): (1) validator-only suite
+  in `demos/claude_recovery.py` (`--suite validator`: scripted repairs, Claude judges). Live $0.05: rejected
+  both drifting repairs (window 60 -> 20 when the card fixes 60 days; historical -> parametric VaR when
+  the card requires historical simulation), accepted the control. Replay test added. (2) Spec v0.5:
+  ADR-021 folds the Phase 7 decisions. Real-model spend: $7.65. Next: user review of ADR-001 to ADR-021
+  and the open questions (item 3).
+- 2026-11-23: ADR review done with the user: spec v0.6, every ADR accepted, open questions answered (see
+  Decisions). Committed on `feature/validator-drift-adr021`, not pushed. Open: a retention job (1 y / 90 d)
+  if wanted; a second reviewer to enforce code-owner review.

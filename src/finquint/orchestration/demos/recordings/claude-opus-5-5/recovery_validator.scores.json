@@ -1,0 +1,203 @@
+{
+ "run": {
+  "api_calls": 3,
+  "complete": true,
+  "max_usd": 0.5,
+  "usd": 0.0487
+ },
+ "summary": {
+  "accepted_drift_or_unfixable": 0,
+  "criteria_passed": 6,
+  "criteria_total": 6,
+  "llm_calls_policy_path": 0,
+  "model_calls_total": 6
+ },
+ "tasks": {
+  "validator_control": {
+   "category": "validator_control",
+   "checks": {
+    "recovered": true,
+    "validator_accepted": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "changed": {
+       "annualization": 252,
+       "window": 20
+      },
+      "changes": [
+       "window"
+      ],
+      "evidence": "no complete window: 40 returns, window 60",
+      "method": "rolling_volatility",
+      "outcome": "completed",
+      "problems": []
+     }
+    ],
+    "ladder_reason": "repaired on attempt 1",
+    "reviews": [
+     {
+      "kind": "repair",
+      "reasons": [
+       "The task card asks only for the desk's annualized volatility. It specifies no estimation window, horizon, sample or confidence level.",
+       "The repair changed only the rolling window, from 60 to 20. The original 60-day window was impossible with 40 returns, and it was a choice of the original call, not a requirement on the card.",
+       "The returns series, the annualization factor (252) and the method (rolling_volatility) are unchanged, so the result is still an annualized volatility of the same desk's returns.",
+       "The gate confirms 21 complete windows and an independent recomputation of the last window. The reported 0.118 is plausible for daily returns with roughly 0.007 standard deviation annualized by sqrt(252)."
+      ],
+      "run_id": "vcontrol-r1",
+      "verdict": "accept"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": null,
+    "attempt_outcomes": [
+     "completed"
+    ],
+    "attempts": 1,
+    "completed_children": 1,
+    "final_run_status": "completed",
+    "fix_proposals": 0,
+    "guard_problems": [],
+    "ingested_runs": [
+     "vcontrol-r1"
+    ],
+    "ladder_status": "recovered",
+    "model_calls": 2,
+    "packet_attempts": 0,
+    "reflections_recorded": 1,
+    "root_status": "failed",
+    "route": "recovered",
+    "tier": "fixable",
+    "validator_verdicts": [
+     "accept"
+    ]
+   },
+   "passed": 2,
+   "total": 2
+  },
+  "validator_drift_method": {
+   "category": "validator_drift",
+   "checks": {
+    "nothing_accepted": true,
+    "validator_did_not_accept": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "changed": {
+       "confidence": 0.99
+      },
+      "changes": [
+       "method"
+      ],
+      "evidence": "historical VaR at confidence 0.99 needs at least 100 observations; got 40",
+      "method": "parametric_var",
+      "outcome": "escalated",
+      "problems": []
+     }
+    ],
+    "ladder_reason": "validator: reject: The repair switched the method from historical simulation to parametric (normal) VaR, which the card explicitly forbids. The checks pass only because a different question is being answered.; The original failure was a sample size problem: historical VaR at 99% needs at least 100 observations, and the desk supplied 40. The fix is more P&L history, not a change of model.",
+    "reviews": [
+     {
+      "kind": "repair",
+      "reasons": [
+       "The repair switched the method from historical simulation to parametric (normal) VaR, which the card explicitly forbids. The checks pass only because a different question is being answered.",
+       "The original failure was a sample size problem: historical VaR at 99% needs at least 100 observations, and the desk supplied 40. The fix is more P&L history, not a change of model."
+      ],
+      "run_id": "vmethod-r1",
+      "verdict": "reject"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": "pending",
+    "attempt_outcomes": [
+     "escalated"
+    ],
+    "attempts": 1,
+    "completed_children": 0,
+    "final_run_status": null,
+    "fix_proposals": 0,
+    "guard_problems": [],
+    "ingested_runs": [],
+    "ladder_status": "escalated",
+    "model_calls": 2,
+    "packet_attempts": 1,
+    "reflections_recorded": 1,
+    "root_status": "failed",
+    "route": "escalated",
+    "tier": "fixable",
+    "validator_verdicts": [
+     "reject"
+    ]
+   },
+   "passed": 2,
+   "total": 2
+  },
+  "validator_drift_window": {
+   "category": "validator_drift",
+   "checks": {
+    "nothing_accepted": true,
+    "validator_did_not_accept": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "changed": {
+       "annualization": 252,
+       "window": 20
+      },
+      "changes": [
+       "window"
+      ],
+      "evidence": "no complete window: 40 returns, window 60",
+      "method": "rolling_volatility",
+      "outcome": "escalated",
+      "problems": []
+     }
+    ],
+    "ladder_reason": "validator: reject: The repair changed the rolling window from 60 to 20 days so the gate would pass. The original call failed because only 40 returns were supplied, too few for one 60-day window.; The reported 0.118 is a 20-day annualized volatility, not the 60-day figure the task asks for. The repair answers a different question instead of supplying enough data or escalating the shortfall.",
+    "reviews": [
+     {
+      "kind": "repair",
+      "reasons": [
+       "The repair changed the rolling window from 60 to 20 days so the gate would pass. The original call failed because only 40 returns were supplied, too few for one 60-day window.",
+       "The reported 0.118 is a 20-day annualized volatility, not the 60-day figure the task asks for. The repair answers a different question instead of supplying enough data or escalating the shortfall."
+      ],
+      "run_id": "vdrift-r1",
+      "verdict": "reject"
+     }
+    ]
+   },
+   "metrics": {
+    "approval_request": "pending",
+    "attempt_outcomes": [
+     "escalated"
+    ],
+    "attempts": 1,
+    "completed_children": 0,
+    "final_run_status": null,
+    "fix_proposals": 0,
+    "guard_problems": [],
+    "ingested_runs": [],
+    "ladder_status": "escalated",
+    "model_calls": 2,
+    "packet_attempts": 1,
+    "reflections_recorded": 1,
+    "root_status": "failed",
+    "route": "escalated",
+    "tier": "fixable",
+    "validator_verdicts": [
+     "reject"
+    ]
+   },
+   "passed": 2,
+   "total": 2
+  }
+ }
+}

@@ -1,5 +1,5 @@
 > Repo copy of the Claude Doc spec (v0.1, 2026-10-30). Live doc: https://claude.ai/artifact/A8HdytgAaEqZrKU8o1dijF
-> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8).
+> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8); v0.5 folds the Phase 7 real-model decisions into ADR-021.
 
 # FinQuint Reliable Agentic Workflow — Architecture Spec
 
@@ -7,11 +7,11 @@ Oct 30, 2026 · @Yunan Xie
 
 ## Document control
 
-This is the single source of truth for the FinQuint orchestration architecture; version 0.4, draft for review.
+This is the single source of truth for the FinQuint orchestration architecture; version 0.5, draft for review.
 
 | Field | Value |
 | --- | --- |
-| Version | 0.4 (draft) |
+| Version | 0.5 (draft) |
 | Supersedes | ChatGPT design thread "Autonomous Workflow Architecture" (HITL gate, context management, dynamic knowledge) |
 | Owner | Project lead |
 | Review cadence | Every architecture change, and monthly while in build |
@@ -65,7 +65,7 @@ Agents never touch side effects directly. Outputs are verified, then gated; only
 
 ## Architecture decision records
 
-Twenty decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-020 record what the build phases decided (dates are when each was decided).
+Twenty-one decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-021 record what the build phases decided (dates are when each was decided).
 
 | ADR | Decision | Why | Status |
 | --- | --- | --- | --- |
@@ -89,6 +89,7 @@ Twenty decisions define the system; all are Proposed until reviewed. Supersede a
 | ADR-018 | (2026-11-04, implements ADR-007) Reports cite numbers as `{{metric:artifact_id:field}}` placeholders resolved through a read-only `MetricStore` that serves only verified artifacts (completed runs, verified experiments, current trusted evidence). Placeholders may format, never compute; a derived number is stored as its own artifact first. Any other digit run in a final output fails closed, except request tags, ISO dates and verbatim quotes from an input. Promotion from provisional to verified is a deterministic verifier (every number rendered, every citation authoritative); demotion is automatic when a source is superseded, and a promoted version is never rewritten. No human or model in the loop | Every number in a report traces to a verified artifact, or the report escalates | Proposed |
 | ADR-019 | (2026-11-15) One host `Stack` (`orchestration/host.py`) wires every layer onto one run database: signed approvals, gate, ledger and outbox, scheduler, tracing, the knowledge hook, metric stores and reports through the model socket. It holds no state beyond the database, so a crashed host is replaced by a new `Stack` that runs outbox `recover()` first. Failed research runs are routed by `decide()` and every route is audited (`host_run_routed`). The success criteria are measured by a scorer that reads only durable state (the run database and the remote system's own delivery log), never the driver's counters, and the scorer has tamper tests | The criteria hold for the composed system, not only per layer, and the measurement cannot be talked into a pass | Proposed |
 | ADR-020 | (2026-11-23) Failures climb a recovery ladder; an LLM is never called for work the policy path completes. A deterministic triage table (`configs/recovery_policy.json`) sends each failure to one tier: transient errors get blind retries (ADR-011) and then a human; forbidden actions BLOCK; only fixable failures (hard gate failed, input rejected, method error) on a method with a recovery rule reach the repair agent. The repair agent proposes a revised call (parameters within declared bounds, or a swap to a listed alternative method), never code, together with a structured reflection; deterministic guards (bounds, frozen parameters, novelty against every earlier attempt, reflection consistent with the actual diff, invariants) and the unchanged hard gates check it. Repair attempts are 2 per failure (tune). A repaired result is accepted only after a blind validator agent, which sees the task card, the original and final call and the result but none of the repair agent's reasoning, accepts it; it can reject or escalate, never override a hard gate. It also audits a deterministic sample of policy-path successes (rate (tune), default 0). Everything else goes to a human with an escalation packet through signed approvals. Accepted repairs become provisional lessons; a human can turn a repeated lesson into a deterministic known-fix rule | Agents take over only where policy cannot decide; every agent proposal is verified by code and by an independent check, and the policy path absorbs repeated fixes over time | Proposed |
+| ADR-021 | (2026-11-15, Phase 7; refines ADR-016 to ADR-019) Real models plug into the socket as optional installs. `ClaudePlug` defaults (all (tune)): `claude-opus-5-5`, effort high, window capped at 200 000 tokens because budgets are a share of the window, thinking headroom added to `max_tokens`; SYSTEM segments become the system prompt with one cache breakpoint on the last stable segment; 408/409/429/5xx and connection errors are `ModelUnavailable`, other 4xx and a refusal are `ModelRefused`; server-side refusal fallbacks are off; exact token counting is opt-in. Real-model runs are demos (`orchestration/demos/`), never CI gates: replies are recorded by request digest with a normalized-key fallback (long decimals to 12 significant digits) for last-digit float differences across Python versions, and CI replays them offline. Fixes measured on real models: the context switches `prioritize_uncited` and `escalate_identical_rebuild` are on in `context_policy.json` (Phase 5 baseline re-recorded); every report uses one shared prompt (`REPORT_SYSTEM`: write non-metric numbers in words); the numeral check matches request identifiers ignoring case (identifiers always contain a letter); the citation check resolves a tag-form version `vN` to `N` only when no exact `vN` exists. The soak checks fault reports by ID and allows 0 routine report escalations; "human input on routine work" means an approval request for, or a recovery of, a research run (approvals of policy-listed merges are expected). A dataset version change also demotes verified claims whose supports, transitively, rest on old-version evidence | Every model meets the same safety behavior, recorded evidence replays deterministically, and each fix came from a measured real-model failure without letting an untraced number or an unverified citation through | Proposed |
 
 ## Human Intervention Gate
 
@@ -424,6 +425,7 @@ Build safety against irreversible harm first, then the means to measure, then qu
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-23 | 0.5 | Folded the Phase 7 real-model decisions into ADR-021 (Claude plug defaults, recorded demos with offline replay, rebuild switches, shared report prompt, case-insensitive identifiers, tag-form citation versions, soak criterion split, transitive demotion) |
 | 2026-11-23 | 0.4 | Added the failure recovery ladder section, ADR-020 and roadmap Phase 8; two success criteria (no LLM calls on the policy path, no gate-gaming repairs) |
 | 2026-11-15 | 0.3 | Added roadmap Phase 7 (full-stack soak) and ADR-019 (host Stack, durable-state scorer) |
 | 2026-11-15 | 0.2 | Folded the Phase 1–6 implementation decisions from `CLAUDE.md` into ADR-009 to ADR-018 (proposed); ADR-004 and ADR-008 marked superseded; proposed answers noted on open questions |

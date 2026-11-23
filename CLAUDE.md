@@ -21,7 +21,8 @@ executes.* No live trading; never change the numerical algorithms.
 | 4 Eval & replay harness | Golden tasks, recorded traces, fault suite, tracing | **Done** — merged to `main` as PR #17 (605c641) |
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
-| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | Simulated soak merged as PR #22 (292daae); Claude plug merged as PR #23 (230d41a); real-Claude report tasks, context sweeps and rebuild switches merged as PR #24-#26 (a8d5747) |
+| 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
+| 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Built, not merged** — spec v0.4, ADR-020; `orchestration/recovery/`, eval 49/49 on `feature/recovery-ladder` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -214,6 +215,37 @@ New decisions go here first, then into a new ADR when reviewed.
     a CI gate) runs the clean Phase 6 report tasks through `ClaudePlug` using the protected evaluator's
     own setup, request, pipeline and scoring. Live runs record replies to `demos/recordings/<model>/`
     and save scores alongside; CI replays them offline. Fault tasks are not run against real models.
+
+- **2026-11-23 — Phase 8 decisions** (recovery ladder; spec v0.4, ADR-020, settled with the user).
+  - Priority is finishing the pipeline end to end, not tuning one vendor's agent.
+  - Policy first: an LLM is never called for work the policy path completes. A deterministic triage
+    table (`configs/recovery_policy.json`, new, protected) routes failures; only fixable failures on a
+    method with a recovery rule reach the repair agent. Transient errors keep blind retries, then a
+    human (a new call does not fix an outage).
+  - Repair scope = option (b): parameters within declared bounds, or a swap to a listed alternative
+    method. No code writing (that is a later phase through the coding agent and PR path).
+  - Reflection is part of each repair reply and is checked deterministically (evidence quoted from the
+    failure packet, claimed changes equal the computed diff, novelty against every earlier attempt).
+  - Repair attempts: 2 per failure (tune).
+  - Validator = blind context (no repair reasoning), model configurable, default the same plug. It can
+    reject or escalate, never override a hard gate. It samples policy-path successes at
+    `validator_sample_rate` (tune, default 0), chosen by hashing IDs so replay stays deterministic.
+  - `decide()` is unchanged; a repaired call runs as a new linked run so digests, approvals and gates
+    apply as they are.
+  - Settled (tune) starting values: 3 agreeing lessons propose a known fix; breaker trips at 3 ladder
+    runs in a method's last 10; $0.50 per escalation. A validator reject goes to a human even with
+    repair budget left (the verdict never feeds the repair loop).
+  - Implementation: `orchestration/recovery/` (policy, triage, guards, agents, ladder, simulated) is a
+    protected path (added to `DEFAULT_PROTECTED_PATHS` and CODEOWNERS). The validator runs in a new
+    opt-in `AutonomousWorkflow(review=...)` hook, before completion and ingestion; a held-back child
+    run becomes completed only through `accept_reviewed()` after a signed `recovery_escalation`
+    approval (new rule in `configs/approval_policy.json`). `Stack(recovery_policy=..., repairer=...,
+    validator=..., pricing=...)` is opt-in. Real repairable methods: `risk_registry()` adds
+    `rolling_volatility`, `historical_var`, `parametric_var` (wrappers; numerics unchanged);
+    `default_registry()` is unchanged. Recovery rules live in the protected config, not on `Method`,
+    so method signatures and recorded traces are untouched. The cost cap counts only priced calls
+    (`pricing=`); simulated calls are free and never trip it. Known limits: one failed task per run
+    is repaired (several → human); transient errors never reach the repair agent.
 
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
@@ -410,3 +442,21 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
 - 2026-11-15: PR #27 merged (fee2ba3, merged by the user with admin bypass); PR #28 retargeted to
   `main`. CI runs only for PRs into `main` (and listed push branches), so a stacked PR gets CI only
   after it is retargeted and pushed again.
+- 2026-11-15: PR #28 merged (e9be795). Phase 7 done: the full-stack soak with Claude as reporter
+  grades 17/17 (every report ok on the first call), scored from durable state. Real-model spend for
+  Phase 7: $7.40. Suite on main: 505 passed. Follow-ups: fold the Phase 7 decisions (rebuild
+  switches, shared report prompt, split soak criterion, case-insensitive identifiers, citation
+  versions) into a spec ADR; other vendors through the same socket.
+- 2026-11-23: Local `main` = `origin/main` (e9be795), no open PRs. User set the next goal: finish the
+  pipeline (policy first, LLM takeover on failure, reflection, independent validator, human). Phase 8
+  designed in spec v0.4 (failure recovery ladder, ADR-020, two new success criteria) on
+  `feature/recovery-ladder`; decisions (b) / blind validator / sampling default 0 / 2 attempts. Not
+  committed. Next: polish the design with the user, then implement `orchestration/recovery/`.
+- 2026-11-23: Settled the open items (validator reject → human; 3 lessons, breaker 3 of 10, $0.50).
+  Built Phase 8 on `feature/recovery-ladder`: `orchestration/recovery/`, `risk_registry()`, workflow
+  review hook + `accept_reviewed()`, opt-in `Stack` wiring, `configs/recovery_policy.json`,
+  `recovery_escalation` approval rule, `evals/recovery/` (18 tasks, baseline 49/49: 0 LLM calls on the
+  policy path, 4/4 fixable recovered, 0 gaming accepted), `tests/test_orchestration_recovery.py`,
+  Phase 8 section in `docs/EVALS.md`. Suite: 545 passed (505 + 40); Phase 4–7 evals unchanged. Not
+  committed. Next: review, commit, PR; then a real-model run of the recovery suite (Claude as repair
+  agent and validator).

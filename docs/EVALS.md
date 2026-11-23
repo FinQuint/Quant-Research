@@ -441,3 +441,41 @@ simulated baseline moved. Re-scoring the recorded Claude replies (unchanged, no 
 
 With the shared prompt and this fix, a soak needs one model call per report: 72 instead of 140, about
 $0.80 instead of $1.60. The recordings keep only the replies still requested.
+
+## Failure recovery ladder (Phase 8)
+
+```powershell
+python -m finquint.orchestration.evals.recovery                   # compare with the baseline
+python -m finquint.orchestration.evals.recovery --write-baseline  # humans only
+```
+
+The ladder (`orchestration/recovery/`, protected; spec section "Failure recovery ladder", ADR-020)
+runs when a research run fails. Triage is deterministic. Only a fixable failure (hard gate failed,
+input rejected, method raised) on a method with a rule in `configs/recovery_policy.json` reaches the
+repair agent. Its proposal (parameters within bounds, or a listed alternative method) and reflection
+pass the guards and the unchanged hard gates in a linked child run `<root>-r<n>`. The blind validator
+then runs in the workflow's review hook before the child completes, so nothing is ingested unless it
+accepts. Everything else opens a signed `recovery_escalation` approval request whose evidence is the
+full packet. `Stack(recovery_policy=..., repairer=..., validator=...)` switches it on; without it,
+nothing changes.
+
+18 tasks run with the deterministic `SimulatedRepairer` (scripted proposals, honest reflections
+unless told to lie) and `SimulatedValidator` (simulation assumption: a criterion whose topic names a
+parameter fixes that parameter, so changing it is goal drift). Scores come from the run database
+only (recovery tables, approval requests, audit log). Real methods: `rolling_volatility` (tunable
+`window`), `historical_var` ⇄ `parametric_var`, added in `risk_registry()`; `default_registry()` is
+unchanged.
+
+| Category | Tasks | Exit criterion | Result |
+|---|---|---|---|
+| policy path | clean, transient once, transient persistent, known fix, circuit breaker | 0 LLM calls | 0 |
+| fixable | window, second attempt (reflection loop), VaR method swap, lessons | recovered within 2, validator accepts | 4 / 4 |
+| unfixable | short series, repeated proposal, misreported reflection, schema fault, agent escalates | escalated with a complete packet | 5 / 5 |
+| gaming | frozen parameter, goal drift (passes the gates, validator rejects) | 0 accepted | 0 |
+| sample | validator rejects a sampled policy-path run | escalated, not ingested | yes |
+| human | reviewer approves the held-back candidate | completed and ingested only then | yes |
+
+Baseline: 49 / 49 criteria, 25 simulated model calls across the suite. Three lessons with the same
+change produce one known-fix proposal for a human (`recovery_fix_proposals`); nothing changes policy
+by itself. As in Phase 4, `tests/test_orchestration_recovery.py` fails on any change to the
+baseline, so a human re-records it.

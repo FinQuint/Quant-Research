@@ -1,5 +1,5 @@
 > Repo copy of the Claude Doc spec (v0.1, 2026-10-30). Live doc: https://claude.ai/artifact/A8HdytgAaEqZrKU8o1dijF
-> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes.
+> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8).
 
 # FinQuint Reliable Agentic Workflow — Architecture Spec
 
@@ -7,11 +7,11 @@ Oct 30, 2026 · @Yunan Xie
 
 ## Document control
 
-This is the single source of truth for the FinQuint orchestration architecture; version 0.3, draft for review.
+This is the single source of truth for the FinQuint orchestration architecture; version 0.4, draft for review.
 
 | Field | Value |
 | --- | --- |
-| Version | 0.3 (draft) |
+| Version | 0.4 (draft) |
 | Supersedes | ChatGPT design thread "Autonomous Workflow Architecture" (HITL gate, context management, dynamic knowledge) |
 | Owner | Project lead |
 | Review cadence | Every architecture change, and monthly while in build |
@@ -52,6 +52,8 @@ Default behavior is autonomous. A human is pulled in only for protected operatio
 | Reported numbers traceable to an artifact | 100% | Number-provenance check |
 | Agent edits to protected evaluation files | 0 merged | Repo protection + audit |
 | Human interrupts per run | Only policy-listed actions plus escalations | Gate decision log |
+| LLM calls on tasks the policy path completes | 0 | Model call log vs run outcomes |
+| Repairs accepted that change the question (gate gaming) | 0 | Recovery fault suite |
 
 ## Architecture overview
 
@@ -63,7 +65,7 @@ Agents never touch side effects directly. Outputs are verified, then gated; only
 
 ## Architecture decision records
 
-Nineteen decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-019 record what the build phases decided (dates are when each was decided).
+Twenty decisions define the system; all are Proposed until reviewed. Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-020 record what the build phases decided (dates are when each was decided).
 
 | ADR | Decision | Why | Status |
 | --- | --- | --- | --- |
@@ -86,6 +88,7 @@ Nineteen decisions define the system; all are Proposed until reviewed. Supersede
 | ADR-017 | (2026-11-04, implements ADR-006) The context layer stores evidence in SQLite with lexical retrieval behind an `EvidenceStore` interface; no embeddings yet. The task card holds immutable budget limits; budget left goes in the volatile part of the request, so the card stays byte-identical. Evidence with the same claim key but different values escalates; provisional evidence cannot be cited. Thresholds come from sweeps over long-run tasks, and `context_policy.json` must match the recorded picks. Re-indexing runs on explicit events (new code SHA, verified experiment, dataset version change), with stale marks from content hashes and old versions kept; the code index uses `ast` per SHA | Context stays rebuildable and auditable, and thresholds are measured, not guessed | Proposed |
 | ADR-018 | (2026-11-04, implements ADR-007) Reports cite numbers as `{{metric:artifact_id:field}}` placeholders resolved through a read-only `MetricStore` that serves only verified artifacts (completed runs, verified experiments, current trusted evidence). Placeholders may format, never compute; a derived number is stored as its own artifact first. Any other digit run in a final output fails closed, except request tags, ISO dates and verbatim quotes from an input. Promotion from provisional to verified is a deterministic verifier (every number rendered, every citation authoritative); demotion is automatic when a source is superseded, and a promoted version is never rewritten. No human or model in the loop | Every number in a report traces to a verified artifact, or the report escalates | Proposed |
 | ADR-019 | (2026-11-15) One host `Stack` (`orchestration/host.py`) wires every layer onto one run database: signed approvals, gate, ledger and outbox, scheduler, tracing, the knowledge hook, metric stores and reports through the model socket. It holds no state beyond the database, so a crashed host is replaced by a new `Stack` that runs outbox `recover()` first. Failed research runs are routed by `decide()` and every route is audited (`host_run_routed`). The success criteria are measured by a scorer that reads only durable state (the run database and the remote system's own delivery log), never the driver's counters, and the scorer has tamper tests | The criteria hold for the composed system, not only per layer, and the measurement cannot be talked into a pass | Proposed |
+| ADR-020 | (2026-11-23) Failures climb a recovery ladder; an LLM is never called for work the policy path completes. A deterministic triage table (`configs/recovery_policy.json`) sends each failure to one tier: transient errors get blind retries (ADR-011) and then a human; forbidden actions BLOCK; only fixable failures (hard gate failed, input rejected, method error) on a method with a recovery rule reach the repair agent. The repair agent proposes a revised call (parameters within declared bounds, or a swap to a listed alternative method), never code, together with a structured reflection; deterministic guards (bounds, frozen parameters, novelty against every earlier attempt, reflection consistent with the actual diff, invariants) and the unchanged hard gates check it. Repair attempts are 2 per failure (tune). A repaired result is accepted only after a blind validator agent, which sees the task card, the original and final call and the result but none of the repair agent's reasoning, accepts it; it can reject or escalate, never override a hard gate. It also audits a deterministic sample of policy-path successes (rate (tune), default 0). Everything else goes to a human with an escalation packet through signed approvals. Accepted repairs become provisional lessons; a human can turn a repeated lesson into a deterministic known-fix rule | Agents take over only where policy cannot decide; every agent proposal is verified by code and by an independent check, and the policy path absorbs repeated fixes over time | Proposed |
 
 ## Human Intervention Gate
 
@@ -178,8 +181,52 @@ A BLOCK on failed checks stops the action, not the branch: the Coding Agent may 
 | Modify acceptance policy, tests, harness, data splits | BLOCK for agents; humans change these only through their own reviewed PR |
 | Escalate authorization, unknown action type | BLOCK |
 | Infra error after retry budget, unresolved evidence conflict | ESCALATE |
+| Hard gate failure on a method with a recovery rule | Recovery ladder (repair agent, then validator); see Failure recovery ladder |
 
 Only the affected branch pauses. Research and execution branches run as separate persisted threads under a parent scheduler, so an approval wait never stalls independent work.
+
+## Failure recovery ladder
+
+The policy path (planner, registered methods, hard gates, `decide()`) runs without any LLM. An agent is called only when that path fails in a way a revised call might fix, and every agent proposal goes back through the same deterministic checks. `decide()` is unchanged: a failed check is still BLOCK for *that action*; the ladder is how the branch revises it.
+
+```
+ failure ─► Triage (deterministic)
+              ├─ transient ──────► blind retry (ADR-011) ─► exhausted ─► Human
+              ├─ forbidden / plan changed ─────────────────────────────► BLOCK / Human
+              ├─ known fix (human-approved rule) ─► apply, hard gates ─► done
+              └─ fixable ─► Repair agent ─► guards ─► hard gates ─┬─ pass ─► Validator ─┬─ accept ─► done
+                               ▲                                   │                    └─ reject / escalate ─► Human
+                               └──── reflection (budget left) ◄────┘ fail
+                                                                    budget spent ─► Human
+```
+
+**Triage table** (`configs/recovery_policy.json`, protected; a change is a reviewed diff)
+
+| Failure | Signal | Route |
+| --- | --- | --- |
+| Transient: timeout, API or model outage | `RetryableError` → INFRA\_ERROR | Blind retry within ADR-011 budgets, then ESCALATE to a human. No LLM: a new call does not fix an outage |
+| Hard gate failed, input validation failed, method raised | FAILED | Known-fix rule if one matches; else repair agent if the method has a recovery rule; else BLOCK as today |
+| Protected path, unknown action, registry or plan digest changed | BLOCK / `NeedsRevision` | BLOCK, or a human for a version change |
+| Unresolved evidence conflict | ESCALATE | Human |
+| Policy-listed action (merge, deploy) | REQUEST\_HUMAN | Signed approval (unchanged) |
+| Repair or validator agent refuses, or fails its schema after the core's one repair | ESCALATE | Human |
+
+**Recovery rule** (per method, in the policy file): `tunable` parameters with bounds (numeric range or allowed values), `frozen` parameters (data split, train window, sources: never changed), and `alternatives`, registered methods with the same role and output contract. A method with no rule is never repaired.
+
+**Repair agent.** Input, built by the context layer: the task card, the failed call, the gate results and error verbatim, and every earlier attempt with its reflection. Output (schema-checked by the model core):
+
+- `reflection`: `diagnosis`, `evidence` (quoted verbatim from the gate results or error), `hypothesis`, `changes` (the parameters or method it changes), `differs_from_previous` (why this attempt is not a repeat).
+- `proposal`: `method` and `parameters`.
+
+**Guards** (deterministic, before any execution): the method is the original or a listed alternative; every changed parameter is tunable and within bounds; frozen parameters are byte-identical; the proposal's fingerprint differs from every earlier attempt (novelty); the reflection's `evidence` occurs verbatim in the failure packet and its `changes` equal the computed diff; protected-path, split and lookahead invariants hold. A guard rejection counts as an attempt and is fed back into the next reflection. The revised call runs as a new run whose plan differs only in that call, linked to the parent run, so plan digests, approvals and gates apply unchanged.
+
+**Budgets** (tune): 2 repair attempts per failure; a cost cap per escalation ($0.50); a circuit breaker that sends a method straight to a human once it needed the ladder in 3 of its last 10 runs (a method or policy gap, not something to keep paying for).
+
+**Validator agent.** A separate request with a blind context: the task card (objective and criteria), the original call and its failure, the final call, the parameter diff, the final output and the gate results. It never sees the repair agent's reflections or messages. Output: `verdict` (accept, reject or escalate), `reasons`, and one finding per acceptance criterion on the card; a verdict that skips a criterion is treated as escalate. Its job is goal drift: a repair that passes the gates by changing the question. It can reject or escalate; it can never accept past a failed hard gate. A reject goes to a human even when repair budget is left, so the verdict never feeds back into the repair loop. The model is configurable (`validator_model`, default the repair agent's plug). It also audits policy-path successes at `validator_sample_rate` (tune, default 0); the sample is chosen by hashing run and task IDs, so replay stays deterministic, and a rejected sample escalates the run before knowledge ingestion.
+
+**Human.** Escalations open a signed approval request carrying an escalation packet: the original failure, every attempt with its reflection and guard results, and the validator's verdict. The reviewer approves the final result, supplies a revised call, or rejects.
+
+**Lessons.** An accepted repair is stored as a provisional lesson keyed by failure signature (method, gate, error class) and the change made. When 3 (tune) lessons agree, the system proposes a known-fix rule for a human to add to the policy file; known fixes then run without an LLM, through the hard gates only. Lessons never change policy by themselves (ADR-001).
 
 ## Context and knowledge layer
 
@@ -312,6 +359,13 @@ orchestration/
 │   ├── citations.py       # file, SHA, line, artifact ID checks
 │   └── invariants.py      # lookahead, splits, protected paths
 ├── budgets.py
+├── recovery/
+│   ├── triage.py          # failure taxonomy -> tier (recovery_policy.json)
+│   ├── repair.py          # repair agent request/reply, reflection schema
+│   ├── guards.py          # bounds, frozen params, novelty, reflection vs diff
+│   ├── validator.py       # blind validator, sampling
+│   ├── ladder.py          # loop, budgets, circuit breaker, escalation packet
+│   └── lessons.py         # provisional lessons, known-fix proposals
 ├── agents/
 │   ├── planner.py  researcher.py  coder.py
 │   └── supervisor.py  analyst.py
@@ -337,13 +391,16 @@ Build safety against irreversible harm first, then the means to measure, then qu
    - Exit: 100% of reported numbers trace to artifacts on the golden suite.
 7. **Full-stack soak**: one host wiring every layer, a simulated campaign with injected faults, and a scorer over durable state.
    - Exit: on a 72 h (tune) simulated campaign with every layer on, the success-criteria table is met, measured from durable state alone; then the same campaign on a real model through the socket.
+8. **Failure recovery ladder**: triage, repair agent with reflection, guards, blind validator with sampling, escalation packet, lessons and known fixes.
+   - Exit: on the golden suite plus recovery faults, with simulated agents: 0 LLM calls on clean tasks and on transient faults; every fixable fault solved within 2 attempts and accepted by the validator; every unfixable fault escalated with a complete packet; 0 gate-gaming repairs accepted (caught by guards or the validator); a repeated proposal escalates on the novelty guard; a promoted known fix runs with 0 LLM calls. Measured from durable state; then the same suite with a real model through the socket.
 
 ## Open questions
 
 - [ ] Durable execution: custom scheduler on LangGraph, or Temporal with LangGraph inside activities? (Proposed for now: the PR #13 state machine on SQLite behind interfaces, ADR-009.)
 - [ ] Policy engine: Cedar or OPA? (Proposed for now: neither; versioned policy files, ADR-013.)
 - [ ] Who are the authorized reviewers, and does any action need two approvers?
-- [ ] Does ESCALATE go to the Supervisor Agent first, or straight to a human, for each escalation type?
+- [ ] Does ESCALATE go to the Supervisor Agent first, or straight to a human, for each escalation type? (Proposed: the validator agent reviews only repaired results and sampled successes; every ESCALATE goes to a human with a packet, ADR-020.)
+- [x] Recovery (tune) starting values: 3 agreeing lessons propose a known fix; the circuit breaker trips at 3 ladder runs in a method's last 10; $0.50 per escalation. A validator reject goes to a human even with repair budget left, so the verdict never feeds the repair loop (settled 2026-11-23).
 - [ ] Which models per agent, and what is the fallback order? (Mechanism settled by ADR-016; the choice of real models is still open.)
 - [ ] Retention period for archived context histories and traces.
 
@@ -356,6 +413,9 @@ Build safety against irreversible harm first, then the means to measure, then qu
 | Capability token | Short-lived signed permission for one fingerprint, checked by the tool |
 | ESCALATE | Needs judgment; routed to supervisor or human |
 | BLOCK | Forbidden; no override |
+| Recovery ladder | Triage → repair agent with reflection → guards and hard gates → blind validator → human |
+| Reflection | The repair agent's structured diagnosis of a failed attempt, checked against the failure packet and the actual diff |
+| Known fix | A human-approved deterministic rule, promoted from repeated lessons, applied without an LLM |
 | Rebuild | Fresh context from task card and authoritative evidence, replacing history |
 | Protected evaluator | Tests, harness, criteria, and splits that agents cannot modify |
 
@@ -364,5 +424,6 @@ Build safety against irreversible harm first, then the means to measure, then qu
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-23 | 0.4 | Added the failure recovery ladder section, ADR-020 and roadmap Phase 8; two success criteria (no LLM calls on the policy path, no gate-gaming repairs) |
 | 2026-11-15 | 0.3 | Added roadmap Phase 7 (full-stack soak) and ADR-019 (host Stack, durable-state scorer) |
 | 2026-11-15 | 0.2 | Folded the Phase 1–6 implementation decisions from `CLAUDE.md` into ADR-009 to ADR-018 (proposed); ADR-004 and ADR-008 marked superseded; proposed answers noted on open questions |

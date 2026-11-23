@@ -25,10 +25,14 @@ class AutonomousWorkflow:
     With it, approval tasks open signed approval requests and resume only through
     resume_with_approval() with an approval record ID; decide() is refused."""
 
-    def __init__(self, store, registry, *, max_workers=4, approvals=None, tracer=None, knowledge=None):
+    def __init__(self, store, registry, *, max_workers=4, approvals=None, tracer=None, knowledge=None,
+                 review=None):
         """tracer: optional orchestration Tracer; each task execution gets a span.
         knowledge: optional orchestration Ingestor; a completed run's succeeded outputs are
-        ingested as evidence. Without it, behavior is unchanged."""
+        ingested as evidence. Without it, behavior is unchanged.
+        review: optional review(state) -> None (accept) or a reason string (escalate), called on a
+        run whose tasks all succeeded, before it is marked completed and before ingestion (the
+        Phase 8 validator). An exception in review escalates the run (fail closed)."""
         if type(max_workers) is not int or not 1 <= max_workers <= 16:
             raise ValueError("max_workers must be between 1 and 16")
         self.store, self.registry, self.max_workers = store, registry, max_workers
@@ -36,6 +40,7 @@ class AutonomousWorkflow:
         self.approvals = approvals
         self.tracer = tracer
         self.knowledge = knowledge
+        self.review = review
 
     def submit(self, request):
         return self.store.create(Planner().build(request, self.registry))
@@ -145,6 +150,45 @@ class AutonomousWorkflow:
                 state = self._apply_route(run_id, task_id, request_id, route, "approval request expired unanswered")
         return state
 
+    def _reviewed(self, state):
+        if self.review is None:
+            return None
+        try:
+            reason = self.review(deepcopy(state))
+        except Exception as exc:
+            return f"review failed: {type(exc).__name__}: {exc}"
+        if reason is not None and (not isinstance(reason, str) or not reason.strip()):
+            return "review returned an invalid verdict"
+        return reason
+
+    def accept_reviewed(self, run_id, *, reviewer, notes):
+        """A human accepts a run the review escalated (all tasks succeeded). Only the trusted host
+        calls this, after verifying a signed approval. The run becomes completed and is ingested."""
+        if not reviewer.strip() or not notes.strip():
+            raise ValueError("human identity and notes required")
+        with self.store.db:
+            self.store.db.execute("BEGIN IMMEDIATE")
+            state = self.store.load(run_id)
+            if state["status"] != "escalated" or {t["status"] for t in state["tasks"].values()} != {"succeeded"}:
+                raise ValueError("only an escalated run whose tasks all succeeded can be accepted")
+            self._check_versions(state)
+            state["report"] = ReportAgent().summarize(state)
+            state.update(status="completed", error=None)
+            self.store.save(state, "autonomous_review_overridden", {"reviewer": reviewer, "notes": notes})
+        self._ingest(run_id, state)
+        return state
+
+    def _ingest(self, run_id, state):
+        if self.knowledge is None or state["status"] != "completed":
+            return
+        try:
+            report = self.knowledge.on_run_completed(state)
+            event = ("knowledge_ingested", {"added": [list(r) for r in report.added]})
+        except Exception as exc:  # ingestion never changes a finished run's outcome
+            event = ("knowledge_ingest_failed", {"error": f"{type(exc).__name__}: {exc}"})
+        with self.store.db:   # commit the audit event; never leave a transaction open
+            self.store.research._event(event[0], run_id, event[1])
+
     def recover(self, run_id, *, reviewer, notes):
         """Only after the host has stopped the old process. Pure adapters can replay."""
         if not reviewer.strip() or not notes.strip():
@@ -234,8 +278,12 @@ class AutonomousWorkflow:
             elif "awaiting_approval" in statuses:
                 state["status"] = "awaiting_approval"
             elif statuses == {"succeeded"}:
-                state["report"] = ReportAgent().summarize(state)
-                state["status"] = "completed"
+                reason = self._reviewed(state)
+                if reason is None:
+                    state["report"] = ReportAgent().summarize(state)
+                    state["status"] = "completed"
+                else:
+                    state.update(status="escalated", error=reason)
             else:
                 state["status"] = "failed"
         except NeedsRevision as exc:
@@ -243,12 +291,5 @@ class AutonomousWorkflow:
         except Exception as exc:
             state.update(status="failed", error=f"{type(exc).__name__}: {exc}")
         self.store.save(state, "autonomous_run_finished")
-        if self.knowledge is not None and state["status"] == "completed":
-            try:
-                report = self.knowledge.on_run_completed(state)
-                event = ("knowledge_ingested", {"added": [list(r) for r in report.added]})
-            except Exception as exc:  # ingestion never changes a finished run's outcome
-                event = ("knowledge_ingest_failed", {"error": f"{type(exc).__name__}: {exc}"})
-            with self.store.db:   # commit the audit event; never leave a transaction open
-                self.store.research._event(event[0], run_id, event[1])
+        self._ingest(run_id, state)
         return state

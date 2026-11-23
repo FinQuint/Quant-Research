@@ -34,8 +34,17 @@ New decisions go here first, then into a new ADR when reviewed.
   files (ADR-013) stay; one reviewer, one approval per action for now (sole owner self-merges with admin
   bypass; once a second reviewer exists: 2 approvals for deploy/delete_production_data and
   `enforce_admins` on); every ESCALATE to a human; `claude-opus-5-5` for all agents, no fallback;
-  retention (tune) 1 year for run DBs/approvals/traces, 90 days for context histories (not yet enforced
-  by code).
+  retention (tune) 1 year for runs/traces, 90 days for context histories.
+- **2026-11-23 — Retention (user: operational data only, dry run by default).** `orchestration/retention.py`
+  (protected path, CODEOWNERS) with `configs/retention_policy.json`. Deletes finished runs (a recovery
+  root and its children together, aged by the newest), their recovery transcripts and context
+  histories, old trace spans, and context histories past 90 days. Never deletes approvals (records are
+  immutable), the audit log, the ledger/outbox, knowledge, reports, lessons, or a run that is
+  unfinished, has a pending approval or open recovery, or is cited as `metric:run:R/T` by a report or
+  knowledge item (evidence ingested from a run keeps its own copy, so it does not pin the run). Age =
+  the run's `autonomous_planned` audit time; unknown age = keep. `--apply` re-plans inside one
+  `BEGIN IMMEDIATE` transaction and writes `retention_purged`. `SQLiteContextArchive` gained a
+  `created_at` column (added to old tables on open). No VACUUM.
 - **2026-11-01 — Build on PR #13, not LangGraph/Postgres (yet).** Phase 1 extends the existing
   explicit state machine in `finquint.autonomous` on SQLite (sharing `ResearchStore`). Ledger and
   outbox sit behind a storage interface so a Postgres backend (ADR-004) or LangGraph/Temporal can
@@ -493,3 +502,8 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
 - 2026-11-23: ADR review done with the user: spec v0.6, every ADR accepted, open questions answered (see
   Decisions). Committed on `feature/validator-drift-adr021`, not pushed. Open: a retention job (1 y / 90 d)
   if wanted; a second reviewer to enforce code-owner review.
+- 2026-11-23: PR #31 merged (0679c9e; CI green on 3.10–3.12, merged by the user with admin bypass). All eight
+  roadmap phases done, spec v0.6 with every ADR accepted. Suite on main: 549 passed. Real-model spend: $7.65.
+  Open: retention cleanup job (1 y / 90 d); a second reviewer to enforce code-owner review.
+- 2026-11-23: Retention on `feature/retention`: `orchestration/retention.py`, `configs/retention_policy.json`,
+  context archive `created_at`, `tests/test_orchestration_retention.py`, spec 0.6.1. Not committed.

@@ -360,6 +360,7 @@ orchestration/
 │   ├── citations.py       # file, SHA, line, artifact ID checks
 │   └── invariants.py      # lookahead, splits, protected paths
 ├── budgets.py
+├── retention.py           # age-based deletion of operational data (dry run by default)
 ├── recovery/
 │   ├── triage.py          # failure taxonomy -> tier (recovery_policy.json)
 │   ├── repair.py          # repair agent request/reply, reflection schema
@@ -404,7 +405,7 @@ Answered in the 2026-11-23 review (decisions are (tune) where marked; change one
 - [x] Reviewers: one owner (`walleva1715`) approves everything, one approval per action. The sole owner self-merges with the admin bypass, so code-owner review is not yet enforced in practice. Once a second reviewer exists: two approvals for `deploy` and `delete_production_data`, and `enforce_admins` on for `main`.
 - [x] ESCALATE routing: every ESCALATE goes to a human with a packet; the validator agent reviews only repaired results and sampled successes (ADR-020).
 - [x] Models: `claude-opus-5-5` for the reporter, repair agent and validator, with no fallback; an outage escalates as INFRA\_ERROR (ADR-016, ADR-021). Revisit when a second plug passes conformance with a recorded per-model baseline.
-- [x] Retention (tune): run databases, approval records and traces for 1 year; archived context histories for 90 days. Not yet enforced by code.
+- [x] Retention (tune, `configs/retention_policy.json`): finished runs and traces 1 year, archived context histories 90 days, enforced by `orchestration/retention.py` (protected; dry run by default, `--apply` deletes in one transaction and writes a `retention_purged` audit event). It deletes operational data only. Approval records (immutable, ADR-013), the audit log, the idempotency ledger and outbox, and knowledge (evidence, experiments, claims, reports, lessons) are kept indefinitely, as is any run that is unfinished, has a pending approval or open recovery escalation, or is cited as a metric (`run:RUN/TASK`) by a report or claim. Anything whose age cannot be read is kept.
 - [x] Recovery (tune) starting values: 3 agreeing lessons propose a known fix; the circuit breaker trips at 3 ladder runs in a method's last 10; $0.50 per escalation. A validator reject goes to a human even with repair budget left (settled 2026-11-23).
 
 ## Glossary
@@ -427,6 +428,7 @@ Answered in the 2026-11-23 review (decisions are (tune) where marked; change one
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-23 | 0.6.1 | Retention enforced by `orchestration/retention.py`; scope: operational data only |
 | 2026-11-23 | 0.6 | Review: ADR-001 to ADR-021 accepted (004 and 008 stay superseded); open questions answered (state machine on SQLite, policy files, one reviewer for now, every ESCALATE to a human, Opus with no fallback, retention 1 year / 90 days) |
 | 2026-11-23 | 0.5 | Folded the Phase 7 real-model decisions into ADR-021 (Claude plug defaults, recorded demos with offline replay, rebuild switches, shared report prompt, case-insensitive identifiers, tag-form citation versions, soak criterion split, transitive demotion) |
 | 2026-11-23 | 0.4 | Added the failure recovery ladder section, ADR-020 and roadmap Phase 8; two success criteria (no LLM calls on the policy path, no gate-gaming repairs) |

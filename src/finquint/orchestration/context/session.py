@@ -22,6 +22,7 @@ the output, and on a failure signal rebuilds and asks again:
 from dataclasses import dataclass, field
 import json
 import threading
+import time
 
 from ..models.core import ModelEscalation
 from ..tracing import NULL_TRACER
@@ -42,19 +43,26 @@ class InMemoryContextArchive:
 
 
 class SQLiteContextArchive:
-    """Archived histories in the run database. Retention is an open question in the spec; nothing is deleted."""
+    """Archived histories in the run database. created_at (epoch seconds) lets the retention job
+    (orchestration/retention.py, 90 days (tune)) age them; rows from before the column existed
+    have NULL and are aged by their run's start instead."""
 
-    def __init__(self, connection):
-        self.db = connection
+    def __init__(self, connection, *, clock=time.time):
+        self.db, self.clock = connection, clock
         self.db.execute("""CREATE TABLE IF NOT EXISTS context_archive (
             seq INTEGER PRIMARY KEY AUTOINCREMENT, run_id TEXT NOT NULL, task_id TEXT NOT NULL,
-            reason TEXT NOT NULL, entries TEXT NOT NULL)""")
+            reason TEXT NOT NULL, entries TEXT NOT NULL, created_at REAL)""")
+        columns = {row[1] for row in self.db.execute("PRAGMA table_info(context_archive)")}
+        if "created_at" not in columns:   # a table made before the column existed
+            self.db.execute("ALTER TABLE context_archive ADD COLUMN created_at REAL")
         self.db.commit()
 
     def archive(self, run_id, task_id, reason, entries):
         with self.db:
-            self.db.execute("INSERT INTO context_archive (run_id, task_id, reason, entries) VALUES (?, ?, ?, ?)",
-                            (run_id, task_id, reason, json.dumps([_entry_dict(e) for e in entries], sort_keys=True)))
+            self.db.execute("INSERT INTO context_archive (run_id, task_id, reason, entries, created_at) "
+                            "VALUES (?, ?, ?, ?, ?)",
+                            (run_id, task_id, reason, json.dumps([_entry_dict(e) for e in entries], sort_keys=True),
+                             self.clock()))
 
     @property
     def records(self):

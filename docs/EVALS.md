@@ -479,3 +479,28 @@ Baseline: 49 / 49 criteria, 25 simulated model calls across the suite. Three les
 change produce one known-fix proposal for a human (`recovery_fix_proposals`); nothing changes policy
 by itself. As in Phase 4, `tests/test_orchestration_recovery.py` fails on any change to the
 baseline, so a human re-records it.
+
+### Phase 8 with a real model (Claude as repair agent and validator)
+
+```powershell
+python -m finquint.orchestration.demos.claude_recovery --record --max-usd 2   # live, costs money
+python -m finquint.orchestration.demos.claude_recovery                        # offline replay (CI)
+```
+
+`demos/claude_recovery.py` (not protected, not a CI gate) runs ten of the protected recovery setups
+with one `ClaudePlug` serving both agents, priced from reported usage so the $0.50 cap is live, and
+scores them with the protected `measure()`. Fault tasks that script model misbehavior are not run.
+Live run on `claude-opus-5-5` (2026-11-23): **22 / 22** criteria, 11 API calls, **$0.20**.
+
+| Task | What Claude did |
+|---|---|
+| policy path (5 tasks) | 0 calls; known fix and circuit breaker as simulated |
+| window 60 on 40 returns | changed `window` to 40 (one full-sample window); validator accepted: the card sets no window |
+| historical VaR, 40 obs at 99% | swapped to `parametric_var`, confidence and sample unchanged; validator accepted |
+| 4 returns (unfixable) | escalated on attempt 1: minimum window 5 > 4 returns, nothing else is tunable |
+| card fixes a 60-day window | repair agent escalated instead of shrinking the window ("would change the question") |
+| sampled clean run | validator accepted |
+
+Every reflection quoted the gate's details verbatim and listed exactly the changes it made; no
+guard fired. In the goal-drift task the repair agent itself refused, so the validator's goal-drift
+check was not exercised against a real model; the simulated suite covers it.

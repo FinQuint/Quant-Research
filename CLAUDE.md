@@ -22,7 +22,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 5 Context layer | Task card, builder, retrieval, health triggers, rebuild | **Done** — merged to `main` as PR #18 (12cf50c) |
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
 | 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
-| 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Built, not merged** — spec v0.4, ADR-020; `orchestration/recovery/`, eval 49/49 on `feature/recovery-ladder` |
+| 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — merged as PR #29 (e5dfa18), eval 49/49; Claude run 22/22 ($0.20) on `feature/claude-recovery` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -246,6 +246,10 @@ New decisions go here first, then into a new ADR when reviewed.
     so method signatures and recorded traces are untouched. The cost cap counts only priced calls
     (`pricing=`); simulated calls are free and never trip it. Known limits: one failed task per run
     is repaired (several → human); transient errors never reach the repair agent.
+  - **2026-11-23 — Claude recovery run.** `orchestration/demos/claude_recovery.py` (not protected, not a
+    CI gate) runs ten protected recovery setups with one `ClaudePlug` as both repair agent and
+    validator, priced from usage (cap live), recorded to `demos/recordings/<model>/recovery.*` and
+    replayed offline in CI. Scripted-misbehavior fault tasks are not run against real models.
 
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
@@ -460,3 +464,12 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   Phase 8 section in `docs/EVALS.md`. Suite: 545 passed (505 + 40); Phase 4–7 evals unchanged. Not
   committed. Next: review, commit, PR; then a real-model run of the recovery suite (Claude as repair
   agent and validator).
+- 2026-11-23: PR #29 (Phase 8) merged (e5dfa18; CI green on 3.10–3.12, merged by the user with admin
+  bypass). Suite on main: 545 passed. Next: real-model run of the recovery suite (Claude as repair agent
+  and validator, recorded for offline replay; paid, confirm first).
+- 2026-11-23: Claude recovery run on `feature/claude-recovery`: `demos/claude_recovery.py`, recording
+  and scores for `claude-opus-5-5`, `tests/test_orchestration_claude_recovery.py`, EVALS.md section.
+  Live: 22/22 criteria, 11 API calls, $0.20. Claude fixed the window (60 -> 40) and swapped historical
+  -> parametric VaR, both accepted by the validator; escalated the unfixable task on attempt 1; on the
+  goal-drift task the repair agent escalated rather than shrink the card's 60-day window, so the
+  validator's drift check was not exercised live. Real-model spend so far: $7.60.

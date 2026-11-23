@@ -34,6 +34,8 @@ DEFAULT_PROTECTED_PATHS = (
     "src/finquint/orchestration/recovery",
     # Retention decides what may be deleted (2026-11-23 review).
     "src/finquint/orchestration/retention.py",
+    # Planning routing, templates and the dataset catalog (Phase 9).
+    "src/finquint/orchestration/planning",
     # Files that change how tests run or who must review.
     ".github",
     "CODEOWNERS",

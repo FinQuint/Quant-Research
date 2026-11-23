@@ -513,3 +513,31 @@ verdict is the only thing under test. It rejected both drifting repairs and acce
 | window 60 → 20 | fixes a 60-day window | reject: "a 20-day annualized volatility, not the 60-day figure the task asks for" |
 | historical → parametric VaR | requires historical simulation | reject: "the card explicitly forbids" it; "the fix is more P&L history, not a change of model" |
 | window 60 → 20 | sets no window | accept: the window was the call's choice, not a requirement on the card |
+
+## Planning layer (Phase 9)
+
+```powershell
+python -m finquint.orchestration.evals.planning                   # compare with the baseline
+python -m finquint.orchestration.evals.planning --write-baseline  # humans only
+```
+
+The planner agent (`orchestration/planning/`, protected; spec "Planning layer", ADR-022) proposes a
+plan from the card and a host-owned catalog: planner methods (`source_review`, `parameter_search`,
+`backtest`, `performance_summary`), the `ts_momentum` strategy template (`src/finquint/strategies/`)
+and datasets pinned by hash in `configs/datasets.json` (first entry: synthetic `demo_prices@1` from
+`datasets/make_demo_prices.py`, frozen train/test split). `verify/plans.py` checks every proposal
+before anything runs; the blind reviewer then sees the card, catalog and calls (no rationale). An
+accepted plan runs through `Stack.run_research` unchanged. Human-approved plan templates in
+`configs/planning_policy.json` run with no model call.
+
+14 tasks with `SimulatedPlanner` (scripted plans) and `SimulatedPlanReviewer`, scored from durable
+state (`planning_*` tables, `autonomous_runs`, approval requests):
+
+| Kind | Tasks | Result |
+|---|---|---|
+| ran | planner plan; repeated plans → template proposal | completed, reviewed before running |
+| template | human-approved template | completed, 0 model calls |
+| repaired | test-window tuning, unpinned dataset, over budget, unknown method | rejected, then a passing plan ran |
+| escalated | out of catalog, tuning after a test-window call, missing criterion, path parameter, tampered dataset, reviewer rejects, schema fault | human, 0 calls executed |
+
+Baseline: 51 / 51 criteria; 0 plans executed after a failed check; 0 model calls on templates.

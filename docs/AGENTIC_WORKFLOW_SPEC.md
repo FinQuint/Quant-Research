@@ -1,5 +1,5 @@
 > Repo copy of the Claude Doc spec (v0.1, 2026-10-30). Live doc: https://claude.ai/artifact/A8HdytgAaEqZrKU8o1dijF
-> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8); v0.5 folds the Phase 7 real-model decisions into ADR-021; v0.6 records the review: every ADR accepted, open questions answered.
+> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8); v0.5 folds the Phase 7 real-model decisions into ADR-021; v0.6 records the review: every ADR accepted, open questions answered. v0.7 proposes the planning layer (ADR-022, roadmap Phase 9) for review.
 
 # FinQuint Reliable Agentic Workflow — Architecture Spec
 
@@ -7,11 +7,11 @@ Oct 30, 2026 · @Yunan Xie
 
 ## Document control
 
-This is the single source of truth for the FinQuint orchestration architecture; version 0.6, reviewed.
+This is the single source of truth for the FinQuint orchestration architecture; version 0.7.1, reviewed.
 
 | Field | Value |
 | --- | --- |
-| Version | 0.6 (reviewed) |
+| Version | 0.7.1 (reviewed) |
 | Supersedes | ChatGPT design thread "Autonomous Workflow Architecture" (HITL gate, context management, dynamic knowledge) |
 | Owner | Project lead |
 | Review cadence | Every architecture change, and monthly while in build |
@@ -65,7 +65,7 @@ Agents never touch side effects directly. Outputs are verified, then gated; only
 
 ## Architecture decision records
 
-Twenty-one decisions define the system; all were reviewed and accepted on 2026-11-23 (ADR-004 and ADR-008 stay superseded). Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-021 record what the build phases decided (dates are when each was decided).
+Twenty-two decisions define the system; all are accepted (ADR-001 to ADR-021 in the 2026-11-23 review, ADR-022 with its open questions the same day; ADR-004 and ADR-008 stay superseded). Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-022 record what the build phases decided (dates are when each was decided).
 
 | ADR | Decision | Why | Status |
 | --- | --- | --- | --- |
@@ -90,6 +90,7 @@ Twenty-one decisions define the system; all were reviewed and accepted on 2026-1
 | ADR-019 | (2026-11-15) One host `Stack` (`orchestration/host.py`) wires every layer onto one run database: signed approvals, gate, ledger and outbox, scheduler, tracing, the knowledge hook, metric stores and reports through the model socket. It holds no state beyond the database, so a crashed host is replaced by a new `Stack` that runs outbox `recover()` first. Failed research runs are routed by `decide()` and every route is audited (`host_run_routed`). The success criteria are measured by a scorer that reads only durable state (the run database and the remote system's own delivery log), never the driver's counters, and the scorer has tamper tests | The criteria hold for the composed system, not only per layer, and the measurement cannot be talked into a pass | Accepted |
 | ADR-020 | (2026-11-23) Failures climb a recovery ladder; an LLM is never called for work the policy path completes. A deterministic triage table (`configs/recovery_policy.json`) sends each failure to one tier: transient errors get blind retries (ADR-011) and then a human; forbidden actions BLOCK; only fixable failures (hard gate failed, input rejected, method error) on a method with a recovery rule reach the repair agent. The repair agent proposes a revised call (parameters within declared bounds, or a swap to a listed alternative method), never code, together with a structured reflection; deterministic guards (bounds, frozen parameters, novelty against every earlier attempt, reflection consistent with the actual diff, invariants) and the unchanged hard gates check it. Repair attempts are 2 per failure (tune). A repaired result is accepted only after a blind validator agent, which sees the task card, the original and final call and the result but none of the repair agent's reasoning, accepts it; it can reject or escalate, never override a hard gate. It also audits a deterministic sample of policy-path successes (rate (tune), default 0). Everything else goes to a human with an escalation packet through signed approvals. Accepted repairs become provisional lessons; a human can turn a repeated lesson into a deterministic known-fix rule | Agents take over only where policy cannot decide; every agent proposal is verified by code and by an independent check, and the policy path absorbs repeated fixes over time | Accepted |
 | ADR-021 | (2026-11-15, Phase 7; refines ADR-016 to ADR-019) Real models plug into the socket as optional installs. `ClaudePlug` defaults (all (tune)): `claude-opus-5-5`, effort high, window capped at 200 000 tokens because budgets are a share of the window, thinking headroom added to `max_tokens`; SYSTEM segments become the system prompt with one cache breakpoint on the last stable segment; 408/409/429/5xx and connection errors are `ModelUnavailable`, other 4xx and a refusal are `ModelRefused`; server-side refusal fallbacks are off; exact token counting is opt-in. Real-model runs are demos (`orchestration/demos/`), never CI gates: replies are recorded by request digest with a normalized-key fallback (long decimals to 12 significant digits) for last-digit float differences across Python versions, and CI replays them offline. Fixes measured on real models: the context switches `prioritize_uncited` and `escalate_identical_rebuild` are on in `context_policy.json` (Phase 5 baseline re-recorded); every report uses one shared prompt (`REPORT_SYSTEM`: write non-metric numbers in words); the numeral check matches request identifiers ignoring case (identifiers always contain a letter); the citation check resolves a tag-form version `vN` to `N` only when no exact `vN` exists. The soak checks fault reports by ID and allows 0 routine report escalations; "human input on routine work" means an approval request for, or a recovery of, a research run (approvals of policy-listed merges are expected). A dataset version change also demotes verified claims whose supports, transitively, rest on old-version evidence | Every model meets the same safety behavior, recorded evidence replays deterministically, and each fix came from a measured real-model failure without letting an untraced number or an unverified citation through | Accepted |
+| ADR-022 | (2026-11-23) A planner agent turns a task card into a plan proposal, choosing only from a host-owned catalog: registered methods (with their parameter schemas), strategy templates and versioned datasets with frozen splits, read through a `DatasetCatalog` interface (first backed by protected `configs/datasets.json`; later fed by a governed data agent). It never writes code and never names a file. Deterministic plan checks (`verify/plans.py`) run before anything executes: every method is in the planner allowlist and its input validator passes; every dataset reference is a pinned `id@version` whose content hash matches the catalog; no tuning call reads the test window of the frozen split; the graph is acyclic and within the size and estimated-cost limits of the card; every acceptance criterion is covered by at least one call; approval-requiring methods route to REQUEST\_HUMAN. Every planner-written plan that passes the checks is then reviewed by the blind validator against the card before it runs (the planner's rationale is withheld); a reject or escalate goes to a human. The planner sees the card, the catalog and verified evidence only. A rejected plan goes back to the planner with the check results, up to 2 plan attempts (tune), then a human. Policy first: an objective that matches a human-approved plan template runs it with no model call, and accepted plans for recurring objectives become template proposals for a human, as recovery lessons do (ADR-020). An accepted plan becomes a `Request` and runs on the existing path (Planner digest, gates, recovery ladder, validator, reports) unchanged | Planning is the last step a human still does by hand; the catalog and the checks keep an agent-written plan inside what the host already trusts, and the evaluator stays out of its reach | Accepted |
 
 ## Human Intervention Gate
 
@@ -229,6 +230,59 @@ The policy path (planner, registered methods, hard gates, `decide()`) runs witho
 
 **Lessons.** An accepted repair is stored as a provisional lesson keyed by failure signature (method, gate, error class) and the change made. When 3 (tune) lessons agree, the system proposes a known-fix rule for a human to add to the policy file; known fixes then run without an LLM, through the hard gates only. Lessons never change policy by themselves (ADR-001).
 
+## Planning layer (Phase 9)
+
+Today a human writes every research request: which methods, which parameters, which data. The planner agent proposes that plan from the task card; deterministic code decides whether it may run. Nothing downstream changes: an accepted plan is an ordinary `Request`.
+
+```
+ task card ─► Template match? ──yes──► plan from template (no model call)
+                  │ no
+                  ▼
+           Planner agent ◄──── check results (attempts left)
+         (catalog + card +             │
+          verified prior results)      │ fail
+                  ▼                     │
+           Plan checks (deterministic) ─┤
+                  │ pass                └─ attempts spent ─► Human
+                  ▼
+     Plan review (blind validator, every agent-written plan) ──reject / escalate──► Human
+                  │ accept (template plans skip review)
+                  ▼
+     needs approval or over budget? ──yes──► Human (signed approval)
+                  │ no
+                  ▼
+     Request ─► Planner digest ─► gates ─► recovery ladder ─► validator ─► reports
+```
+
+**Catalog** (host-owned; the planner sees it, cannot change it)
+
+| Part | Content | Where |
+| --- | --- | --- |
+| Methods | Registered methods the planner may use (an allowlist), each with role, version and a parameter schema | `MethodRegistry` plus `configs/planning_policy.json` |
+| Strategy templates | Named, reviewed strategy code with typed, bounded parameters (first: time-series momentum); new strategies come only from the coding agent (Phase 10) through a reviewed PR | `src/finquint/strategies/` |
+| Datasets | `id@version` → file, content hash, schema, date range and frozen `SplitManifest`, behind a `DatasetCatalog` interface | First `configs/datasets.json` (protected); later the data agent (Phase 11) registers versions through governed ingestion |
+| Plan templates | Human-approved plans for recurring objectives, with slots the card fills | `configs/planning_policy.json` |
+
+**New registered methods**: the read-only research step is the existing `source_review` over host-generated dataset profiles (schema, range, split, hash), so no new research method is trusted; `parameter_search` (execution: a grid over a template's bounded parameters, train window only), `backtest` (execution: a strategy template on a pinned dataset and the train or test window, through `EventDrivenBacktester`, with the lookahead truncation check as a gate; it may take its parameters from a search it depends on), and `performance_summary` (execution: `summarize_performance` on a backtest's returns). Data is loaded by the host from the catalog, never passed inline by an agent.
+
+**Plan proposal** (schema-checked by the model core): `calls` (task ID, method, parameters, dependencies, the criterion IDs each call serves), `datasets` (pinned references), a one-line `rationale` per call, or `escalate` with a reason when the card cannot be met from the catalog.
+
+**Plan checks** (`verify/plans.py`, protected; any failure rejects the plan)
+
+| Check | Rejects |
+| --- | --- |
+| Allowlist and input validators | Unknown or non-planner methods, parameters the method's validator refuses |
+| Pinned datasets | Unpinned or unknown datasets, a content hash that differs from the catalog |
+| Split discipline | A tuning or parameter-search call whose window reaches into the test period; a test-window call before the tuning calls it depends on |
+| Coverage | An acceptance criterion no call serves; a call that serves none |
+| Size and budget | More calls than `max_plan_calls` (tune) or an estimated cost above the card's budget |
+| Graph and roles | Cycles, unknown dependencies, no research or no execution call (existing `Planner` rules) |
+| Protected paths | Any parameter that names a path (ADR-012) |
+
+**Plan review**: every planner-written plan that passes the checks goes to the blind validator with the card, the catalog and the calls, but not the planner's rationale. Accept runs it; reject or escalate goes to a human (never back to the planner, as in ADR-020). Template plans are human-approved and skip review.
+
+**Routing**: a plan that passes the checks and the review runs (AUTO\_CONTINUE) unless it contains an approval-requiring method or exceeds the card's budget, which go to a signed approval. A rejected plan returns to the planner with the check results; after 2 (tune) plan attempts, a human. Every proposal, check result and decision is stored durably, as in the recovery ladder.
+
 ## Context and knowledge layer
 
 One deterministic `context/` package builds every LLM request from a pinned task card plus selected evidence; it merges the draft's separate Context Manager and Adaptive Context Controller.
@@ -357,10 +411,15 @@ orchestration/
 │   └── freshness.py
 ├── verify/
 │   ├── numbers.py         # placeholder rendering + numeral check
+│   ├── plans.py           # plan checks (allowlist, pinned data, split, coverage, budget)
 │   ├── citations.py       # file, SHA, line, artifact ID checks
 │   └── invariants.py      # lookahead, splits, protected paths
 ├── budgets.py
 ├── retention.py           # age-based deletion of operational data (dry run by default)
+├── planning/
+│   ├── catalog.py         # methods, strategy templates, datasets, plan templates
+│   ├── planner.py         # planner agent request/reply, plan attempts, routing
+│   └── templates.py       # template matching (no model call), template proposals
 ├── recovery/
 │   ├── triage.py          # failure taxonomy -> tier (recovery_policy.json)
 │   ├── repair.py          # repair agent request/reply, reflection schema
@@ -395,6 +454,10 @@ Build safety against irreversible harm first, then the means to measure, then qu
    - Exit: on a 72 h (tune) simulated campaign with every layer on, the success-criteria table is met, measured from durable state alone; then the same campaign on a real model through the socket.
 8. **Failure recovery ladder**: triage, repair agent with reflection, guards, blind validator with sampling, escalation packet, lessons and known fixes.
    - Exit: on the golden suite plus recovery faults, with simulated agents: 0 LLM calls on clean tasks and on transient faults; every fixable fault solved within 2 attempts and accepted by the validator; every unfixable fault escalated with a complete packet; 0 gate-gaming repairs accepted (caught by guards or the validator); a repeated proposal escalates on the novelty guard; a promoted known fix runs with 0 LLM calls. Measured from durable state; then the same suite with a real model through the socket.
+9. **Planning layer**: catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, deterministic plan checks, blind plan review, template matching, and the `parameter_search`, `backtest` and `performance_summary` methods.
+   - Exit: on golden objectives with a simulated planner, every executed plan passed every check and 0 plans that failed a check executed; in-catalog objectives complete with every criterion covered and every reported number traced; an out-of-catalog objective escalates with 0 calls executed; a plan that tunes on the test window, uses an unpinned dataset, misses a criterion or exceeds the budget is rejected and either repaired within 2 attempts or escalated; a template-matched objective runs with 0 LLM calls. Measured from durable state; then the same objectives with a real model through the socket.
+10. **Coding agent** (planned): proposals applied in a sandboxed workspace on an `agent/*` branch, tested against the protected evaluator, merged only through the PR path with approval; new strategy templates come from here.
+11. **Data agent** (planned): governed ingestion from external sources into the `DatasetCatalog` (validation, provenance, versioning, frozen splits); the planner reads only what it registers.
 
 ## Open questions
 
@@ -406,6 +469,14 @@ Answered in the 2026-11-23 review (decisions are (tune) where marked; change one
 - [x] ESCALATE routing: every ESCALATE goes to a human with a packet; the validator agent reviews only repaired results and sampled successes (ADR-020).
 - [x] Models: `claude-opus-5-5` for the reporter, repair agent and validator, with no fallback; an outage escalates as INFRA\_ERROR (ADR-016, ADR-021). Revisit when a second plug passes conformance with a recorded per-model baseline.
 - [x] Retention (tune, `configs/retention_policy.json`): finished runs and traces 1 year, archived context histories 90 days, enforced by `orchestration/retention.py` (protected; dry run by default, `--apply` deletes in one transaction and writes a `retention_purged` audit event). It deletes operational data only. Approval records (immutable, ADR-013), the audit log, the idempotency ledger and outbox, and knowledge (evidence, experiments, claims, reports, lessons) are kept indefinitely, as is any run that is unfinished, has a pending approval or open recovery escalation, or is cited as a metric (`run:RUN/TASK`) by a report or claim. Anything whose age cannot be read is kept.
+Phase 9 (settled 2026-11-23):
+
+- [x] Plan review: the blind validator reviews every planner-written plan before it runs; template plans skip it.
+- [x] First strategy template: time-series momentum.
+- [x] Datasets: a `DatasetCatalog` interface, first backed by protected `configs/datasets.json` (SHA-256 hashes, frozen splits); a governed data agent feeds it later (Phase 11).
+- [x] Limits (tune): 2 plan attempts, `max_plan_calls` 12, estimated cost from a per-method cost table.
+- [x] The planner sees verified evidence only (cited by ID and version), never run histories or transcripts.
+
 - [x] Recovery (tune) starting values: 3 agreeing lessons propose a known fix; the circuit breaker trips at 3 ladder runs in a method's last 10; $0.50 per escalation. A validator reject goes to a human even with repair budget left (settled 2026-11-23).
 
 ## Glossary
@@ -428,6 +499,8 @@ Answered in the 2026-11-23 review (decisions are (tune) where marked; change one
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-23 | 0.7.1 | Phase 9 questions settled; ADR-022 accepted; roadmap entries for the coding agent (10) and data agent (11) |
+| 2026-11-23 | 0.7 | Proposed the planning layer: section, ADR-022 (proposed), roadmap Phase 9 and its open questions |
 | 2026-11-23 | 0.6.1 | Retention enforced by `orchestration/retention.py`; scope: operational data only |
 | 2026-11-23 | 0.6 | Review: ADR-001 to ADR-021 accepted (004 and 008 stay superseded); open questions answered (state machine on SQLite, policy files, one reviewer for now, every ESCALATE to a human, Opus with no fallback, retention 1 year / 90 days) |
 | 2026-11-23 | 0.5 | Folded the Phase 7 real-model decisions into ADR-021 (Claude plug defaults, recorded demos with offline replay, rebuild switches, shared report prompt, case-insensitive identifiers, tag-form citation versions, soak criterion split, transitive demotion) |

@@ -23,6 +23,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
 | 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
 | 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — PR #29 (e5dfa18), eval 49/49; Claude as repair agent + validator 22/22 ($0.20), PR #30 (2fdd851) |
+| 9 Planning layer | Catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, plan checks, templates | **Built, not merged** — spec v0.7.1, ADR-022; `orchestration/planning/`, eval 51/51 on `feature/planning-layer` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -267,6 +268,26 @@ New decisions go here first, then into a new ADR when reviewed.
     validator, priced from usage (cap live), recorded to `demos/recordings/<model>/recovery.*` and
     replayed offline in CI. Scripted-misbehavior fault tasks are not run against real models.
 
+- **2026-11-23 — Phase 9 decisions** (planning layer; spec v0.7.1, ADR-022 accepted, settled with the user).
+  - Plan review: the blind validator reviews every planner-written plan before it runs (rationale
+    withheld); a reject/escalate goes to a human. Human-approved templates skip review (0 model calls).
+  - First strategy template: time-series momentum only (`src/finquint/strategies/`, not protected:
+    new templates are the coding agent's path, Phase 10).
+  - Datasets: `DatasetCatalog` interface, first `FileDatasetCatalog` over protected
+    `configs/datasets.json` (SHA-256 re-checked on every load, paths confined to the repo, frozen
+    `SplitManifest`). The user wants dynamic intake later through a data agent governing the ingestion
+    pipeline: roadmap Phase 11, behind the same interface. `datasets/*.csv -text` in `.gitattributes`
+    so hashes survive checkout. First dataset: synthetic `demo_prices@1` (generator in `datasets/`).
+  - Limits (tune): 2 plan attempts, 12 calls, cost = method cost x grid combinations for searches;
+    card `budget_limits["plan_cost"]` or `default_plan_budget` 60.
+  - The planner sees verified evidence only (tiers authoritative/verified, not deprecated).
+  - Implementation: research step = existing `source_review` over host-written dataset profiles (no
+    `dataset_profile` method). New methods `parameter_search` (train only), `backtest` (train/test;
+    `params` or `params_from` a search dependency; gates: window + lookahead truncation),
+    `performance_summary`; `planning_registry(catalog)`. Plan checks in protected `verify/plans.py`;
+    routing/templates in protected `orchestration/planning/`; `plan_escalation` approval rule. Accepted
+    planner plans for an `objective_key` become a template proposal after 3 (tune) identical shapes.
+
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
 - Additive changes only: existing analytics, `QuantPipeline`, 10A/10B/10C behavior and their tests
@@ -507,3 +528,15 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   Open: retention cleanup job (1 y / 90 d); a second reviewer to enforce code-owner review.
 - 2026-11-23: Retention on `feature/retention`: `orchestration/retention.py`, `configs/retention_policy.json`,
   context archive `created_at`, `tests/test_orchestration_retention.py`, spec 0.6.1. Not committed.
+- 2026-11-23: PR #32 (retention) merged (merged by the user with admin bypass; CI green on 3.10–3.12). Suite on
+  main: 559 passed. Second reviewer: skipped by the user (none available); sole-owner self-merge with
+  admin bypass stays the documented practice (spec open questions). No open roadmap items.
+- 2026-11-23: Next-step discussion: the planner is the remaining manual step. Phase 9 (planning layer)
+  proposed in spec v0.7 (section, ADR-022 proposed, roadmap entry, 5 open questions with proposed
+  defaults) on `docs/phase9-planner`; not committed. Next: settle the open questions with the user, then build.
+- 2026-11-23: Phase 9 settled and built on `feature/planning-layer`: spec v0.7.1 (ADR-022 accepted,
+  roadmap 10 coding agent and 11 data agent as planned), `src/finquint/strategies/`,
+  `orchestration/planning/`, `verify/plans.py`, configs `datasets.json` / `planning_policy.json`,
+  `plan_escalation` rule, `datasets/` demo data, `evals/planning/` (14 tasks, 51/51),
+  `tests/test_orchestration_planning.py`, EVALS.md section. Suite: 580 passed (559 + 21); all six eval
+  CLIs unchanged. Not committed. Next: review, commit, PR; then a Claude run of the planning objectives.

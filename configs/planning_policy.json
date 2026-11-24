@@ -1,0 +1,10 @@
+{
+  "version": "1",
+  "planner_methods": ["source_review", "parameter_search", "backtest", "performance_summary"],
+  "max_plan_calls": 12,
+  "max_plan_attempts": 2,
+  "method_costs": {"source_review": 1, "parameter_search": 1, "backtest": 2, "performance_summary": 1},
+  "default_plan_budget": 60,
+  "template_threshold": 3,
+  "plan_templates": []
+}

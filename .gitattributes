@@ -1,0 +1,2 @@
+# Pinned datasets are hashed byte for byte (configs/datasets.json); never convert line endings.
+datasets/*.csv -text

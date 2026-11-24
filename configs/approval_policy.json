@@ -8,7 +8,8 @@
     "deploy": {"role": "owner", "approvals": 1},
     "delete_production_data": {"role": "owner", "approvals": 1},
     "recovery_escalation": {"role": "owner", "approvals": 1},
-    "plan_escalation": {"role": "owner", "approvals": 1}
+    "plan_escalation": {"role": "owner", "approvals": 1},
+    "coding_escalation": {"role": "owner", "approvals": 1}
   },
   "request_ttl_seconds": 86400,
   "approval_ttl_seconds": 3600,
@@ -17,6 +18,7 @@
     "deploy": "escalate",
     "delete_production_data": "escalate",
     "recovery_escalation": "escalate",
-    "plan_escalation": "escalate"
+    "plan_escalation": "escalate",
+    "coding_escalation": "escalate"
   }
 }

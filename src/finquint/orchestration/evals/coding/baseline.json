@@ -1,0 +1,509 @@
+{
+ "summary": {
+  "criteria_passed": 72,
+  "criteria_total": 72,
+  "duplicate_prs": 0,
+  "faults_caught": 10,
+  "host_executions_before_merge": 0,
+  "model_calls_total": 28,
+  "prs_from_failed_checks": 0,
+  "sandbox_runs": 10,
+  "unapproved_merges": 0
+ },
+ "tasks": {
+  "banned_import_escalates": {
+   "checks": {
+    "caught_by_static": true,
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true
+   },
+   "kind": "escalated",
+   "layer": "static",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "rejected"
+    ],
+    "attempt_stages": [
+     "static",
+     "static"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 0,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "clean_template_merged_and_planned": {
+   "checks": {
+    "load_refused_before_merge": true,
+    "merged_once_after_approval": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "one_pr": true,
+    "planner_ran_the_template": true,
+    "reviewed_before_pr": true
+   },
+   "kind": "merged",
+   "layer": null,
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 1,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "attempt_stages": [
+     "conformance"
+    ],
+    "load_refused_before_merge": true,
+    "loads": 1,
+    "loads_without_merge": 0,
+    "merges": 1,
+    "model_calls": 2,
+    "plan": {
+     "plan_route": "ran",
+     "run_route": "completed",
+     "template": "mean_reversion"
+    },
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 7,
+   "total": 7
+  },
+  "coder_escalates": {
+   "checks": {
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true,
+    "nothing_executed": true
+   },
+   "kind": "escalated",
+   "layer": "agent",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "agent_escalated"
+    ],
+    "attempt_stages": [
+     "agent"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 1,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 0,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "coder_schema_fault": {
+   "checks": {
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true,
+    "nothing_executed": true
+   },
+   "kind": "escalated",
+   "layer": "model",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "model_escalated"
+    ],
+    "attempt_stages": [
+     "model"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 0,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "crash_after_pr_delivery_no_duplicate": {
+   "checks": {
+    "merge_waits_for_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "one_pr_delivery": true
+   },
+   "kind": "no_duplicate",
+   "layer": null,
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "attempt_stages": [
+     "conformance"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 4,
+   "total": 4
+  },
+  "existing_module_repaired": {
+   "checks": {
+    "attempts_within_budget": true,
+    "caught_by_scope": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "not_merged_without_human": true,
+    "pr_opened_after_repair": true,
+    "reviewed_before_pr": true
+   },
+   "kind": "repaired",
+   "layer": "scope",
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "passed"
+    ],
+    "attempt_stages": [
+     "scope",
+     "conformance"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 3,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 7,
+   "total": 7
+  },
+  "file_access_repaired": {
+   "checks": {
+    "attempts_within_budget": true,
+    "caught_by_static": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "not_merged_without_human": true,
+    "pr_opened_after_repair": true,
+    "reviewed_before_pr": true
+   },
+   "kind": "repaired",
+   "layer": "static",
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "passed"
+    ],
+    "attempt_stages": [
+     "static",
+     "conformance"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 3,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 7,
+   "total": 7
+  },
+  "infinite_loop_escalates": {
+   "checks": {
+    "caught_by_sandbox": true,
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true
+   },
+   "kind": "escalated",
+   "layer": "sandbox",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "rejected"
+    ],
+    "attempt_stages": [
+     "sandbox",
+     "novelty"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 1,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "merge_rejected_never_loaded": {
+   "checks": {
+    "never_loaded": true,
+    "never_merged": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "pr_opened": true
+   },
+   "kind": "merge_rejected",
+   "layer": null,
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "attempt_stages": [
+     "conformance"
+    ],
+    "load_refused_before_merge": true,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "nondeterministic_repeated_escalates": {
+   "checks": {
+    "caught_by_conformance": true,
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true
+   },
+   "kind": "escalated",
+   "layer": "conformance",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "rejected"
+    ],
+    "attempt_stages": [
+     "conformance",
+     "novelty"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 1,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "path_module_escalates": {
+   "checks": {
+    "caught_by_scope": true,
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true
+   },
+   "kind": "escalated",
+   "layer": "scope",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "rejected"
+    ],
+    "attempt_stages": [
+     "scope",
+     "scope"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 0,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "renamed_copy_rejected_by_review": {
+   "checks": {
+    "caught_by_review": true,
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true
+   },
+   "kind": "escalated",
+   "layer": "review",
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "attempt_stages": [
+     "conformance"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 2,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [
+     "reject"
+    ],
+    "sandbox_runs": 1,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 5,
+   "total": 5
+  },
+  "shared_state_lookahead_repaired": {
+   "checks": {
+    "attempts_within_budget": true,
+    "caught_by_conformance": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "not_merged_without_human": true,
+    "pr_opened_after_repair": true,
+    "reviewed_before_pr": true
+   },
+   "kind": "repaired",
+   "layer": "conformance",
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "rejected",
+     "passed"
+    ],
+    "attempt_stages": [
+     "conformance",
+     "conformance"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 3,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 2,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 7,
+   "total": 7
+  }
+ }
+}

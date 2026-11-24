@@ -23,12 +23,13 @@ executes.* No live trading; never change the numerical algorithms.
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
 | 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
 | 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — PR #29 (e5dfa18), eval 49/49; Claude as repair agent + validator 22/22 ($0.20), PR #30 (2fdd851) |
-| 9 Planning layer | Catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, plan checks, templates | **Done** — merged to `main` as PR #33 (cb3d12c), eval 51/51; Claude as planner + reviewer 13/13 ($0.19) on `feature/claude-planning` |
+| 9 Planning layer | Catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, plan checks, templates | **Done** — merged to `main` as PR #33 (cb3d12c), eval 51/51; Claude as planner + reviewer 13/13 ($0.19), PR #34 (b4ce1f3) |
+| 10 Coding agent | New strategy templates only: host-built patch, scope/static/contract checks, sandboxed conformance suite, revision loop, blind code review, `agent/*` PR, human merge | **Built, not merged** — spec v0.8.1, ADR-023; `orchestration/coding/`, eval 72/72 on `feature/coding-agent` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
 ## Decisions that refine the spec
-Folded into the spec as ADR-009 to ADR-018 (v0.2), ADR-019 (v0.3), ADR-020 (Phase 8, v0.4) and ADR-021 (Phase 7 real-model decisions, v0.5); all accepted in the 2026-11-23 review (spec v0.6). The notes below keep the detail.
+Folded into the spec as ADR-009 to ADR-018 (v0.2), ADR-019 (v0.3), ADR-020 (Phase 8, v0.4) and ADR-021 (Phase 7 real-model decisions, v0.5); all accepted in the 2026-11-23 review (spec v0.6). ADR-022 (Phase 9) and ADR-023 (Phase 10) were accepted with their open questions. The notes below keep the detail.
 New decisions go here first, then into a new ADR when reviewed.
 - **2026-11-23 — ADR review (user).** ADR-001 to ADR-021 accepted (004/008 stay superseded); a change
   now needs a new superseding ADR. Open questions answered: state machine on SQLite (ADR-009) and policy
@@ -288,6 +289,36 @@ New decisions go here first, then into a new ADR when reviewed.
     routing/templates in protected `orchestration/planning/`; `plan_escalation` approval rule. Accepted
     planner plans for an `objective_key` become a template proposal after 3 (tune) identical shapes.
 
+- **2026-11-24 — Phase 10 decisions** (coding agent; spec v0.8.1, ADR-023 accepted, all proposed defaults chosen by the user).
+  - Scope: new strategy templates only (one new module under `src/finquint/strategies/`, which stays
+    unprotected). Edits to existing templates (through `judge_improvement`) and other code come later.
+  - The agent sends `module` + whole `source`; the host writes the file, regenerates
+    `strategies/agent_templates.py` (`render_registry`; a hand-edited file fails closed) and builds the
+    patch and `diff_sha`. `Param`/`StrategyTemplate` moved to `strategies/base.py` (re-exported, API unchanged).
+  - Checks before execution (`coding/static.py`): scope (name regex, not existing or reserved, patch paths
+    equal the two host paths, none protected), AST (import allowlist in `configs/coding_policy.json`; banned
+    builtins incl. `open`/`print`/`getattr`/`type`/`id`; dunder attributes except `__init__`; I/O and
+    `random` attributes; global/nonlocal; decorators; class bases; module/class bodies only definitions and
+    literal constants; 200 lines), contract (one literal `TEMPLATE = StrategyTemplate(...)`, finite bounds,
+    defaults inside, class with `on_bar(self, context)` and `__init__(self, symbol, <params>)`).
+  - Sandbox = option "subprocess + static": `SubprocessSandbox`, temp dir with only the module and the
+    train-window bars, `python -I`, environment reduced to what CPython needs (no keys), timeout 60 s, output
+    cap; built as a temp dir instead of the spec draft's git worktree (the merged tree is tested by CI on
+    the `agent/*` PR). Conformance (`coding/conformance.py`): import, build and run at defaults and bounds,
+    determinism, lookahead truncation, orders, at least one trade, runtime 20 s. A leak of later bars needs
+    state shared between runs and shows up as non-determinism.
+  - Acceptance bar = conformance and invariants only; performance is the planner's question.
+  - Blind code review on every passing module (sees source, template, check results; not rationale or
+    earlier attempts); reject/escalate → human (`coding_escalation` approval rule). 2 attempts; novelty keys
+    on module + source.
+  - PR path: `open_pr` + `merge_to_main` (REQUEST_HUMAN) on `agent/<run_id>` through the outbox.
+    `load_merged()` executes agent code in the host only after a done `merge_to_main` for the exact diff.
+    Evals use the soak's simulated remote; the live demo (next) pushes a real `agent/*` branch and opens a
+    real PR, never merges.
+  - Planning takes an optional `templates=` table (`planning_registry`, `catalog_view`, `PlanningService`);
+    default = the package registry, so Phase 9 behavior and baselines are unchanged.
+  - `src/finquint/orchestration/coding` is protected (paths + CODEOWNERS).
+
 ## Rules
 - Work locally on a feature branch, one roadmap phase per branch/PR into `main`. Push only when asked.
 - Additive changes only: existing analytics, `QuantPipeline`, 10A/10B/10C behavior and their tests
@@ -545,6 +576,12 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   Live: 13/13, 9 calls, $0.19; every plan passed the checks first time; the "maximize out-of-sample Sharpe"
   trap still tuned on train; tight budget -> 2-lookback grid costing exactly 6; out-of-catalog escalated.
   Real-model spend: $7.84.
-- 2026-11-24: PR #33 (Phase 9) merged (cb3d12c, merged by the user with admin bypass). The Claude planning
-  commit was moved to `feature/claude-planning` and rebased onto `main` (now one commit ahead). Next: push and
-  open its PR.
+- 2026-11-24: PR #33 (Phase 9) merged (cb3d12c) and PR #34 (Claude planning run) merged (b4ce1f3), both by
+  the user with admin bypass. Phase 9 done.
+- 2026-11-24: Phase 10 designed and settled (spec v0.8/v0.8.1, ADR-023 accepted, all recommended options) and
+  built on `feature/coding-agent`: `orchestration/coding/` (policy, proposal, static, sandbox, conformance,
+  loop, simulated, examples), `configs/coding_policy.json`, `coding_escalation` rule, `strategies/base.py` +
+  `agent_templates.py`, optional `templates=` in planning, `evals/coding/` (13 tasks, 72/72),
+  `tests/test_orchestration_coding.py`, EVALS.md section. Suite: 642 passed (584 + 58); Phase 4–9 evals
+  unchanged. Not committed. Next: review, commit, PR; then the Claude run (coding agent + reviewer, real
+  `agent/*` PR, paid, confirm first).

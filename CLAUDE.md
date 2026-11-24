@@ -23,7 +23,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 6 Knowledge lifecycle & number provenance | Re-indexing, tiers/promotion, placeholder renderer | **Done** — merged to `main` as PR #19 (93d432f) |
 | 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
 | 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — PR #29 (e5dfa18), eval 49/49; Claude as repair agent + validator 22/22 ($0.20), PR #30 (2fdd851) |
-| 9 Planning layer | Catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, plan checks, templates | **Built, not merged** — spec v0.7.1, ADR-022; `orchestration/planning/`, eval 51/51 on `feature/planning-layer` |
+| 9 Planning layer | Catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, plan checks, templates | **Done** — merged to `main` as PR #33 (cb3d12c), eval 51/51; Claude as planner + reviewer 13/13 ($0.19) on `feature/claude-planning` |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -540,3 +540,11 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   `plan_escalation` rule, `datasets/` demo data, `evals/planning/` (14 tasks, 51/51),
   `tests/test_orchestration_planning.py`, EVALS.md section. Suite: 580 passed (559 + 21); all six eval
   CLIs unchanged. Not committed. Next: review, commit, PR; then a Claude run of the planning objectives.
+- 2026-11-23: PR #33 (Phase 9) opened, CI green. Claude planning run on `feature/claude-planning` (stacked on
+  #33): `demos/claude_planning.py`, recording/scores, `tests/test_orchestration_claude_planning.py`, EVALS.md.
+  Live: 13/13, 9 calls, $0.19; every plan passed the checks first time; the "maximize out-of-sample Sharpe"
+  trap still tuned on train; tight budget -> 2-lookback grid costing exactly 6; out-of-catalog escalated.
+  Real-model spend: $7.84.
+- 2026-11-24: PR #33 (Phase 9) merged (cb3d12c, merged by the user with admin bypass). The Claude planning
+  commit was moved to `feature/claude-planning` and rebased onto `main` (now one commit ahead). Next: push and
+  open its PR.

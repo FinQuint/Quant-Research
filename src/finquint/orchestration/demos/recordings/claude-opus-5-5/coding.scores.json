@@ -1,0 +1,386 @@
+{
+ "run": {
+  "api_calls": 9,
+  "complete": true,
+  "max_usd": 1.5,
+  "usd": 0.3865
+ },
+ "summary": {
+  "criteria_passed": 28,
+  "criteria_total": 28,
+  "host_executions_before_merge": 0,
+  "model_calls_total": 9,
+  "prs_from_failed_checks": 0,
+  "sandbox_runs": 3,
+  "unapproved_merges": 0
+ },
+ "tasks": {
+  "breakout": {
+   "checks": {
+    "attempts_within_budget": true,
+    "load_refused_before_merge": true,
+    "merged_once_after_approval": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "one_pr": true,
+    "planner_ran_the_template": true,
+    "reviewed_before_pr": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "conformance": {},
+      "module": "channel_breakout",
+      "outcome": "rejected",
+      "problems": [
+       "contract: template description must be nonempty text of at most 400 characters"
+      ],
+      "stage": "contract"
+     },
+     {
+      "attempt": 2,
+      "conformance": {
+       "bounds_run": true,
+       "build": true,
+       "determinism": true,
+       "import": true,
+       "lookahead": true,
+       "orders": true,
+       "runtime": true,
+       "trades": true
+      },
+      "module": "channel_breakout",
+      "outcome": "passed",
+      "problems": [],
+      "stage": "conformance"
+     }
+    ],
+    "escalation": null,
+    "module": "channel_breakout",
+    "reason": "merge waits for a human",
+    "reviews": [
+     {
+      "reasons": [
+       "The module implements a genuine channel breakout. The channel is the max and min of the previous `lookback` closes, taken as closes.iloc[-(n+1):-1], so the current bar is excluded. The latest close is compared against that channel. It is not a renamed copy of the existing ts_momentum template, which uses a return-sign signal.",
+       "The template description matches the code: +units above the upper channel, -units (or flat when long_only) below the lower channel, and no order otherwise, so the position is kept.",
+       "The channel length `lookback` is an integer parameter bounded 2\u2013250 with default 20, which is sensible for a breakout channel.",
+       "The code has no hard-coded dates, prices or dataset-specific constants. All static and conformance checks passed, including lookahead and determinism."
+      ],
+      "verdict": "accept"
+     }
+    ],
+    "source": "from finquint.backtesting import MarketOrder\nfrom finquint.strategies.base import Param, StrategyTemplate\n\n\nclass ChannelBreakoutStrategy:\n    def __init__(self, symbol, lookback=20, units=5000, long_only=False):\n        self.symbol = symbol\n        self.lookback = int(lookback)\n        self.units = units\n        self.long_only = bool(long_only)\n\n    def on_bar(self, context):\n        history = context.history\n        if history is None or len(history) == 0:\n            return ()\n        rows = history[history[\"symbol\"] == self.symbol]\n        closes = rows.sort_values(\"timestamp\", kind=\"mergesort\")[\"close\"].dropna()\n        n = self.lookback\n        if len(closes) < n + 1:\n            return ()\n        window = closes.iloc[-(n + 1):-1]\n        upper = float(window.max())\n        lower = float(window.min())\n        last = float(closes.iloc[-1])\n        current = context.positions.get(self.symbol, 0)\n        if last > upper:\n            target = self.units\n        elif last < lower:\n            if self.long_only:\n                target = 0\n            else:\n                target = -self.units\n        else:\n            return ()\n        change = target - current\n        if change == 0:\n            return ()\n        order_id = \"channel_breakout-\" + str(self.symbol) + \"-\" + str(context.timestamp)\n        return (MarketOrder(order_id, self.symbol, change, context.timestamp),)\n\n\nTEMPLATE = StrategyTemplate(\n    \"channel_breakout\",\n    \"Channel breakout on one symbol: target +units when the close rises above the highest close of the previous `lookback` bars, and -units (or flat when long_only) when it falls below the lowest close of the previous `lookback` bars; otherwise keep the current position.\",\n    {\n        \"lookback\": Param(\"integer\", 2, 250, 20),\n        \"units\": Param(\"number\", 1, 10000, 5000),\n        \"long_only\": Param(\"boolean\", default=False),\n    },\n    ChannelBreakoutStrategy,\n)\n",
+    "source_lines": 51,
+    "template": "channel_breakout"
+   },
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 1,
+    "attempt_outcomes": [
+     "rejected",
+     "passed"
+    ],
+    "attempt_stages": [
+     "contract",
+     "conformance"
+    ],
+    "load_refused_before_merge": true,
+    "loads": 1,
+    "loads_without_merge": 0,
+    "merges": 1,
+    "model_calls": 3,
+    "plan": {
+     "plan_route": "ran",
+     "run_route": "completed",
+     "template": "channel_breakout"
+    },
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "channel_breakout"
+   },
+   "passed": 8,
+   "plan": {
+    "best_params": {
+     "long_only": false,
+     "lookback": 20,
+     "units": 5000
+    },
+    "grid": {
+     "lookback": [
+      2,
+      20,
+      250
+     ]
+    },
+    "plan_route": "ran",
+    "run_route": "completed"
+   },
+   "total": 8
+  },
+  "mean_reversion": {
+   "checks": {
+    "attempts_within_budget": true,
+    "load_refused_before_merge": true,
+    "merged_once_after_approval": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "one_pr": true,
+    "planner_ran_the_template": true,
+    "reviewed_before_pr": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "conformance": {
+       "bounds_run": true,
+       "build": true,
+       "determinism": true,
+       "import": true,
+       "lookahead": true,
+       "orders": true,
+       "runtime": true,
+       "trades": true
+      },
+      "module": "mean_reversion",
+      "outcome": "passed",
+      "problems": [],
+      "stage": "conformance"
+     }
+    ],
+    "escalation": null,
+    "module": "mean_reversion",
+    "reason": "merge waits for a human",
+    "reviews": [
+     {
+      "reasons": [
+       "The module implements a genuine z-score mean-reversion signal: it fades closes that sit far from their rolling mean and exits when the close returns through the mean. It is not a renamed copy of ts_momentum; the signal logic and parameters differ.",
+       "The template description matches the code. It uses the sample std (ddof=1) over the last `lookback` closes, goes long at z <= -entry_z, goes short (or flat when long_only) at z >= entry_z, and exits on crossing the mean.",
+       "Lookback (integer, 5..250, default 20) and entry_z (number, 0.5..5.0, default 2.0) are exposed with sensible bounds.",
+       "Nothing is hard-coded to a dataset (no dates, prices or symbols). All static and conformance checks passed, including lookahead and determinism."
+      ],
+      "verdict": "accept"
+     }
+    ],
+    "source": "import math\n\nimport numpy\nimport pandas\n\nfrom finquint.backtesting import MarketOrder\nfrom finquint.strategies.base import Param, StrategyTemplate\n\n\nclass MeanReversionStrategy:\n    def __init__(self, symbol, lookback=20, entry_z=2.0, units=5000, long_only=False):\n        self.symbol = symbol\n        self.lookback = int(lookback)\n        self.entry_z = float(entry_z)\n        self.units = float(units)\n        self.long_only = bool(long_only)\n\n    def _closes(self, history):\n        if history is None or len(history) == 0:\n            return None\n        rows = history.loc[history[\"symbol\"] == self.symbol]\n        if len(rows) == 0:\n            return None\n        rows = rows.sort_values(\"timestamp\", kind=\"mergesort\")\n        closes = pandas.to_numeric(rows[\"close\"], errors=\"coerce\").dropna()\n        return closes\n\n    def on_bar(self, context):\n        closes = self._closes(context.history)\n        if closes is None or len(closes) < self.lookback or self.lookback < 2:\n            return ()\n        window = numpy.asarray(closes.iloc[-self.lookback:], dtype=float)\n        mean = float(numpy.mean(window))\n        std = float(numpy.std(window, ddof=1))\n        last = float(window[-1])\n        if not (math.isfinite(mean) and math.isfinite(std) and math.isfinite(last)):\n            return ()\n        if std <= 0.0:\n            return ()\n        z = (last - mean) / std\n        positions = context.positions if context.positions is not None else {}\n        current = float(positions.get(self.symbol, 0.0))\n        target = current\n        if z <= -self.entry_z:\n            target = self.units\n        elif z >= self.entry_z:\n            target = 0.0 if self.long_only else -self.units\n        elif current > 0.0 and z >= 0.0:\n            target = 0.0\n        elif current < 0.0 and z <= 0.0:\n            target = 0.0\n        delta = target - current\n        if abs(delta) < 1e-9:\n            return ()\n        order_id = \"mr-\" + str(self.symbol) + \"-\" + str(context.timestamp)\n        return (MarketOrder(order_id, self.symbol, delta, context.timestamp),)\n\n\nTEMPLATE = StrategyTemplate(\n    \"mean_reversion\",\n    \"Mean reversion on one symbol: compute the z-score of the latest close against the rolling mean and sample standard deviation of the last `lookback` closes; go long `units` when z <= -entry_z, short `units` (or flat when long_only) when z >= entry_z, and close any open position once the close crosses back through its rolling mean.\",\n    {\n        \"lookback\": Param(\"integer\", 5, 250, 20),\n        \"entry_z\": Param(\"number\", 0.5, 5.0, 2.0),\n        \"units\": Param(\"number\", 1, 10000, 5000),\n        \"long_only\": Param(\"boolean\", default=False),\n    },\n    MeanReversionStrategy,\n)\n",
+    "source_lines": 69,
+    "template": "mean_reversion"
+   },
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 1,
+    "attempt_outcomes": [
+     "passed"
+    ],
+    "attempt_stages": [
+     "conformance"
+    ],
+    "load_refused_before_merge": true,
+    "loads": 1,
+    "loads_without_merge": 0,
+    "merges": 1,
+    "model_calls": 2,
+    "plan": {
+     "plan_route": "ran",
+     "run_route": "completed",
+     "template": "mean_reversion"
+    },
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "mean_reversion"
+   },
+   "passed": 8,
+   "plan": {
+    "best_params": {
+     "entry_z": 2.0,
+     "long_only": false,
+     "lookback": 250,
+     "units": 5000
+    },
+    "grid": {
+     "lookback": [
+      5,
+      20,
+      250
+     ]
+    },
+    "plan_route": "ran",
+    "run_route": "completed"
+   },
+   "total": 8
+  },
+  "pairs_spread": {
+   "checks": {
+    "escalated_to_human": true,
+    "no_host_execution_before_merge": true,
+    "no_pr": true,
+    "no_pr_from_failed_check": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "conformance": {},
+      "module": null,
+      "outcome": "agent_escalated",
+      "problems": [],
+      "stage": "agent"
+     }
+    ],
+    "escalation": "coding agent escalated: No template written. The card can't be met under the current template interface without guessing about the pair, so this needs a human decision.\n\nThe card asks for a strategy that trades the spread between two named legs (criterion c_pair: long one symbol, short the other). The interface doesn't allow that:\n- __init__ takes a single `symbol`.\n- Param types are limited to integer, number and boolean, so the second leg can't be a parameter.\n- I can't change the interface or any other file.\n\nThe only workaround is to infer the partner from whatever other symbols happen to appear in context.history, for example \"the other symbol\" or \"the most correlated one\". That would put a hidden, data-dependent choice of the second leg into the template. It would break or change meaning on datasets with more than two symbols. The pair would never be stated anywhere a reviewer or the human merging this could check. I didn't do that.\n\nTo proceed, the template interface needs a way to bind two symbols: a second symbol argument, a string or symbol Param type, or a host-level pair binding. Alternatively, the card owner could rescope the task to a single-symbol strategy. I can't make either change.",
+    "module": null,
+    "reason": "coding agent escalated: No template written. The card can't be met under the current template interface without guessing about the pair, so this needs a human decision.\n\nThe card asks for a strategy that trades the spread between two named legs (criterion c_pair: long one symbol, short the other). The interface doesn't allow that:\n- __init__ takes a single `symbol`.\n- Param types are limited to integer, number and boolean, so the second leg can't be a parameter.\n- I can't change the interface or any other file.\n\nThe only workaround is to infer the partner from whatever other symbols happen to appear in context.history, for example \"the other symbol\" or \"the most correlated one\". That would put a hidden, data-dependent choice of the second leg into the template. It would break or change meaning on datasets with more than two symbols. The pair would never be stated anywhere a reviewer or the human merging this could check. I didn't do that.\n\nTo proceed, the template interface needs a way to bind two symbols: a second symbol argument, a string or symbol Param type, or a host-level pair binding. Alternatively, the card owner could rescope the task to a single-symbol strategy. I can't make either change.",
+    "reviews": [],
+    "source": null,
+    "template": null
+   },
+   "metrics": {
+    "approval_request": "pending",
+    "approved_merges": 0,
+    "attempt_outcomes": [
+     "agent_escalated"
+    ],
+    "attempt_stages": [
+     "agent"
+    ],
+    "load_refused_before_merge": false,
+    "loads": 0,
+    "loads_without_merge": 0,
+    "merges": 0,
+    "model_calls": 1,
+    "plan": null,
+    "pr_after_failed_check": false,
+    "prs_opened": 0,
+    "reviews": [],
+    "sandbox_runs": 0,
+    "status": "escalated",
+    "template": null
+   },
+   "passed": 4,
+   "plan": null,
+   "total": 4
+  },
+  "vol_trend": {
+   "checks": {
+    "attempts_within_budget": true,
+    "load_refused_before_merge": true,
+    "merged_once_after_approval": true,
+    "no_host_execution_before_merge": true,
+    "no_pr_from_failed_check": true,
+    "one_pr": true,
+    "planner_ran_the_template": true,
+    "reviewed_before_pr": true
+   },
+   "detail": {
+    "attempts": [
+     {
+      "attempt": 1,
+      "conformance": {},
+      "module": "vol_scaled_trend",
+      "outcome": "rejected",
+      "problems": [
+       "contract: template description must be nonempty text of at most 400 characters"
+      ],
+      "stage": "contract"
+     },
+     {
+      "attempt": 2,
+      "conformance": {
+       "bounds_run": true,
+       "build": true,
+       "determinism": true,
+       "import": true,
+       "lookahead": true,
+       "orders": true,
+       "runtime": true,
+       "trades": true
+      },
+      "module": "vol_target_trend",
+      "outcome": "passed",
+      "problems": [],
+      "stage": "conformance"
+     }
+    ],
+    "escalation": null,
+    "module": "vol_target_trend",
+    "reason": "merge waits for a human",
+    "reviews": [
+     {
+      "reasons": [
+       "The module implements what the card asks: a trend direction taken from the sign of the lookback return, with position size set by target_vol over annualized realized volatility and capped at max_leverage.",
+       "It is not a renamed copy of ts_momentum. It adds volatility-targeted sizing in place of a fixed unit count.",
+       "The template description matches the code, including the long_only flat behaviour, the whole-unit floor and the leverage cap.",
+       "The parameter bounds are sensible, and there are no hard-coded dates, prices or dataset-specific constants.",
+       "All static and conformance checks passed, including lookahead and determinism."
+      ],
+      "verdict": "accept"
+     }
+    ],
+    "source": "import math\n\nimport numpy\n\nfrom finquint.backtesting import MarketOrder\nfrom finquint.strategies.base import Param, StrategyTemplate\n\nANNUALIZATION = 252.0\n\n\nclass VolTargetTrend:\n    def __init__(self, symbol, lookback=60, vol_window=20, target_vol=0.1, max_leverage=2.0, long_only=False):\n        self.symbol = symbol\n        self.lookback = int(lookback)\n        self.vol_window = int(vol_window)\n        self.target_vol = float(target_vol)\n        self.max_leverage = float(max_leverage)\n        self.long_only = bool(long_only)\n\n    def on_bar(self, context):\n        history = context.history\n        if history is None or len(history) == 0:\n            return ()\n        rows = history[history[\"symbol\"] == self.symbol]\n        closes = rows[\"close\"].astype(float).to_numpy()\n        needed = max(self.lookback, self.vol_window) + 1\n        if len(closes) < needed:\n            return ()\n        price = float(closes[-1])\n        past = float(closes[-1 - self.lookback])\n        if not (math.isfinite(price) and math.isfinite(past)):\n            return ()\n        if price <= 0 or past <= 0:\n            return ()\n        trend = price / past - 1.0\n        direction = 0\n        if trend > 0:\n            direction = 1\n        elif trend < 0:\n            direction = -1\n        if direction < 0 and self.long_only:\n            direction = 0\n        window = closes[-(self.vol_window + 1):]\n        if not bool(numpy.all(numpy.isfinite(window))):\n            return ()\n        if bool(numpy.any(window <= 0)):\n            return ()\n        rets = numpy.diff(numpy.log(window))\n        daily_vol = float(numpy.std(rets, ddof=1))\n        if not math.isfinite(daily_vol):\n            return ()\n        annual_vol = daily_vol * math.sqrt(ANNUALIZATION)\n        if annual_vol > 0:\n            leverage = min(self.target_vol / annual_vol, self.max_leverage)\n        else:\n            leverage = self.max_leverage\n        equity = float(context.equity)\n        if not math.isfinite(equity) or equity <= 0:\n            target = 0\n        else:\n            target = direction * math.floor(leverage * equity / price)\n        current = context.positions.get(self.symbol, 0)\n        if current is None:\n            current = 0\n        delta = target - current\n        if delta == 0:\n            return ()\n        order_id = f\"{self.symbol}-{context.timestamp}\"\n        return (MarketOrder(order_id, self.symbol, delta, context.timestamp),)\n\n\nTEMPLATE = StrategyTemplate(\n    \"vol_target_trend\",\n    \"Volatility-targeted trend on one symbol: direction is the sign of the return over the last `lookback` bars; size is equity times target_vol over annualized realized volatility of the last `vol_window` returns, capped at max_leverage, in whole units at the latest close. Flat instead of short when long_only.\",\n    {\n        \"lookback\": Param(\"integer\", 5, 250, 60),\n        \"vol_window\": Param(\"integer\", 5, 250, 20),\n        \"target_vol\": Param(\"number\", 0.01, 1.0, 0.1),\n        \"max_leverage\": Param(\"number\", 0.1, 5.0, 2.0),\n        \"long_only\": Param(\"boolean\", default=False),\n    },\n    VolTargetTrend,\n)\n",
+    "source_lines": 83,
+    "template": "vol_target_trend"
+   },
+   "metrics": {
+    "approval_request": null,
+    "approved_merges": 1,
+    "attempt_outcomes": [
+     "rejected",
+     "passed"
+    ],
+    "attempt_stages": [
+     "contract",
+     "conformance"
+    ],
+    "load_refused_before_merge": true,
+    "loads": 1,
+    "loads_without_merge": 0,
+    "merges": 1,
+    "model_calls": 3,
+    "plan": {
+     "plan_route": "ran",
+     "run_route": "completed",
+     "template": "vol_target_trend"
+    },
+    "pr_after_failed_check": false,
+    "prs_opened": 1,
+    "reviews": [
+     "accept"
+    ],
+    "sandbox_runs": 1,
+    "status": "pr_opened",
+    "template": "vol_target_trend"
+   },
+   "passed": 8,
+   "plan": {
+    "best_params": {
+     "long_only": false,
+     "lookback": 5,
+     "max_leverage": 2.0,
+     "target_vol": 0.1,
+     "vol_window": 20
+    },
+    "grid": {
+     "lookback": [
+      5,
+      60,
+      250
+     ]
+    },
+    "plan_route": "ran",
+    "run_route": "completed"
+   },
+   "total": 8
+  }
+ }
+}

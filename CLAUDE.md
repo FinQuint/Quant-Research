@@ -24,7 +24,7 @@ executes.* No live trading; never change the numerical algorithms.
 | 7 Full-stack soak | Host `Stack`, 72 h simulated campaign with faults, durable-state scorer; then a real model (Claude first) | **Done** — simulated soak PR #22; Claude plug, sweeps, rebuild switches, Claude soak 17/17 PRs #23–#28 (e9be795) |
 | 8 Failure recovery ladder | Triage, repair agent + reflection, guards, blind validator + sampling, escalation packet, lessons/known fixes | **Done** — PR #29 (e5dfa18), eval 49/49; Claude as repair agent + validator 22/22 ($0.20), PR #30 (2fdd851) |
 | 9 Planning layer | Catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, plan checks, templates | **Done** — merged to `main` as PR #33 (cb3d12c), eval 51/51; Claude as planner + reviewer 13/13 ($0.19), PR #34 (b4ce1f3) |
-| 10 Coding agent | New strategy templates only: host-built patch, scope/static/contract checks, sandboxed conformance suite, revision loop, blind code review, `agent/*` PR, human merge | **Built, not merged** — spec v0.8.1, ADR-023; `orchestration/coding/`, eval 72/72 on `feature/coding-agent` |
+| 10 Coding agent | New strategy templates only: host-built patch, scope/static/contract checks, sandboxed conformance suite, revision loop, blind code review, `agent/*` PR, human merge | **Done** (simulated agents) — merged to `main` as PR #35 (ab12da6), spec v0.8.1, ADR-023, eval 72/72; Claude as coding agent + reviewer 28/28 ($0.39), agent PR #36 (open, human decides) |
 
 Each phase is done only when its **exit test** in the spec passes. Update this table when a phase lands.
 
@@ -585,3 +585,11 @@ The Claude project "Agentic Workflow" keeps a mirror in `claude/session-governan
   `tests/test_orchestration_coding.py`, EVALS.md section. Suite: 642 passed (584 + 58); Phase 4–9 evals
   unchanged. Not committed. Next: review, commit, PR; then the Claude run (coding agent + reviewer, real
   `agent/*` PR, paid, confirm first).
+- 2026-11-25: PR #35 (Phase 10) merged (ab12da6, by the user with admin bypass; CI green on 3.10–3.12). Suite on
+  main: 642 passed. Created `feature/claude-coding` for the Claude run (coding agent + reviewer, real `agent/*` PR).
+- 2026-11-25: Claude coding run on `feature/claude-coding`: `demos/claude_coding.py` (pinned package view, stable
+  runtime evidence, `--publish`), recording/scores, `tests/test_orchestration_claude_coding.py`, EVALS.md. Live: 28/28,
+  9 calls, $0.39. 3 templates accepted and planned (mean_reversion, channel_breakout, vol_target_trend); pairs
+  spread escalated by the agent. 2 of 3 first attempts broke the 400-char description limit, which `CODER_SYSTEM`
+  (protected) never states. Open: state it in the prompt. Real agent PR #36 (`agent/claude-mean-reversion`) is
+  open for the user to merge or close. Real-model spend: $8.23.

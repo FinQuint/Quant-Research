@@ -4,4 +4,6 @@ The coding agent writes one new module per template; the host rewrites this file
 TEMPLATE. A change here arrives only through a reviewed PR on an agent/* branch, merged by a human.
 """
 
-AGENT_TEMPLATES = ()
+from .mean_reversion import TEMPLATE as _mean_reversion
+
+AGENT_TEMPLATES = (_mean_reversion,)

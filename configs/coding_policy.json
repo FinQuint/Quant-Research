@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "max_revision_attempts": 2,
+  "max_module_lines": 200,
+  "sandbox_timeout_seconds": 60,
+  "max_backtest_seconds": 20,
+  "output_cap_bytes": 65536,
+  "conformance_dataset": "demo_prices@1",
+  "lookahead_cutoffs": 3,
+  "branch_prefix": "agent/",
+  "allowed_imports": {
+    "math": "*",
+    "numpy": "*",
+    "pandas": "*",
+    "finquint.backtesting": ["MarketOrder"],
+    "finquint.strategies.base": ["Param", "StrategyTemplate"]
+  }
+}

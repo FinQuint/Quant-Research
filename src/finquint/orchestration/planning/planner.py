@@ -10,7 +10,7 @@ import time
 
 from finquint.autonomous import RetryableError
 from finquint.autonomous.models import canonical, digest
-from finquint.strategies import TEMPLATES
+from finquint import strategies
 
 from ..context.tags import evidence_line
 from ..gate.decide import ProposedAction
@@ -105,11 +105,13 @@ class PlanOutcome:
     final_run_id: str = None
 
 
-def catalog_view(card, catalog, policy):
-    """What the planner may use: card-pinned datasets, templates, methods and limits."""
+def catalog_view(card, catalog, policy, templates=None):
+    """What the planner may use: card-pinned datasets, templates, methods and limits. templates:
+    name -> StrategyTemplate (default: the package registry)."""
+    templates = strategies.TEMPLATES if templates is None else templates
     pinned = dict(card.dataset_versions)
     datasets = [e.describe() for e in catalog.entries() if pinned.get(e.dataset_id) == e.version]
-    return {"datasets": datasets, "strategies": [t.describe() for _, t in sorted(TEMPLATES.items())],
+    return {"datasets": datasets, "strategies": [t.describe() for _, t in sorted(templates.items())],
             "methods": {m: METHOD_DOCS[m] for m in sorted(policy.planner_methods) if m in METHOD_DOCS},
             "limits": {"max_plan_calls": policy.max_plan_calls,
                        "cost_budget": dict(card.budget_limits).get("plan_cost", policy.default_plan_budget),
@@ -178,10 +180,11 @@ def plan_shape(proposal, card):
 class PlanningService:
     """stack: orchestration.host.Stack (its registry must be planning_registry(catalog)). planner /
     reviewer: ModelCallers (None: agent-written plans escalate). pricing(reply) -> USD (unused for
-    limits here; recorded via the stack's spend where relevant)."""
+    limits here; recorded via the stack's spend where relevant). templates: the strategy templates
+    the planner is shown (default: the package registry); pass the same table to planning_registry."""
 
-    def __init__(self, stack, *, catalog, policy, planner=None, reviewer=None, clock=time.time):
-        self.stack, self.catalog, self.policy = stack, catalog, policy
+    def __init__(self, stack, *, catalog, policy, planner=None, reviewer=None, clock=time.time, templates=None):
+        self.stack, self.catalog, self.policy, self.templates = stack, catalog, policy, templates
         self.planner, self.reviewer, self.clock = planner, reviewer, clock
         self.db, self.audit = stack.db, stack.audit
         self.db.executescript(_SCHEMA)
@@ -247,7 +250,7 @@ class PlanningService:
             return self._run(card, check, proposal, "template", objective_key)
         if self.planner is None:
             return self._escalate(run_id, "no planner agent configured and no template matches", {})
-        view = catalog_view(card, self.catalog, self.policy)
+        view = catalog_view(card, self.catalog, self.policy, self.templates)
         evidence = trusted_evidence(evidence)
         history = []
         for attempt in range(1, self.policy.max_plan_attempts + 1):

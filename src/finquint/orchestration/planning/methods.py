@@ -14,7 +14,7 @@ from finquint.autonomous import Method
 from finquint.autonomous.adapters import risk_registry
 from finquint.backtesting import BacktestConfig, EventDrivenBacktester
 from finquint.performance.metrics import summarize_performance
-from finquint.strategies import template
+from finquint import strategies
 
 from ..verify.invariants import check_lookahead
 from .catalog import WINDOWS
@@ -34,7 +34,19 @@ def _returns(result):
     return [float(r) for r in returns]
 
 
-def _run(catalog, ref, window, strategy_name, params, cost):
+def lookup_for(templates=None):
+    """template(name) over `templates` (a name -> StrategyTemplate mapping), or the package registry."""
+    if templates is None:
+        return strategies.template
+
+    def template(name):
+        if name not in templates:
+            raise ValueError(f"strategy template is not registered: {name}")
+        return templates[name]
+    return template
+
+
+def _run(catalog, ref, window, strategy_name, params, cost, template=strategies.template):
     data = catalog.load(ref, window)
     entry = catalog.get(ref)
     tpl = template(strategy_name)
@@ -50,7 +62,7 @@ def _score(returns, objective):
     return None if value is None or not isfinite(value) else float(value)
 
 
-def _common_input(parameters, catalog, *, keys):
+def _common_input(parameters, catalog, *, keys, template=strategies.template):
     extra = set(parameters) - keys
     if extra:
         raise ValueError(f"unknown parameters: {sorted(extra)}")
@@ -63,9 +75,12 @@ def _common_input(parameters, catalog, *, keys):
         raise ValueError("cost_bps must be a number in [0, 50]")
 
 
-def make_methods(catalog):
+def make_methods(catalog, templates=None):
+    template = lookup_for(templates)
+
     def search_input(p):
-        _common_input(p, catalog, keys={"dataset", "strategy", "window", "grid", "objective", "cost_bps"})
+        _common_input(p, catalog, keys={"dataset", "strategy", "window", "grid", "objective", "cost_bps"},
+                      template=template)
         if p["window"] != "train":
             raise ValueError("parameter_search may only read the train window")
         if p.get("objective", "sharpe_ratio") not in OBJECTIVES:
@@ -87,7 +102,7 @@ def make_methods(catalog):
         scores = []
         for combo in product(*grid.values()):
             params = template(p["strategy"]).resolve(dict(zip(grid, combo)))
-            _, result = _run(catalog, p["dataset"], "train", p["strategy"], params, _config(p))
+            _, result = _run(catalog, p["dataset"], "train", p["strategy"], params, _config(p), template)
             scores.append({"params": params, "score": _score(_returns(result), objective)})
         valid = [s for s in scores if s["score"] is not None]
         if not valid:
@@ -105,7 +120,8 @@ def make_methods(catalog):
                                 f"{len(output['scores'])} combinations on the train window; best re-derived")
 
     def backtest_input(p):
-        _common_input(p, catalog, keys={"dataset", "strategy", "window", "params", "params_from", "cost_bps"})
+        _common_input(p, catalog, keys={"dataset", "strategy", "window", "params", "params_from", "cost_bps"},
+                      template=template)
         if ("params" in p) == ("params_from" in p):
             raise ValueError("give exactly one of params or params_from")
         if "params" in p:
@@ -123,7 +139,7 @@ def make_methods(catalog):
 
     def backtest(p, context):
         params = backtest_params(p, context)
-        data, result = _run(catalog, p["dataset"], p["window"], p["strategy"], params, _config(p))
+        data, result = _run(catalog, p["dataset"], p["window"], p["strategy"], params, _config(p), template)
         returns = _returns(result)
         return {"window": p["window"], "strategy": p["strategy"], "params": params, "bars": len(data),
                 "returns": returns, "fills": len(result.fills),
@@ -178,9 +194,10 @@ def _grid_size(grid):
     return size
 
 
-def planning_registry(catalog):
-    """risk_registry() plus the planner methods bound to `catalog`."""
+def planning_registry(catalog, templates=None):
+    """risk_registry() plus the planner methods bound to `catalog`. templates: name -> StrategyTemplate
+    (default: the package registry, finquint.strategies.TEMPLATES)."""
     registry = risk_registry()
-    for method in make_methods(catalog):
+    for method in make_methods(catalog, templates):
         registry.register(method)
     return registry

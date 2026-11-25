@@ -36,6 +36,8 @@ DEFAULT_PROTECTED_PATHS = (
     "src/finquint/orchestration/retention.py",
     # Planning routing, templates and the dataset catalog (Phase 9).
     "src/finquint/orchestration/planning",
+    # Coding agent scope, static checks, sandbox and conformance suite (Phase 10).
+    "src/finquint/orchestration/coding",
     # Files that change how tests run or who must review.
     ".github",
     "CODEOWNERS",

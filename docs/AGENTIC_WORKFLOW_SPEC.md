@@ -1,5 +1,5 @@
 > Repo copy of the Claude Doc spec (v0.1, 2026-10-30). Live doc: https://claude.ai/artifact/A8HdytgAaEqZrKU8o1dijF
-> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8); v0.5 folds the Phase 7 real-model decisions into ADR-021; v0.6 records the review: every ADR accepted, open questions answered. v0.7 proposes the planning layer (ADR-022, roadmap Phase 9) for review.
+> Implementation decisions from Phases 1–6 (recorded in `CLAUDE.md`, "Decisions") are folded in as ADR-009 to ADR-018 (v0.2, proposed). `CLAUDE.md` keeps the detailed notes. v0.4 adds the failure recovery ladder (ADR-020, roadmap Phase 8); v0.5 folds the Phase 7 real-model decisions into ADR-021; v0.6 records the review: every ADR accepted, open questions answered. v0.7 proposes the planning layer (ADR-022, roadmap Phase 9) for review. v0.8 proposes the coding agent (ADR-023, roadmap Phase 10); v0.8.1 settles it.
 
 # FinQuint Reliable Agentic Workflow — Architecture Spec
 
@@ -7,11 +7,11 @@ Oct 30, 2026 · @Yunan Xie
 
 ## Document control
 
-This is the single source of truth for the FinQuint orchestration architecture; version 0.7.1, reviewed.
+This is the single source of truth for the FinQuint orchestration architecture; version 0.8.1, reviewed.
 
 | Field | Value |
 | --- | --- |
-| Version | 0.7.1 (reviewed) |
+| Version | 0.8.1 (reviewed) |
 | Supersedes | ChatGPT design thread "Autonomous Workflow Architecture" (HITL gate, context management, dynamic knowledge) |
 | Owner | Project lead |
 | Review cadence | Every architecture change, and monthly while in build |
@@ -65,7 +65,7 @@ Agents never touch side effects directly. Outputs are verified, then gated; only
 
 ## Architecture decision records
 
-Twenty-two decisions define the system; all are accepted (ADR-001 to ADR-021 in the 2026-11-23 review, ADR-022 with its open questions the same day; ADR-004 and ADR-008 stay superseded). Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-022 record what the build phases decided (dates are when each was decided).
+Twenty-three decisions define the system; all are accepted (ADR-001 to ADR-021 in the 2026-11-23 review, ADR-022 with its open questions the same day, ADR-023 on 2026-11-24; ADR-004 and ADR-008 stay superseded). Supersede an ADR by adding a new row and setting the old one to Superseded. ADR-001 to ADR-008 are the original design; ADR-009 to ADR-022 record what the build phases decided (dates are when each was decided).
 
 | ADR | Decision | Why | Status |
 | --- | --- | --- | --- |
@@ -91,6 +91,7 @@ Twenty-two decisions define the system; all are accepted (ADR-001 to ADR-021 in 
 | ADR-020 | (2026-11-23) Failures climb a recovery ladder; an LLM is never called for work the policy path completes. A deterministic triage table (`configs/recovery_policy.json`) sends each failure to one tier: transient errors get blind retries (ADR-011) and then a human; forbidden actions BLOCK; only fixable failures (hard gate failed, input rejected, method error) on a method with a recovery rule reach the repair agent. The repair agent proposes a revised call (parameters within declared bounds, or a swap to a listed alternative method), never code, together with a structured reflection; deterministic guards (bounds, frozen parameters, novelty against every earlier attempt, reflection consistent with the actual diff, invariants) and the unchanged hard gates check it. Repair attempts are 2 per failure (tune). A repaired result is accepted only after a blind validator agent, which sees the task card, the original and final call and the result but none of the repair agent's reasoning, accepts it; it can reject or escalate, never override a hard gate. It also audits a deterministic sample of policy-path successes (rate (tune), default 0). Everything else goes to a human with an escalation packet through signed approvals. Accepted repairs become provisional lessons; a human can turn a repeated lesson into a deterministic known-fix rule | Agents take over only where policy cannot decide; every agent proposal is verified by code and by an independent check, and the policy path absorbs repeated fixes over time | Accepted |
 | ADR-021 | (2026-11-15, Phase 7; refines ADR-016 to ADR-019) Real models plug into the socket as optional installs. `ClaudePlug` defaults (all (tune)): `claude-opus-5-5`, effort high, window capped at 200 000 tokens because budgets are a share of the window, thinking headroom added to `max_tokens`; SYSTEM segments become the system prompt with one cache breakpoint on the last stable segment; 408/409/429/5xx and connection errors are `ModelUnavailable`, other 4xx and a refusal are `ModelRefused`; server-side refusal fallbacks are off; exact token counting is opt-in. Real-model runs are demos (`orchestration/demos/`), never CI gates: replies are recorded by request digest with a normalized-key fallback (long decimals to 12 significant digits) for last-digit float differences across Python versions, and CI replays them offline. Fixes measured on real models: the context switches `prioritize_uncited` and `escalate_identical_rebuild` are on in `context_policy.json` (Phase 5 baseline re-recorded); every report uses one shared prompt (`REPORT_SYSTEM`: write non-metric numbers in words); the numeral check matches request identifiers ignoring case (identifiers always contain a letter); the citation check resolves a tag-form version `vN` to `N` only when no exact `vN` exists. The soak checks fault reports by ID and allows 0 routine report escalations; "human input on routine work" means an approval request for, or a recovery of, a research run (approvals of policy-listed merges are expected). A dataset version change also demotes verified claims whose supports, transitively, rest on old-version evidence | Every model meets the same safety behavior, recorded evidence replays deterministically, and each fix came from a measured real-model failure without letting an untraced number or an unverified citation through | Accepted |
 | ADR-022 | (2026-11-23) A planner agent turns a task card into a plan proposal, choosing only from a host-owned catalog: registered methods (with their parameter schemas), strategy templates and versioned datasets with frozen splits, read through a `DatasetCatalog` interface (first backed by protected `configs/datasets.json`; later fed by a governed data agent). It never writes code and never names a file. Deterministic plan checks (`verify/plans.py`) run before anything executes: every method is in the planner allowlist and its input validator passes; every dataset reference is a pinned `id@version` whose content hash matches the catalog; no tuning call reads the test window of the frozen split; the graph is acyclic and within the size and estimated-cost limits of the card; every acceptance criterion is covered by at least one call; approval-requiring methods route to REQUEST\_HUMAN. Every planner-written plan that passes the checks is then reviewed by the blind validator against the card before it runs (the planner's rationale is withheld); a reject or escalate goes to a human. The planner sees the card, the catalog and verified evidence only. A rejected plan goes back to the planner with the check results, up to 2 plan attempts (tune), then a human. Policy first: an objective that matches a human-approved plan template runs it with no model call, and accepted plans for recurring objectives become template proposals for a human, as recovery lessons do (ADR-020). An accepted plan becomes a `Request` and runs on the existing path (Planner digest, gates, recovery ladder, validator, reports) unchanged | Planning is the last step a human still does by hand; the catalog and the checks keep an agent-written plan inside what the host already trusts, and the evaluator stays out of its reach | Accepted |
+| ADR-023 | (2026-11-24) A coding agent writes new strategy templates, and nothing else, from a task card. It proposes the whole source of one new module under `src/finquint/strategies/`; the host writes the file, adds the registration (host-generated `src/finquint/strategies/agent_templates.py`) and computes the patch and `diff_sha` itself, so the agent never writes a diff or names a path and every touched path comes from the host (ADR-012). Deterministic checks run before anything executes: scope (exactly the new module plus the host-written registration, no protected path), a static AST check (import allowlist; no file, process, network or OS access; no `eval`, `exec`, `compile` or dynamic imports; size limit) and the template contract (one `StrategyTemplate` export with finite bounds and in-bounds defaults). The code then runs only in a sandbox: a temporary directory holding only the candidate module and the bars it is tested on, a separate `python -I` process with a stripped environment (no approval, capability or model keys), a wall-clock timeout and an output cap, executing the protected template conformance suite (`orchestration/coding/conformance.py`: import and build at defaults and bounds, determinism, lookahead truncation, well-formed orders, at least one trade, runtime) on a pinned dataset's train window; the full test suite at the merged state runs in CI on the `agent/*` PR. The sandbox contains honest mistakes; it is not a security boundary (the static check is the first line; a container backend can replace it behind a `Sandbox` interface). Agent code never runs in the host process before a human merges it. A failed check goes back to the agent with the results, up to 2 revision attempts (tune) with the novelty guard of ADR-020, then a human. A passing patch is reviewed by the blind validator against the card (source, description and check results; the agent's rationale withheld); reject or escalate goes to a human. An accepted patch becomes a PR on `agent/<task_id>` (`open_pr`, external, through the outbox), where CI fails any protected-path change; `merge_to_main` stays REQUEST\_HUMAN with a signed approval. The acceptance bar for a new template is conformance and invariants, not performance: how good it is is a research question the planner answers with `backtest` on the frozen split. Changes to existing templates (later scope) are accepted only through `judge_improvement` out of sample. The planner sees a template only once it is merged and on the current code SHA | Code is the riskiest thing an agent writes; a narrow write scope, host-built patches, static and sandboxed checks against a protected suite, a blind review and a human merge keep the evaluator and the host out of its reach, while new strategies stop needing a human author | Accepted |
 
 ## Human Intervention Gate
 
@@ -283,6 +284,63 @@ Today a human writes every research request: which methods, which parameters, wh
 
 **Routing**: a plan that passes the checks and the review runs (AUTO\_CONTINUE) unless it contains an approval-requiring method or exceeds the card's budget, which go to a signed approval. A rejected plan returns to the planner with the check results; after 2 (tune) plan attempts, a human. Every proposal, check result and decision is stored durably, as in the recovery ladder.
 
+## Coding agent (Phase 10)
+
+The planner can only choose templates from the catalog (Phase 9), so a new strategy still needs a human author. The coding agent writes a new strategy template from a task card; deterministic code decides whether it is checked, reviewed and offered to a human to merge. First scope: **new strategy templates only**. Edits to existing templates, other analytics and any protected path are out of scope.
+
+```
+ task card ─► Coding agent ◄──────────── check results (attempts left)
+                 │ proposal: module source + template spec      │
+                 ▼                                              │ fail
+     host writes module + registration, builds patch            │
+                 ▼                                              │
+     scope + static + contract checks (no execution) ───────────┤
+                 │ pass                                         │
+                 ▼                                              │
+     sandbox: protected conformance suite ──────────────────────┘
+                 │ pass                       attempts spent ─► Human
+                 ▼
+     blind code review (validator) ──reject / escalate──► Human
+                 │ accept
+                 ▼
+     open_pr on agent/<task_id> (outbox) ─► CI (agent/* may not touch protected paths)
+                 ▼
+     merge_to_main ─► REQUEST_HUMAN (signed approval) ─► merged ─► new code SHA
+                 ▼
+     re-index; the planner's catalog lists the template
+```
+
+**Proposal** (schema-checked by the model core): `module` (a new snake-case name not already in `src/finquint/strategies/`), `source` (the whole module text), `template` (name, description and parameters with kind, bounds and default, as `StrategyTemplate` declares them), `criteria` (which card criterion each part serves), or `escalate` with a reason. The agent never sends a diff or a path: the host writes `src/finquint/strategies/<module>.py`, regenerates `src/finquint/strategies/agent_templates.py` (one import per agent template; a hand-edited file fails closed), then computes the patch and its `diff_sha`. The package registry adds every template listed there; the planner sees one only after its merge.
+
+**Checks before execution** (deterministic; any failure rejects the attempt)
+
+| Check | Rejects |
+| --- | --- |
+| Scope | Any path other than the new module and the host-written registration; a module name that exists; any protected path (ADR-012) |
+| Static (AST) | Imports outside the allowlist (`math`, `numpy`, `pandas`, `finquint.backtesting`); file, process, network or OS access; `eval`, `exec`, `compile`, `__import__`, `importlib`, dunder attribute access, `globals`; module-level statements other than imports, definitions and constants; more than `max_module_lines` (tune) |
+| Contract | No `StrategyTemplate` export; a strategy class without `on_bar`; parameters without finite bounds or with a default outside them; a template name already registered |
+
+**Sandbox** (containment, not a security boundary): a temporary directory holding only the candidate module and the train-window bars; a separate `python -I` process (no `PYTHON*` variables, no user site, script directory not on the path) whose environment keeps only what the interpreter needs to start (no approval, capability or model keys), with the host's source tree on its path for the trusted suite and the module loaded from its file; wall-clock timeout `sandbox_timeout_seconds` (tune) and an output cap; the worktree is removed afterwards. It runs the protected conformance suite and prints one marked JSON result line (the static check bans `print`, so the module cannot forge it); nothing from the sandbox is imported into the host. Behind a `Sandbox` interface so a container backend can replace it. The registration and the rest of the tree at the merged state are tested by the full CI suite on the `agent/*` PR, not here.
+
+**Conformance suite** (`orchestration/coding/conformance.py`, protected), on a pinned catalog dataset's train window only:
+
+| Test | Rejects |
+| --- | --- |
+| Import and build | An import error; `build()` failing at the defaults or at each parameter's bounds |
+| Determinism | Two runs on the same data and parameters with different orders |
+| Lookahead | Orders up to a cutoff that change when later bars are removed (`check_lookahead`) |
+| Orders | Orders for an unknown symbol, non-finite or zero quantities, or a timestamp other than a bar's |
+| Trades | No order at all over the window at the defaults |
+| Runtime | A backtest over the window slower than `max_backtest_seconds` (tune) |
+
+**Blind code review**: the validator sees the card, the module source, the template description and the check results, never the agent's rationale or earlier attempts. It looks for goal drift (the code does not do what the card asks, such as a renamed copy of an existing template) and for what the checks cannot see (dates or prices hard-coded to fit the dataset). It returns a verdict and one finding per criterion; reject or escalate goes to a human, never back to the agent (as in ADR-020).
+
+**Revision loop**: a failed check returns to the agent with the results verbatim; the next proposal (module name and source together) must differ from every earlier one (novelty guard); 2 attempts (tune), then a human with an escalation packet (card, every attempt and every check result).
+
+**PR path**: `open_pr` is an `external` tool through the ledger and outbox (a crash cannot open a duplicate PR), on branch `agent/<task_id>`; CI's protected-path step fails any protected change on that branch. `merge_to_main` stays REQUEST\_HUMAN. In evals and CI the remote is simulated; a live demo may push a real branch and open a real PR, but never merges.
+
+**Acceptance bar**: conformance and invariants. Performance is not a merge criterion for a new template; the planner measures it with `backtest` on the frozen split. Changing an existing template (later scope) is accepted only through `judge_improvement` out of sample.
+
 ## Context and knowledge layer
 
 One deterministic `context/` package builds every LLM request from a pinned task card plus selected evidence; it merges the draft's separate Context Manager and Adaptive Context Controller.
@@ -420,6 +478,13 @@ orchestration/
 │   ├── catalog.py         # methods, strategy templates, datasets, plan templates
 │   ├── planner.py         # planner agent request/reply, plan attempts, routing
 │   └── templates.py       # template matching (no model call), template proposals
+├── coding/
+│   ├── policy.py          # configs/coding_policy.json: limits, import allowlist
+│   ├── proposal.py        # coding agent request/reply; host-built module, registration and patch
+│   ├── static.py          # scope, AST and contract checks (no execution)
+│   ├── sandbox.py         # Sandbox interface; temp dir + python -I subprocess backend
+│   ├── conformance.py     # protected template conformance suite (runs inside the sandbox)
+│   └── loop.py            # revision attempts, blind review, open_pr, escalation packet
 ├── recovery/
 │   ├── triage.py          # failure taxonomy -> tier (recovery_policy.json)
 │   ├── repair.py          # repair agent request/reply, reflection schema
@@ -456,7 +521,8 @@ Build safety against irreversible harm first, then the means to measure, then qu
    - Exit: on the golden suite plus recovery faults, with simulated agents: 0 LLM calls on clean tasks and on transient faults; every fixable fault solved within 2 attempts and accepted by the validator; every unfixable fault escalated with a complete packet; 0 gate-gaming repairs accepted (caught by guards or the validator); a repeated proposal escalates on the novelty guard; a promoted known fix runs with 0 LLM calls. Measured from durable state; then the same suite with a real model through the socket.
 9. **Planning layer**: catalog (methods, strategy templates, pinned datasets, plan templates), planner agent, deterministic plan checks, blind plan review, template matching, and the `parameter_search`, `backtest` and `performance_summary` methods.
    - Exit: on golden objectives with a simulated planner, every executed plan passed every check and 0 plans that failed a check executed; in-catalog objectives complete with every criterion covered and every reported number traced; an out-of-catalog objective escalates with 0 calls executed; a plan that tunes on the test window, uses an unpinned dataset, misses a criterion or exceeds the budget is rejected and either repaired within 2 attempts or escalated; a template-matched objective runs with 0 LLM calls. Measured from durable state; then the same objectives with a real model through the socket.
-10. **Coding agent** (planned): proposals applied in a sandboxed workspace on an `agent/*` branch, tested against the protected evaluator, merged only through the PR path with approval; new strategy templates come from here.
+10. **Coding agent**: new strategy templates only; host-built patches, scope, static and contract checks, a sandboxed protected conformance suite, a revision loop, blind code review, a PR on an `agent/*` branch and a human merge.
+   - Exit: on golden coding objectives with a simulated coding agent: a clean objective ends in one PR, merged only after a signed approval, after which the planner runs a plan with the new template on a pinned dataset to completion; 0 agent-written code executed in the host process before merge, and a module whose merge is rejected is never loaded; each fault is caught by the named layer and then repaired within 2 attempts or escalated: an out-of-scope or protected path (scope), a banned import or file access (static), a strategy that leaks later bars through state shared between runs and a non-deterministic one (conformance; the engine passes only past bars, so a leak needs shared state and is caught as non-determinism), an infinite loop (sandbox timeout), a repeated proposal (novelty), a renamed copy of an existing template (blind review); a crash between outbox and remote opens 0 duplicate PRs. Measured from durable state; then the same objectives with a real model through the socket.
 11. **Data agent** (planned): governed ingestion from external sources into the `DatasetCatalog` (validation, provenance, versioning, frozen splits); the planner reads only what it registers.
 
 ## Open questions
@@ -476,6 +542,15 @@ Phase 9 (settled 2026-11-23):
 - [x] Datasets: a `DatasetCatalog` interface, first backed by protected `configs/datasets.json` (SHA-256 hashes, frozen splits); a governed data agent feeds it later (Phase 11).
 - [x] Limits (tune): 2 plan attempts, `max_plan_calls` 12, estimated cost from a per-method cost table.
 - [x] The planner sees verified evidence only (cited by ID and version), never run histories or transcripts.
+
+Phase 10 (settled 2026-11-24):
+
+- [x] Scope: new strategy templates only; edits to existing templates (through `judge_improvement`) and other code later.
+- [x] Sandbox: `python -I` subprocess + stripped environment + timeout behind a `Sandbox` interface, no new dependency; a container backend later. Built with a temporary directory holding only the module and its bars instead of a git worktree (the merged tree is tested by CI on the `agent/*` PR).
+- [x] Acceptance bar for a new template: conformance and invariants only; performance is the planner's question, not a merge gate.
+- [x] Review: blind validator on every patch before the PR, then a human merge.
+- [x] PRs: simulated remote in evals and CI; the live demo pushes a real `agent/*` branch and opens a real PR, never merges.
+- [x] Limits (tune): 2 revision attempts, `max_module_lines` 200, `sandbox_timeout_seconds` 60, `max_backtest_seconds` 20.
 
 - [x] Recovery (tune) starting values: 3 agreeing lessons propose a known fix; the circuit breaker trips at 3 ladder runs in a method's last 10; $0.50 per escalation. A validator reject goes to a human even with repair budget left (settled 2026-11-23).
 
@@ -499,6 +574,8 @@ Phase 9 (settled 2026-11-23):
 | Date | Version | Change |
 | --- | --- | --- |
 | 2026-10-30 | 0.1 | First draft consolidating the ChatGPT design thread with review fixes (ADR-001 to ADR-008) |
+| 2026-11-24 | 0.8.1 | Phase 10 questions settled (all proposed defaults); ADR-023 accepted. Built: sandbox is a temporary directory rather than a worktree (the merged tree is tested by CI on the `agent/*` PR); host-generated `agent_templates.py`; novelty keys on module and source; conformance adds a trades test; the exit test's planner step checks the plan completes |
+| 2026-11-24 | 0.8 | Proposed the coding agent: section, ADR-023 (proposed), roadmap Phase 10 exit test and its open questions |
 | 2026-11-23 | 0.7.1 | Phase 9 questions settled; ADR-022 accepted; roadmap entries for the coding agent (10) and data agent (11) |
 | 2026-11-23 | 0.7 | Proposed the planning layer: section, ADR-022 (proposed), roadmap Phase 9 and its open questions |
 | 2026-11-23 | 0.6.1 | Retention enforced by `orchestration/retention.py`; scope: operational data only |

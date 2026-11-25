@@ -565,3 +565,37 @@ every plan passed the checks on the first attempt and 0 plans ran after a failed
 
 The demo data is synthetic and regime-driven, so the Sharpe ratios it produces (2.7 to 5.2) say
 nothing about real markets; the run measures planning behavior, not strategy quality.
+
+## Coding agent (Phase 10)
+
+```powershell
+python -m finquint.orchestration.evals.coding                   # compare with the baseline
+python -m finquint.orchestration.evals.coding --write-baseline  # humans only
+```
+
+The coding agent (`orchestration/coding/`, protected; spec "Coding agent", ADR-023) writes one new
+strategy template module from a card. The host builds the change (the module under
+`src/finquint/strategies/` and a regenerated `agent_templates.py`) and its patch; scope, AST and
+contract checks run without executing anything; the protected conformance suite then runs in a
+`python -I` subprocess with a stripped environment and a timeout (`SubprocessSandbox`); a blind
+reviewer reads the code and check results (no rationale); an accepted module becomes `open_pr` and
+`merge_to_main` on branch `agent/<run_id>`, and the merge waits for a signed approval. The host loads
+agent code only after a done `merge_to_main` for its exact diff (`CodingService.load_merged`).
+
+13 tasks with `SimulatedCoder` (scripted modules, `coding/examples.py`), `SimulatedCodeReviewer`, the
+real sandbox and the soak's simulated remote, scored from durable state (`coding_*` tables, approval
+records, ledger, the remote's delivery log):
+
+| Kind | Tasks | Result |
+|---|---|---|
+| merged | clean mean-reversion template | one PR; load refused before the merge; merged once after approval; a planner plan with the template completes |
+| merge_rejected | human rejects the merge | never merged, never loaded |
+| no_duplicate | host dies after the remote received `open_pr` | one PR after `recover()` |
+| repaired | existing module name (scope), file access (static), shared-state lookahead (conformance) | caught on attempt 1, PR after attempt 2 |
+| escalated | path as module name (scope), banned imports (static), non-deterministic then repeated (conformance, novelty), infinite loop (sandbox timeout, then novelty), renamed momentum copy (review), coder escalates, schema fault | human, no PR |
+
+Baseline: 72 / 72 criteria; 0 host executions before merge; 0 PRs from failed checks; 0 duplicate
+PRs; 0 unapproved merges; 10 / 10 faults caught by the named layer. The engine only hands a strategy
+past bars, so a lookahead has to leak through state shared between runs; the conformance suite
+catches it as non-determinism before the truncation test. The suite runs the sandbox 10 times
+(about two minutes, including one 10 s timeout).
